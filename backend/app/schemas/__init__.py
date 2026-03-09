@@ -14,10 +14,21 @@ from app.schemas.location import (
     LocationResponse,
 )
 from app.schemas.common import APIResponse
+from app.schemas.combat_session import (
+    CombatantData,
+    CombatSessionCreate,
+    CombatSessionUpdate,
+    CombatSessionResponse,
+    AddCombatantRequest,
+    UpdateCombatantRequest,
+)
 
 __all__ = [
     "CampaignCreate", "CampaignUpdate", "CampaignResponse",
     "PlayerCharacterCreate", "PlayerCharacterUpdate", "PlayerCharacterResponse",
     "LocationCreate", "LocationUpdate", "LocationResponse",
     "APIResponse",
+    "CombatantData",
+    "CombatSessionCreate", "CombatSessionUpdate", "CombatSessionResponse",
+    "AddCombatantRequest", "UpdateCombatantRequest",
 ]

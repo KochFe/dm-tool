@@ -75,4 +75,55 @@ export const api = {
     }),
   deleteLocation: (id: string) =>
     request<void>(`/api/v1/locations/${id}`, { method: "DELETE" }),
+
+  // Dice
+  rollDice: (notation: string) =>
+    request<import("@/types").DiceRollResponse>("/api/v1/dice/roll", {
+      method: "POST",
+      body: JSON.stringify({ notation }),
+    }),
+
+  // Combat Sessions
+  createCombatSession: (campaignId: string, data: import("@/types").CombatSessionCreate) =>
+    request<import("@/types").CombatSession>(`/api/v1/campaigns/${campaignId}/combat-sessions`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  getCombatSessions: (campaignId: string) =>
+    request<import("@/types").CombatSession[]>(`/api/v1/campaigns/${campaignId}/combat-sessions`),
+
+  getCombatSession: (id: string) =>
+    request<import("@/types").CombatSession>(`/api/v1/combat-sessions/${id}`),
+
+  updateCombatSession: (id: string, data: import("@/types").CombatSessionUpdate) =>
+    request<import("@/types").CombatSession>(`/api/v1/combat-sessions/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  deleteCombatSession: (id: string) =>
+    request<void>(`/api/v1/combat-sessions/${id}`, { method: "DELETE" }),
+
+  addCombatant: (sessionId: string, data: import("@/types").AddCombatantRequest) =>
+    request<import("@/types").CombatSession>(`/api/v1/combat-sessions/${sessionId}/combatants`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateCombatant: (sessionId: string, index: number, data: import("@/types").UpdateCombatantRequest) =>
+    request<import("@/types").CombatSession>(`/api/v1/combat-sessions/${sessionId}/combatants/${index}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  removeCombatant: (sessionId: string, index: number) =>
+    request<import("@/types").CombatSession>(`/api/v1/combat-sessions/${sessionId}/combatants/${index}`, {
+      method: "DELETE",
+    }),
+
+  advanceTurn: (sessionId: string) =>
+    request<import("@/types").CombatSession>(`/api/v1/combat-sessions/${sessionId}/next-turn`, {
+      method: "POST",
+    }),
 };

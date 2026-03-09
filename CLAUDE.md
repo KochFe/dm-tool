@@ -46,11 +46,14 @@ Development of a comprehensive digital Dungeon Master (DM) assistant for Dungeon
   * Design database schema (campaign, players, locations).
   * Basic CRUD API for player characters and locations.
   * All 23 backend tests pass. Frontend CRUD fully wired.
-* **Phase 2: Session Mechanics** — IN PROGRESS (next)
-  * Implementation of the dice engine (`POST /api/v1/dice/roll`).
-  * Construction of the initiative tracker including frontend integration.
-* **Phase 3: Relational Data (Prep Mode)**
+* **Phase 2: Session Mechanics** — COMPLETE (2026-03-09)
+  * Dice engine (`POST /api/v1/dice/roll`) with D&D standard notation parsing.
+  * Initiative tracker: `combat_sessions` table, 9 API endpoints, full frontend integration.
+  * DiceRoller and InitiativeTracker components embedded in campaign detail page.
+  * All 60 backend tests pass. Frontend builds clean.
+* **Phase 3: Relational Data (Prep Mode)** — next
   * Database expansion: NPCs and quests.
+  * Full character sheet fields: ability scores (STR/DEX/CON/INT/WIS/CHA), saving throw proficiencies, skill proficiencies, proficiency bonus, speed, spell slots — migrate `player_characters` table.
   * Logic for linking NPCs/quests to locations.
   * UI filtering based on the global campaign state.
 * **Phase 4: AI Base Integration**
@@ -90,11 +93,11 @@ Development of a comprehensive digital Dungeon Master (DM) assistant for Dungeon
 | frontend | 3000 | ./frontend (Next.js)|
 | adminer  | 8080 | adminer             |
 
-### Known Frontend Gaps (pre-Phase 2)
+### Known Frontend Gaps
 * `passive_perception` has no UI input — defaults to 10
 * Campaign `description` field has no UI
-* No error handling on write operations — failures produce unhandled promise rejections
-* FastAPI 422 errors render as `[object Object]` (need to serialize `detail` array)
+* No error handling on write operations in Character/Location sections — failures produce unhandled promise rejections (DiceRoller and InitiativeTracker have proper error handling)
+* FastAPI 422 errors render as `[object Object]` (need to serialize `detail` array) — DiceRoller has component-level mitigation
 
 ---
 
@@ -102,6 +105,6 @@ Development of a comprehensive digital Dungeon Master (DM) assistant for Dungeon
 
 | File | Description |
 |------|-------------|
-| `CLAUDE.md` | This file — architecture rules, tech stack, roadmap, conventions |
+| `CLAUDE.md` | This file — architecture rules, tech stack, roadmap, conventions (gitignored, local only) |
 | `PROJECT-HANDOVER.md` | Session continuity doc — current state, codebase map, immediate next actions |
 | `README.md` | Public-facing project overview and quick start |

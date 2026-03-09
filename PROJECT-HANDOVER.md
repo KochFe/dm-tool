@@ -7,9 +7,9 @@
 
 ## Current Project State
 
-Phase 1 is complete and validated. The full Docker stack is running cleanly. All 23 backend tests pass. CRUD operations for campaigns, player characters, and locations work end-to-end through the frontend.
+Phases 1 and 2 are complete and validated. The full Docker stack is running cleanly. All 60 backend tests pass. Frontend builds clean. CRUD operations, dice rolling, and initiative tracking all work end-to-end.
 
-**Phase 2 (Session Mechanics) is the immediate next target.**
+**Phase 3 (Relational Data — Prep Mode) is the immediate next target.**
 
 ---
 
@@ -21,7 +21,11 @@ Phase 1 is complete and validated. The full Docker stack is running cleanly. All
 - Player character create / list / edit / delete — scoped to a campaign
 - Location create / list / edit / delete — scoped to a campaign
 - Set campaign current location — stored and displayed
-- All 23 pytest tests pass against SQLite in-memory
+- **Dice engine** — `POST /api/v1/dice/roll` with D&D standard notation (d4, d6, d8, d10, d12, d20, d100)
+- **Combat sessions** — full CRUD + combatant management + turn advancement (9 endpoints)
+- **DiceRoller UI** — quick-roll buttons, custom notation input, roll history
+- **InitiativeTracker UI** — create combat, manage combatants, HP editing, turn tracking, end combat
+- All 60 pytest tests pass against SQLite in-memory
 - FastAPI interactive docs available at http://localhost:8000/docs
 
 ---
@@ -43,18 +47,20 @@ These are not Phase 1 blockers but must be addressed before shipping:
 
 1. `passive_perception` field — no UI input; always defaults to 10.
 2. Campaign `description` field — no UI; not editable or viewable.
-3. No error handling on write operations in the frontend — failed API calls produce unhandled promise rejections.
-4. FastAPI 422 validation errors render as `[object Object]` in the frontend because `body.detail` is an array (needs `JSON.stringify` or a proper error parser).
+3. No error handling on write operations in Character/Location sections — failed API calls produce unhandled promise rejections. (DiceRoller and InitiativeTracker have proper error handling.)
+4. FastAPI 422 validation errors render as `[object Object]` in Character/Location sections (DiceRoller has component-level mitigation).
+5. `player_character_id` on combatants is stored but not validated against the `player_characters` table — no FK check in the service layer.
 
 ---
 
-## Immediate Next Actions: Phase 2 — Session Mechanics
+## Immediate Next Actions: Phase 3 — Relational Data (Prep Mode)
 
-1. **Dice Engine (backend)** — `POST /api/v1/dice/roll` accepting `{ dice: "2d6+3" }` or structured `{ count, sides, modifier }`. Pure deterministic RNG, no LLM involvement. Add to a new router `backend/app/routers/dice.py`.
-2. **Dice Engine (frontend)** — Dice roller UI component, probably a persistent panel or sidebar widget.
-3. **Initiative Tracker (backend)** — Stateful combat session: ordered list of combatants (players + monsters), HP tracking per monster, round counter. Likely ephemeral (in-memory or a new DB table `combat_sessions`).
-4. **Initiative Tracker (frontend)** — Combat UI: drag-to-reorder or auto-sort by initiative roll, HP editing inline, "next turn" button.
-5. **Tests** — Add pytest tests for dice router and initiative logic before wiring up frontend.
+1. **NPC model + migration** — New `npcs` table with name, race, class, stats, personality, secrets, motivation. FK to locations.
+2. **Quest model + migration** — New `quests` table with title, description, status, reward. FK to locations.
+3. **Full character sheet expansion** — Add ability scores (STR/DEX/CON/INT/WIS/CHA), saving throw proficiencies, skill proficiencies, proficiency bonus, speed, spell slots to `player_characters`. New migration.
+4. **NPC/Quest CRUD** — Backend endpoints + service layer + frontend UI for creating and managing NPCs and quests.
+5. **Location linking** — Associate NPCs and quests with locations; filter/display by campaign's current location.
+6. **Tests** — Expand test suite for all new models and endpoints.
 
 ---
 
@@ -65,7 +71,6 @@ dm-tool/
 ├── docker-compose.yml          # All four services; backend uses start.sh entrypoint
 ├── .env                        # Real secrets (gitignored); see .env.example for shape
 ├── .env.example                # Template — copy to .env to get started
-├── CLAUDE.md                   # Project vision, architecture rules, phase roadmap
 ├── PROJECT-HANDOVER.md         # This file
 │
 ├── backend/
@@ -75,23 +80,24 @@ dm-tool/
 │   ├── alembic.ini
 │   ├── alembic/
 │   │   └── versions/
-│   │       └── 001_initial_schema.py   # Initial migration (campaigns, locations, player_characters)
+│   │       ├── 001_initial_schema.py   # Initial migration (campaigns, locations, player_characters)
+│   │       └── 002_combat_sessions.py  # Combat sessions table
 │   └── app/
 │       ├── main.py             # FastAPI app factory, CORS, router registration
 │       ├── config.py           # Settings via pydantic-settings
 │       ├── database.py         # Async SQLAlchemy engine + session factory
 │       ├── dependencies.py     # `get_db` dependency
 │       ├── models/             # SQLAlchemy ORM models
-│       │   └── (campaign, player_character, location)
+│       │   └── (campaign, player_character, location, combat_session)
 │       ├── schemas/            # Pydantic request/response schemas
 │       │   ├── common.py       # APIResponse[T] envelope
-│       │   └── (campaign, player_character, location)
+│       │   └── (campaign, player_character, location, combat_session, dice)
 │       ├── routers/            # FastAPI route handlers
-│       │   └── (campaigns, player_characters, locations)
-│       ├── services/           # Business logic layer (thin, ready to grow)
-│       │   └── (campaign_service, player_character_service, location_service)
-│       └── tests/              # pytest async tests — 23 tests, all passing
-│           └── (test_campaigns, test_characters, test_locations, test_health)
+│       │   └── (campaigns, player_characters, locations, combat_sessions, dice)
+│       ├── services/           # Business logic layer
+│       │   └── (campaign_service, player_character_service, location_service, combat_session_service, dice_service)
+│       └── tests/              # pytest async tests — 60 tests, all passing
+│           └── (test_campaigns, test_characters, test_locations, test_health, test_dice, test_combat_sessions)
 │
 └── frontend/
     ├── Dockerfile
@@ -105,9 +111,11 @@ dm-tool/
         │   │   └── [id]/page.tsx       # Campaign detail, character + location sections
         ├── components/
         │   ├── CharacterSection.tsx    # Character CRUD UI
-        │   └── LocationSection.tsx     # Location CRUD UI
+        │   ├── LocationSection.tsx     # Location CRUD UI
+        │   ├── DiceRoller.tsx          # Dice roller with quick-roll buttons and history
+        │   └── InitiativeTracker.tsx   # Combat session management UI
         ├── lib/
-        │   └── api.ts                  # API client — all 15 CRUD methods
+        │   └── api.ts                  # API client — 25 methods (15 CRUD + 10 Phase 2)
         └── types/
             └── index.ts                # TypeScript interfaces for all entities
 ```
@@ -160,3 +168,8 @@ Full decisions log: see `docs/decisions.md` (to be created in Phase 2).
 | 2026-03-09 | `use_alter=True` on `campaigns.current_location_id` FK to break circular dependency between campaigns and locations |
 | 2026-03-09 | Python-side `default=uuid.uuid4` (not `server_default`) so UUIDs work in SQLite tests |
 | 2026-03-09 | Adminer added to docker-compose for DB inspection during development |
+| 2026-03-09 | Combat session combatants stored as JSON column (not separate table) — simple, sufficient for ~20 combatants per session |
+| 2026-03-09 | Combat sessions are database-persisted (not ephemeral) — DM can refresh/reconnect without losing combat state |
+| 2026-03-09 | Dice sides restricted to D&D standard {4, 6, 8, 10, 12, 20, 100} — no arbitrary sides |
+| 2026-03-09 | Initiative tracker embedded in campaign detail page (not separate route) — minimal click effort during sessions |
+| 2026-03-09 | Full character sheet expansion (ability scores, skills, etc.) deferred to Phase 3 |
