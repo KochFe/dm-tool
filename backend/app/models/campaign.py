@@ -39,6 +39,9 @@ class Campaign(Base):
         cascade="all, delete-orphan",
         foreign_keys="Location.campaign_id",
     )
+    combat_sessions: Mapped[list["CombatSession"]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (
         CheckConstraint("party_level >= 1 AND party_level <= 20", name="ck_party_level"),

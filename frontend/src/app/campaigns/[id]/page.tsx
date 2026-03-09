@@ -6,6 +6,8 @@ import { api } from "@/lib/api";
 import type { Campaign, PlayerCharacter, Location } from "@/types";
 import CharacterSection from "@/components/CharacterSection";
 import LocationSection from "@/components/LocationSection";
+import DiceRoller from "@/components/DiceRoller";
+import InitiativeTracker from "@/components/InitiativeTracker";
 
 export default function CampaignDetailPage({
   params,
@@ -119,6 +121,14 @@ export default function CampaignDetailPage({
             </p>
           </div>
         )}
+      </div>
+
+      {/* Session tools: Initiative Tracker (primary) + Dice Roller (sidebar) */}
+      <div className="grid xl:grid-cols-[1fr_320px] gap-6 mb-8">
+        <div className="border rounded p-4">
+          <InitiativeTracker campaignId={id} characters={characters} />
+        </div>
+        <DiceRoller className="self-start" />
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
