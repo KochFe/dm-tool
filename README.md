@@ -61,6 +61,3 @@ docker compose exec backend pytest
 
 All 60 tests run against SQLite in-memory — no running database required for testing.
 
-## Developer Documentation
-
-- `PROJECT-HANDOVER.md` — Current state, codebase map, and immediate next actions
