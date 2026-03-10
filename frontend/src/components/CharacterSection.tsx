@@ -5,7 +5,82 @@ import { api } from "@/lib/api";
 import { hpColor, hpBarColor } from "@/lib/utils";
 import type { PlayerCharacter } from "@/types";
 
-const EMPTY_CHAR = {
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const ABILITY_KEYS = [
+  "strength",
+  "dexterity",
+  "constitution",
+  "intelligence",
+  "wisdom",
+  "charisma",
+] as const;
+
+const ABILITY_LABELS: Record<(typeof ABILITY_KEYS)[number], string> = {
+  strength: "STR",
+  dexterity: "DEX",
+  constitution: "CON",
+  intelligence: "INT",
+  wisdom: "WIS",
+  charisma: "CHA",
+};
+
+const SAVING_THROWS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
+
+const SKILLS = [
+  "Acrobatics",
+  "Animal Handling",
+  "Arcana",
+  "Athletics",
+  "Deception",
+  "History",
+  "Insight",
+  "Intimidation",
+  "Investigation",
+  "Medicine",
+  "Nature",
+  "Perception",
+  "Performance",
+  "Persuasion",
+  "Religion",
+  "Sleight of Hand",
+  "Stealth",
+  "Survival",
+] as const;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function abilityModifier(score: number): string {
+  const mod = Math.floor((score - 10) / 2);
+  return mod >= 0 ? `+${mod}` : `${mod}`;
+}
+
+// ─── Form shape ──────────────────────────────────────────────────────────────
+
+interface CharacterFormState {
+  name: string;
+  race: string;
+  character_class: string;
+  level: number;
+  hp_current: number;
+  hp_max: number;
+  armor_class: number;
+  passive_perception: number;
+  strength: number;
+  dexterity: number;
+  constitution: number;
+  intelligence: number;
+  wisdom: number;
+  charisma: number;
+  proficiency_bonus: number;
+  speed: number;
+  saving_throw_proficiencies: string[];
+  skill_proficiencies: string[];
+  // Spell slots are edited as a list of {level, slots} pairs in the form
+  spellSlotPairs: Array<{ level: string; slots: string }>;
+}
+
+const EMPTY_CHAR: CharacterFormState = {
   name: "",
   race: "",
   character_class: "",
@@ -14,7 +89,261 @@ const EMPTY_CHAR = {
   hp_max: 10,
   armor_class: 10,
   passive_perception: 10,
+  strength: 10,
+  dexterity: 10,
+  constitution: 10,
+  intelligence: 10,
+  wisdom: 10,
+  charisma: 10,
+  proficiency_bonus: 2,
+  speed: 30,
+  saving_throw_proficiencies: [],
+  skill_proficiencies: [],
+  spellSlotPairs: [],
 };
+
+function pcToForm(pc: PlayerCharacter): CharacterFormState {
+  const spellSlotPairs = Object.entries(pc.spell_slots ?? {}).map(
+    ([level, slots]) => ({ level, slots: String(slots) })
+  );
+  return {
+    name: pc.name,
+    race: pc.race,
+    character_class: pc.character_class,
+    level: pc.level,
+    hp_current: pc.hp_current,
+    hp_max: pc.hp_max,
+    armor_class: pc.armor_class,
+    passive_perception: pc.passive_perception,
+    strength: pc.strength,
+    dexterity: pc.dexterity,
+    constitution: pc.constitution,
+    intelligence: pc.intelligence,
+    wisdom: pc.wisdom,
+    charisma: pc.charisma,
+    proficiency_bonus: pc.proficiency_bonus,
+    speed: pc.speed,
+    saving_throw_proficiencies: pc.saving_throw_proficiencies ?? [],
+    skill_proficiencies: pc.skill_proficiencies ?? [],
+    spellSlotPairs,
+  };
+}
+
+function formToPayload(form: CharacterFormState): Record<string, unknown> {
+  const spell_slots: Record<string, number> = {};
+  for (const pair of form.spellSlotPairs) {
+    const level = pair.level.trim();
+    const slots = parseInt(pair.slots, 10);
+    if (level && !isNaN(slots)) {
+      spell_slots[level] = slots;
+    }
+  }
+  return {
+    name: form.name,
+    race: form.race,
+    character_class: form.character_class,
+    level: form.level,
+    hp_current: form.hp_current,
+    hp_max: form.hp_max,
+    armor_class: form.armor_class,
+    passive_perception: form.passive_perception,
+    strength: form.strength,
+    dexterity: form.dexterity,
+    constitution: form.constitution,
+    intelligence: form.intelligence,
+    wisdom: form.wisdom,
+    charisma: form.charisma,
+    proficiency_bonus: form.proficiency_bonus,
+    speed: form.speed,
+    saving_throw_proficiencies: form.saving_throw_proficiencies,
+    skill_proficiencies: form.skill_proficiencies,
+    spell_slots,
+  };
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+const INPUT_CLS =
+  "bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors";
+
+const SMALL_INPUT_CLS =
+  "bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1.5 w-full mt-1 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors";
+
+function Tag({ label }: { label: string }) {
+  return (
+    <span className="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-0.5 rounded">
+      {label}
+    </span>
+  );
+}
+
+// Ability scores grid for the card display
+function AbilityScoreGrid({ pc }: { pc: PlayerCharacter }) {
+  return (
+    <div className="grid grid-cols-6 gap-1.5 mt-2">
+      {ABILITY_KEYS.map((key) => (
+        <div
+          key={key}
+          className="bg-gray-900/60 border border-gray-700 rounded-lg py-1.5 text-center"
+        >
+          <p className="text-xs text-gray-500 uppercase tracking-wide">
+            {ABILITY_LABELS[key]}
+          </p>
+          <p className="text-sm font-semibold text-gray-100">{pc[key]}</p>
+          <p className="text-xs text-amber-400">{abilityModifier(pc[key])}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Ability scores in the form
+function AbilityScoreInputs({
+  form,
+  setForm,
+}: {
+  form: CharacterFormState;
+  setForm: (f: CharacterFormState) => void;
+}) {
+  return (
+    <div className="grid grid-cols-6 gap-2">
+      {ABILITY_KEYS.map((key) => (
+        <label key={key} className="text-xs text-gray-400 text-center">
+          {ABILITY_LABELS[key]}
+          <input
+            type="number"
+            min={1}
+            max={30}
+            value={form[key]}
+            onChange={(e) => setForm({ ...form, [key]: +e.target.value })}
+            className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-1 py-1.5 w-full mt-1 text-center focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+          />
+        </label>
+      ))}
+    </div>
+  );
+}
+
+// Toggle-checkbox list for saving throws / skills
+function ProficiencyCheckboxes({
+  label,
+  options,
+  selected,
+  onChange,
+  columns,
+}: {
+  label: string;
+  options: readonly string[];
+  selected: string[];
+  onChange: (next: string[]) => void;
+  columns: number;
+}) {
+  function toggle(value: string) {
+    if (selected.includes(value)) {
+      onChange(selected.filter((s) => s !== value));
+    } else {
+      onChange([...selected, value]);
+    }
+  }
+
+  return (
+    <div>
+      <p className="text-xs text-gray-400 mb-1.5">{label}</p>
+      <div
+        className="grid gap-x-4 gap-y-1"
+        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+      >
+        {options.map((opt) => (
+          <label
+            key={opt}
+            className="flex items-center gap-1.5 cursor-pointer group"
+          >
+            <input
+              type="checkbox"
+              checked={selected.includes(opt)}
+              onChange={() => toggle(opt)}
+              className="accent-amber-500 cursor-pointer"
+            />
+            <span className="text-xs text-gray-300 group-hover:text-gray-100 transition-colors">
+              {opt}
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Dynamic spell slots key-value editor
+function SpellSlotsEditor({
+  pairs,
+  onChange,
+}: {
+  pairs: Array<{ level: string; slots: string }>;
+  onChange: (next: Array<{ level: string; slots: string }>) => void;
+}) {
+  function updatePair(
+    index: number,
+    field: "level" | "slots",
+    value: string
+  ) {
+    const next = pairs.map((p, i) =>
+      i === index ? { ...p, [field]: value } : p
+    );
+    onChange(next);
+  }
+
+  function addPair() {
+    onChange([...pairs, { level: "", slots: "" }]);
+  }
+
+  function removePair(index: number) {
+    onChange(pairs.filter((_, i) => i !== index));
+  }
+
+  return (
+    <div>
+      <p className="text-xs text-gray-400 mb-1.5">Spell Slots</p>
+      <div className="space-y-1.5">
+        {pairs.map((pair, i) => (
+          <div key={i} className="flex gap-2 items-center">
+            <input
+              placeholder="Level (e.g. 1)"
+              value={pair.level}
+              onChange={(e) => updatePair(i, "level", e.target.value)}
+              className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1 w-28 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors placeholder-gray-600"
+            />
+            <input
+              type="number"
+              min={0}
+              placeholder="Slots"
+              value={pair.slots}
+              onChange={(e) => updatePair(i, "slots", e.target.value)}
+              className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1 w-20 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+            />
+            <button
+              type="button"
+              onClick={() => removePair(i)}
+              className="text-gray-500 hover:text-red-400 transition-colors text-sm px-1"
+              aria-label="Remove spell slot row"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={addPair}
+          className="text-xs text-amber-500 hover:text-amber-400 transition-colors"
+        >
+          + Add level
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function CharacterSection({
   campaignId,
@@ -26,52 +355,78 @@ export default function CharacterSection({
   onUpdate: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState(EMPTY_CHAR);
+  const [form, setForm] = useState<CharacterFormState>(EMPTY_CHAR);
   const [editId, setEditId] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editId) {
-      await api.updateCharacter(editId, form);
-    } else {
-      await api.createCharacter(campaignId, form);
+    setFormError(null);
+    try {
+      if (editId) {
+        await api.updateCharacter(editId, formToPayload(form));
+      } else {
+        await api.createCharacter(campaignId, formToPayload(form));
+      }
+      setForm(EMPTY_CHAR);
+      setShowForm(false);
+      setShowAdvanced(false);
+      setEditId(null);
+      onUpdate();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An error occurred";
+      // FastAPI 422 detail arrays render as [object Object] — detect and label cleanly
+      setFormError(
+        message.startsWith("[object") ? "Validation error — check all fields." : message
+      );
     }
-    setForm(EMPTY_CHAR);
-    setShowForm(false);
-    setEditId(null);
-    onUpdate();
   };
 
   const startEdit = (pc: PlayerCharacter) => {
-    setForm({
-      name: pc.name,
-      race: pc.race,
-      character_class: pc.character_class,
-      level: pc.level,
-      hp_current: pc.hp_current,
-      hp_max: pc.hp_max,
-      armor_class: pc.armor_class,
-      passive_perception: pc.passive_perception,
-    });
+    setForm(pcToForm(pc));
     setEditId(pc.id);
     setShowForm(true);
+    setShowAdvanced(true); // show advanced so existing values are visible
+    setFormError(null);
   };
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete ${name}?`)) return;
-    await api.deleteCharacter(id);
-    onUpdate();
+    try {
+      await api.deleteCharacter(id);
+      onUpdate();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An error occurred";
+      // Surface delete errors as a window alert since there's no form banner available
+      alert(`Failed to delete ${name}: ${message}`);
+    }
+  };
+
+  const cancelForm = () => {
+    setShowForm(false);
+    setShowAdvanced(false);
+    setEditId(null);
+    setForm(EMPTY_CHAR);
+    setFormError(null);
   };
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-100">Characters</h2>
         <button
           onClick={() => {
-            setShowForm(!showForm);
-            setEditId(null);
-            setForm(EMPTY_CHAR);
+            if (showForm) {
+              cancelForm();
+            } else {
+              setShowForm(true);
+              setEditId(null);
+              setForm(EMPTY_CHAR);
+              setFormError(null);
+            }
           }}
           className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition-colors"
         >
@@ -79,16 +434,25 @@ export default function CharacterSection({
         </button>
       </div>
 
+      {/* Create / Edit Form */}
       {showForm && (
         <form
           onSubmit={handleSubmit}
           className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 mb-4 space-y-3"
         >
+          {/* Error banner */}
+          {formError && (
+            <p className="text-sm text-red-400 bg-red-900/20 border border-red-800 rounded px-3 py-2">
+              {formError}
+            </p>
+          )}
+
+          {/* ── Basic Fields ── */}
           <input
             placeholder="Name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors"
+            className={INPUT_CLS}
             required
           />
           <div className="grid grid-cols-2 gap-2">
@@ -96,14 +460,16 @@ export default function CharacterSection({
               placeholder="Race"
               value={form.race}
               onChange={(e) => setForm({ ...form, race: e.target.value })}
-              className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors"
+              className={INPUT_CLS}
               required
             />
             <input
               placeholder="Class"
               value={form.character_class}
-              onChange={(e) => setForm({ ...form, character_class: e.target.value })}
-              className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors"
+              onChange={(e) =>
+                setForm({ ...form, character_class: e.target.value })
+              }
+              className={INPUT_CLS}
               required
             />
           </div>
@@ -116,7 +482,7 @@ export default function CharacterSection({
                 max={20}
                 value={form.level}
                 onChange={(e) => setForm({ ...form, level: +e.target.value })}
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1.5 w-full mt-1 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+                className={SMALL_INPUT_CLS}
               />
             </label>
             <label className="text-xs text-gray-400">
@@ -124,8 +490,10 @@ export default function CharacterSection({
               <input
                 type="number"
                 value={form.hp_current}
-                onChange={(e) => setForm({ ...form, hp_current: +e.target.value })}
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1.5 w-full mt-1 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+                onChange={(e) =>
+                  setForm({ ...form, hp_current: +e.target.value })
+                }
+                className={SMALL_INPUT_CLS}
               />
             </label>
             <label className="text-xs text-gray-400">
@@ -135,7 +503,7 @@ export default function CharacterSection({
                 min={1}
                 value={form.hp_max}
                 onChange={(e) => setForm({ ...form, hp_max: +e.target.value })}
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1.5 w-full mt-1 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+                className={SMALL_INPUT_CLS}
               />
             </label>
             <label className="text-xs text-gray-400">
@@ -144,11 +512,117 @@ export default function CharacterSection({
                 type="number"
                 min={0}
                 value={form.armor_class}
-                onChange={(e) => setForm({ ...form, armor_class: +e.target.value })}
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1.5 w-full mt-1 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+                onChange={(e) =>
+                  setForm({ ...form, armor_class: +e.target.value })
+                }
+                className={SMALL_INPUT_CLS}
               />
             </label>
           </div>
+
+          {/* Passive Perception (Known Gap #1 fix) */}
+          <div className="grid grid-cols-4 gap-2">
+            <label className="text-xs text-gray-400">
+              Passive Perc.
+              <input
+                type="number"
+                min={1}
+                max={30}
+                value={form.passive_perception}
+                onChange={(e) =>
+                  setForm({ ...form, passive_perception: +e.target.value })
+                }
+                className={SMALL_INPUT_CLS}
+              />
+            </label>
+          </div>
+
+          {/* ── Advanced Stats collapsible ── */}
+          <div className="border-t border-gray-700/50 pt-3">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-200 transition-colors"
+            >
+              <span
+                className={`transition-transform ${showAdvanced ? "rotate-90" : ""}`}
+              >
+                ▶
+              </span>
+              Advanced Stats
+            </button>
+
+            {showAdvanced && (
+              <div className="mt-3 space-y-4">
+                {/* Ability Scores */}
+                <div>
+                  <p className="text-xs text-gray-400 mb-1.5">Ability Scores</p>
+                  <AbilityScoreInputs form={form} setForm={setForm} />
+                </div>
+
+                {/* Proficiency Bonus + Speed */}
+                <div className="grid grid-cols-4 gap-2">
+                  <label className="text-xs text-gray-400">
+                    Prof. Bonus
+                    <input
+                      type="number"
+                      min={2}
+                      max={6}
+                      value={form.proficiency_bonus}
+                      onChange={(e) =>
+                        setForm({ ...form, proficiency_bonus: +e.target.value })
+                      }
+                      className={SMALL_INPUT_CLS}
+                    />
+                  </label>
+                  <label className="text-xs text-gray-400">
+                    Speed (ft)
+                    <input
+                      type="number"
+                      min={0}
+                      step={5}
+                      value={form.speed}
+                      onChange={(e) =>
+                        setForm({ ...form, speed: +e.target.value })
+                      }
+                      className={SMALL_INPUT_CLS}
+                    />
+                  </label>
+                </div>
+
+                {/* Saving Throw Proficiencies */}
+                <ProficiencyCheckboxes
+                  label="Saving Throw Proficiencies"
+                  options={SAVING_THROWS}
+                  selected={form.saving_throw_proficiencies}
+                  onChange={(next) =>
+                    setForm({ ...form, saving_throw_proficiencies: next })
+                  }
+                  columns={6}
+                />
+
+                {/* Skill Proficiencies */}
+                <ProficiencyCheckboxes
+                  label="Skill Proficiencies"
+                  options={SKILLS}
+                  selected={form.skill_proficiencies}
+                  onChange={(next) =>
+                    setForm({ ...form, skill_proficiencies: next })
+                  }
+                  columns={3}
+                />
+
+                {/* Spell Slots */}
+                <SpellSlotsEditor
+                  pairs={form.spellSlotPairs}
+                  onChange={(next) =>
+                    setForm({ ...form, spellSlotPairs: next })
+                  }
+                />
+              </div>
+            )}
+          </div>
+
           <button
             type="submit"
             className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-medium px-4 py-2 rounded-lg transition-colors"
@@ -158,62 +632,140 @@ export default function CharacterSection({
         </form>
       )}
 
+      {/* Character List */}
       {characters.length === 0 ? (
         <p className="text-gray-400 text-sm">No characters yet.</p>
       ) : (
         <div className="space-y-2">
-          {characters.map((pc) => (
-            <div
-              key={pc.id}
-              className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-100">
-                    {pc.name}{" "}
-                    <span className="text-sm text-gray-400">
-                      {pc.race} {pc.character_class} (Lv {pc.level})
-                    </span>
-                  </p>
-                  <div className="mt-1">
-                    <p className="text-sm text-gray-400">
-                      <span className={`font-semibold ${hpColor(pc.hp_current, pc.hp_max)}`}>
-                        HP {pc.hp_current}/{pc.hp_max}
+          {characters.map((pc) => {
+            const isExpanded = expandedCardId === pc.id;
+            const hasSpellSlots =
+              pc.spell_slots && Object.keys(pc.spell_slots).length > 0;
+
+            return (
+              <div
+                key={pc.id}
+                className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4"
+              >
+                {/* Card header row */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-100">
+                      {pc.name}{" "}
+                      <span className="text-sm text-gray-400">
+                        {pc.race} {pc.character_class} (Lv {pc.level})
                       </span>
-                      {" "}
-                      <span className="text-gray-500">&middot;</span>
-                      {" "}
-                      AC {pc.armor_class}
                     </p>
-                    {/* HP bar */}
-                    <div className="mt-1.5 h-1 w-full bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${hpBarColor(pc.hp_current, pc.hp_max)}`}
-                        style={{
-                          width: `${Math.min(100, Math.max(0, (pc.hp_current / pc.hp_max) * 100))}%`,
-                        }}
-                      />
+                    <div className="mt-1">
+                      <p className="text-sm text-gray-400">
+                        <span
+                          className={`font-semibold ${hpColor(pc.hp_current, pc.hp_max)}`}
+                        >
+                          HP {pc.hp_current}/{pc.hp_max}
+                        </span>
+                        {" "}
+                        <span className="text-gray-500">&middot;</span>
+                        {" "}
+                        AC {pc.armor_class}
+                        {" "}
+                        <span className="text-gray-500">&middot;</span>
+                        {" "}
+                        <span className="text-gray-500">
+                          Speed {pc.speed}ft &middot; Prof +{pc.proficiency_bonus}
+                        </span>
+                      </p>
+                      {/* HP bar */}
+                      <div className="mt-1.5 h-1 w-full bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${hpBarColor(pc.hp_current, pc.hp_max)}`}
+                          style={{
+                            width: `${Math.min(100, Math.max(0, (pc.hp_current / pc.hp_max) * 100))}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
+                  <div className="flex gap-2 shrink-0">
+                    {/* Toggle stats panel */}
+                    <button
+                      onClick={() =>
+                        setExpandedCardId(isExpanded ? null : pc.id)
+                      }
+                      className="text-sm bg-gray-700/60 hover:bg-gray-700 text-gray-400 hover:text-gray-200 px-2 py-1 rounded-lg transition-colors"
+                      aria-label={isExpanded ? "Hide stats" : "Show stats"}
+                    >
+                      {isExpanded ? "▲" : "▼"}
+                    </button>
+                    <button
+                      onClick={() => startEdit(pc)}
+                      className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(pc.id, pc.name)}
+                      aria-label={`Delete ${pc.name}`}
+                      className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    onClick={() => startEdit(pc)}
-                    className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(pc.id, pc.name)}
-                    aria-label={`Delete ${pc.name}`}
-                    className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
-                  >
-                    Delete
-                  </button>
-                </div>
+
+                {/* Collapsible stats panel */}
+                {isExpanded && (
+                  <div className="mt-3 pt-3 border-t border-gray-700/50 space-y-3">
+                    {/* Ability scores */}
+                    <AbilityScoreGrid pc={pc} />
+
+                    {/* Saving throw proficiencies */}
+                    {pc.saving_throw_proficiencies &&
+                      pc.saving_throw_proficiencies.length > 0 && (
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">
+                            Saving Throws
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {pc.saving_throw_proficiencies.map((s) => (
+                              <Tag key={s} label={s} />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Skill proficiencies */}
+                    {pc.skill_proficiencies &&
+                      pc.skill_proficiencies.length > 0 && (
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Skills</p>
+                          <div className="flex flex-wrap gap-1">
+                            {pc.skill_proficiencies.map((s) => (
+                              <Tag key={s} label={s} />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Spell slots */}
+                    {hasSpellSlots && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">
+                          Spell Slots
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {Object.entries(pc.spell_slots).map(
+                            ([level, slots]) => (
+                              <Tag key={level} label={`Lv${level}: ${slots}`} />
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
