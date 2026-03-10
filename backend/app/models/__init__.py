@@ -2,5 +2,7 @@ from app.models.campaign import Campaign
 from app.models.player_character import PlayerCharacter
 from app.models.location import Location
 from app.models.combat_session import CombatSession
+from app.models.npc import Npc
+from app.models.quest import Quest
 
-__all__ = ["Campaign", "PlayerCharacter", "Location", "CombatSession"]
+__all__ = ["Campaign", "PlayerCharacter", "Location", "CombatSession", "Npc", "Quest"]
