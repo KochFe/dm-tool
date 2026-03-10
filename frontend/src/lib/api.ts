@@ -126,4 +126,48 @@ export const api = {
     request<import("@/types").CombatSession>(`/api/v1/combat-sessions/${sessionId}/next-turn`, {
       method: "POST",
     }),
+
+  // NPCs
+  createNpc: (campaignId: string, data: import("@/types").NpcCreate) =>
+    request<import("@/types").Npc>(`/api/v1/campaigns/${campaignId}/npcs`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  getNpcs: (campaignId: string, locationId?: string) =>
+    request<import("@/types").Npc[]>(
+      locationId
+        ? `/api/v1/campaigns/${campaignId}/npcs?location_id=${locationId}`
+        : `/api/v1/campaigns/${campaignId}/npcs`
+    ),
+  getNpc: (npcId: string) =>
+    request<import("@/types").Npc>(`/api/v1/npcs/${npcId}`),
+  updateNpc: (npcId: string, data: import("@/types").NpcUpdate) =>
+    request<import("@/types").Npc>(`/api/v1/npcs/${npcId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteNpc: (npcId: string) =>
+    request<void>(`/api/v1/npcs/${npcId}`, { method: "DELETE" }),
+
+  // Quests
+  createQuest: (campaignId: string, data: import("@/types").QuestCreate) =>
+    request<import("@/types").Quest>(`/api/v1/campaigns/${campaignId}/quests`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  getQuests: (campaignId: string, locationId?: string) =>
+    request<import("@/types").Quest[]>(
+      locationId
+        ? `/api/v1/campaigns/${campaignId}/quests?location_id=${locationId}`
+        : `/api/v1/campaigns/${campaignId}/quests`
+    ),
+  getQuest: (questId: string) =>
+    request<import("@/types").Quest>(`/api/v1/quests/${questId}`),
+  updateQuest: (questId: string, data: import("@/types").QuestUpdate) =>
+    request<import("@/types").Quest>(`/api/v1/quests/${questId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteQuest: (questId: string) =>
+    request<void>(`/api/v1/quests/${questId}`, { method: "DELETE" }),
 };

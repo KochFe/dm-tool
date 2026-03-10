@@ -29,3 +29,5 @@ class Location(Base):
     campaign: Mapped["Campaign"] = relationship(
         back_populates="locations", foreign_keys=[campaign_id]
     )
+    npcs: Mapped[list["Npc"]] = relationship(back_populates="location")
+    quests: Mapped[list["Quest"]] = relationship(back_populates="location")

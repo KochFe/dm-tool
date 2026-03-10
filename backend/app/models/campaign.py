@@ -42,6 +42,12 @@ class Campaign(Base):
     combat_sessions: Mapped[list["CombatSession"]] = relationship(
         back_populates="campaign", cascade="all, delete-orphan"
     )
+    npcs: Mapped[list["Npc"]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
+    quests: Mapped[list["Quest"]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (
         CheckConstraint("party_level >= 1 AND party_level <= 20", name="ck_party_level"),

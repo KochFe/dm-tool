@@ -6,6 +6,8 @@ import { api } from "@/lib/api";
 import type { Campaign, PlayerCharacter, Location } from "@/types";
 import CharacterSection from "@/components/CharacterSection";
 import LocationSection from "@/components/LocationSection";
+import NPCSection from "@/components/NPCSection";
+import QuestSection from "@/components/QuestSection";
 import DiceRoller from "@/components/DiceRoller";
 import InitiativeTracker from "@/components/InitiativeTracker";
 
@@ -167,6 +169,15 @@ export default function CampaignDetailPage({
             campaignId={id}
             locations={locations}
             onUpdate={load}
+          />
+          <NPCSection
+            campaignId={id}
+            locations={locations}
+          />
+          <QuestSection
+            campaignId={id}
+            locations={locations}
+            partyLevel={campaign.party_level}
           />
         </div>
       </section>
