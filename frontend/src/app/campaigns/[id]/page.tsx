@@ -48,24 +48,33 @@ export default function CampaignDetailPage({
     load();
   };
 
-  if (!campaign) return <p>Loading...</p>;
+  if (!campaign) {
+    return (
+      <p className="text-gray-400 text-sm">Loading campaign...</p>
+    );
+  }
 
   return (
     <div>
-      <Link href="/campaigns" className="text-sm text-gray-500 hover:underline">
-        &larr; Back to Campaigns
+      {/* Back navigation */}
+      <Link
+        href="/campaigns"
+        className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-amber-400 transition-colors duration-150 mb-6"
+      >
+        &larr; Campaigns
       </Link>
 
-      <div className="mt-4 mb-8">
+      {/* Campaign header card */}
+      <div className="bg-gray-900 border border-gray-700/50 rounded-xl p-6 mb-6">
         {editing ? (
-          <form onSubmit={handleUpdate} className="space-y-3">
+          <form onSubmit={handleUpdate} className="space-y-4">
             <input
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="border rounded px-3 py-2 w-full text-xl font-bold"
+              className="bg-gray-800 border border-gray-700 text-gray-100 rounded-lg px-3 py-2 w-full text-xl font-bold focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 transition"
             />
             <div className="flex gap-4">
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-gray-300 text-sm">
                 Level:
                 <input
                   type="number"
@@ -75,74 +84,92 @@ export default function CampaignDetailPage({
                   onChange={(e) =>
                     setForm({ ...form, party_level: parseInt(e.target.value) || 1 })
                   }
-                  className="border rounded px-2 py-1 w-16"
+                  className="bg-gray-800 border border-gray-700 text-gray-100 rounded-lg px-2 py-1 w-16 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 transition"
                 />
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-gray-300 text-sm">
                 Time:
                 <input
                   value={form.in_game_time}
                   onChange={(e) =>
                     setForm({ ...form, in_game_time: e.target.value })
                   }
-                  className="border rounded px-2 py-1"
+                  className="bg-gray-800 border border-gray-700 text-gray-100 rounded-lg px-2 py-1 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 transition"
                 />
               </label>
             </div>
             <div className="flex gap-2">
               <button
                 type="submit"
-                className="bg-gray-900 text-white px-4 py-1 rounded hover:bg-gray-700"
+                className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold px-4 py-1.5 rounded-lg text-sm transition-colors duration-150"
               >
                 Save
               </button>
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="px-4 py-1 rounded border hover:bg-gray-100"
+                className="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 px-4 py-1.5 rounded-lg text-sm transition-colors duration-150"
               >
                 Cancel
               </button>
             </div>
           </form>
         ) : (
-          <div>
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold">{campaign.name}</h1>
-              <button
-                onClick={() => setEditing(true)}
-                className="text-sm text-gray-500 hover:underline"
-              >
-                Edit
-              </button>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-100 mb-3">
+                {campaign.name}
+              </h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="bg-gray-800 text-gray-300 border border-gray-700/50 px-3 py-1 rounded-full text-sm">
+                  Level {campaign.party_level}
+                </span>
+                <span className="bg-gray-800 text-gray-300 border border-gray-700/50 px-3 py-1 rounded-full text-sm">
+                  {campaign.in_game_time}
+                </span>
+              </div>
             </div>
-            <p className="text-gray-500">
-              Level {campaign.party_level} &middot; {campaign.in_game_time}
-            </p>
+            <button
+              onClick={() => setEditing(true)}
+              className="bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 border border-gray-700 hover:border-gray-600 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors duration-150 shrink-0"
+            >
+              Edit
+            </button>
           </div>
         )}
       </div>
 
-      {/* Session tools: Initiative Tracker (primary) + Dice Roller (sidebar) */}
-      <div className="grid xl:grid-cols-[1fr_320px] gap-6 mb-8">
-        <div className="border rounded p-4">
-          <InitiativeTracker campaignId={id} characters={characters} />
+      {/* Session Tools section */}
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold text-gray-300 mb-4">
+          Session Tools
+        </h2>
+        <div className="grid xl:grid-cols-[1fr_320px] gap-6">
+          <div className="bg-gray-900 border border-gray-700/50 rounded-xl p-5">
+            <InitiativeTracker campaignId={id} characters={characters} />
+          </div>
+          <DiceRoller className="self-start" />
         </div>
-        <DiceRoller className="self-start" />
-      </div>
+      </section>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <CharacterSection
-          campaignId={id}
-          characters={characters}
-          onUpdate={load}
-        />
-        <LocationSection
-          campaignId={id}
-          locations={locations}
-          onUpdate={load}
-        />
-      </div>
+      {/* Campaign Data section */}
+      <section>
+        <h2 className="text-lg font-semibold text-gray-300 mb-4">
+          Campaign Data
+        </h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          <CharacterSection
+            campaignId={id}
+            characters={characters}
+            onUpdate={load}
+          />
+          <LocationSection
+            campaignId={id}
+            locations={locations}
+            onUpdate={load}
+          />
+        </div>
+      </section>
     </div>
   );
 }

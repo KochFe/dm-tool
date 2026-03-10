@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api';
+import { hpColor } from '@/lib/utils';
 import type {
   CombatSession,
   Combatant,
@@ -34,16 +35,6 @@ const EMPTY_STAGED: StagedCombatant = {
   player_character_id: null,
 };
 
-// ---- HP colour helpers ----
-
-function hpColour(current: number, max: number): string {
-  if (max <= 0) return 'text-gray-400';
-  const pct = current / max;
-  if (pct > 0.5) return 'text-green-400';
-  if (pct > 0.25) return 'text-yellow-400';
-  return 'text-red-400';
-}
-
 // ---- Inline HP editor ----
 
 interface HpEditorProps {
@@ -75,8 +66,8 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
   };
 
   return (
-    <div className="flex items-center gap-1">
-      <span className={`font-mono font-semibold ${hpColour(combatant.hp_current, combatant.hp_max)}`}>
+    <div className="flex items-center gap-1.5">
+      <span className={`font-mono font-semibold ${hpColor(combatant.hp_current, combatant.hp_max)}`}>
         {combatant.hp_current}
         <span className="text-gray-500 font-normal">/{combatant.hp_max}</span>
       </span>
@@ -86,13 +77,13 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
         value={delta}
         onChange={(e) => setDelta(e.target.value === '' ? '' : Math.abs(+e.target.value))}
         placeholder="amt"
-        className="border rounded px-1 py-0.5 w-14 text-xs text-center"
+        className="bg-gray-800 border border-gray-600 text-gray-100 rounded px-1.5 py-0.5 w-16 text-xs text-center focus:border-amber-500 focus:outline-none transition-colors"
         disabled={busy}
       />
       <button
         onClick={() => apply(-1)}
         disabled={busy || delta === '' || delta === 0}
-        className="text-xs bg-red-700 text-white px-1.5 py-0.5 rounded hover:bg-red-600 disabled:opacity-40"
+        className="text-xs bg-red-700 text-white px-2 py-0.5 rounded hover:bg-red-600 disabled:opacity-40 transition-colors"
         title="Damage"
       >
         -
@@ -100,7 +91,7 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
       <button
         onClick={() => apply(1)}
         disabled={busy || delta === '' || delta === 0}
-        className="text-xs bg-green-700 text-white px-1.5 py-0.5 rounded hover:bg-green-600 disabled:opacity-40"
+        className="text-xs bg-green-700 text-white px-2 py-0.5 rounded hover:bg-green-600 disabled:opacity-40 transition-colors"
         title="Heal"
       >
         +
@@ -137,33 +128,33 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
 
   return (
     <div
-      className={`flex items-center gap-3 px-3 py-2 rounded border transition-colors ${
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors ${
         isCurrent
-          ? 'bg-blue-900/30 border-l-4 border-blue-500 border-r border-t border-b border-blue-500/40'
-          : 'border-gray-700 hover:bg-gray-800/40'
+          ? 'bg-blue-900/30 border-l-4 border-l-blue-500 border-r border-r-blue-500/30 border-t border-t-blue-500/30 border-b border-b-blue-500/30'
+          : 'border-gray-700/50 hover:bg-gray-800/40'
       }`}
     >
       {/* Turn arrow */}
-      <div className="w-4 shrink-0 text-blue-400 font-bold">
+      <div className="w-4 shrink-0 text-blue-400 font-bold text-sm">
         {isCurrent ? '▶' : ''}
       </div>
 
       {/* Initiative */}
       <div className="w-8 text-center shrink-0">
         <span className="text-xs text-gray-400">Init</span>
-        <div className="font-mono font-semibold text-sm">{combatant.initiative}</div>
+        <div className="font-mono font-semibold text-sm text-gray-100">{combatant.initiative}</div>
       </div>
 
       {/* Name + type badge */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className={`font-medium truncate ${isCurrent ? 'text-blue-200' : ''}`}>
+          <span className={`font-medium truncate ${isCurrent ? 'text-blue-200' : 'text-gray-100'}`}>
             {combatant.name}
           </span>
           {combatant.type === 'pc' ? (
             <span className="shrink-0 text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded">PC</span>
           ) : (
-            <span className="shrink-0 text-xs bg-red-600 text-white px-1.5 py-0.5 rounded">Monster</span>
+            <span className="shrink-0 text-xs bg-red-700 text-white px-1.5 py-0.5 rounded">Monster</span>
           )}
         </div>
       </div>
@@ -182,15 +173,16 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
       {/* AC */}
       <div className="w-12 text-center shrink-0">
         <span className="text-xs text-gray-400">AC</span>
-        <div className="font-mono text-sm">{combatant.armor_class}</div>
+        <div className="font-mono text-sm text-gray-100">{combatant.armor_class}</div>
       </div>
 
       {/* Remove */}
       <button
         onClick={handleRemove}
         disabled={removing}
-        className="shrink-0 text-gray-500 hover:text-red-400 disabled:opacity-40 text-sm leading-none px-1"
+        className="shrink-0 text-gray-500 hover:text-red-400 disabled:opacity-40 text-sm leading-none px-1 transition-colors"
         title="Remove combatant"
+        aria-label={`Remove ${combatant.name} from combat`}
       >
         ✕
       </button>
@@ -232,17 +224,20 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
 
   const availablePcs = characters.filter((pc) => !addedPcIds.has(pc.id));
 
+  const inputClass =
+    'bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1.5 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors text-sm';
+
   return (
-    <div className="border rounded p-3 space-y-2 bg-gray-800/20">
+    <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3 space-y-2.5">
       {availablePcs.length > 0 && (
         <div>
-          <p className="text-xs text-gray-400 mb-1">Quick-add PC:</p>
-          <div className="flex flex-wrap gap-1">
+          <p className="text-xs text-gray-400 mb-1.5">Quick-add PC:</p>
+          <div className="flex flex-wrap gap-1.5">
             {availablePcs.map((pc) => (
               <button
                 key={pc.id}
                 onClick={() => quickAddPc(pc)}
-                className="text-xs border border-blue-500 text-blue-400 px-2 py-0.5 rounded hover:bg-blue-900/40"
+                className="text-xs border border-blue-500/50 text-blue-400 px-2 py-0.5 rounded-lg hover:bg-blue-900/40 transition-colors"
               >
                 {pc.name}
               </button>
@@ -256,9 +251,9 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
           placeholder="Name *"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="border rounded px-2 py-1 text-sm col-span-2"
+          className={`${inputClass} col-span-2`}
         />
-        <label className="text-xs">
+        <label className="text-xs text-gray-400">
           Initiative *
           <input
             type="number"
@@ -266,23 +261,23 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
             onChange={(e) =>
               setForm({ ...form, initiative: e.target.value === '' ? '' : +e.target.value })
             }
-            className="border rounded px-2 py-1 w-full mt-0.5"
+            className={`${inputClass} mt-1`}
           />
         </label>
-        <label className="text-xs">
+        <label className="text-xs text-gray-400">
           Type
           <select
             value={form.type}
             onChange={(e) =>
               setForm({ ...form, type: e.target.value as 'pc' | 'monster' })
             }
-            className="border rounded px-2 py-1 w-full mt-0.5"
+            className={`${inputClass} mt-1`}
           >
             <option value="monster">Monster</option>
             <option value="pc">PC</option>
           </select>
         </label>
-        <label className="text-xs">
+        <label className="text-xs text-gray-400">
           Current HP *
           <input
             type="number"
@@ -291,10 +286,10 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
             onChange={(e) =>
               setForm({ ...form, hp_current: e.target.value === '' ? '' : +e.target.value })
             }
-            className="border rounded px-2 py-1 w-full mt-0.5"
+            className={`${inputClass} mt-1`}
           />
         </label>
-        <label className="text-xs">
+        <label className="text-xs text-gray-400">
           Max HP *
           <input
             type="number"
@@ -303,10 +298,10 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
             onChange={(e) =>
               setForm({ ...form, hp_max: e.target.value === '' ? '' : +e.target.value })
             }
-            className="border rounded px-2 py-1 w-full mt-0.5"
+            className={`${inputClass} mt-1`}
           />
         </label>
-        <label className="text-xs">
+        <label className="text-xs text-gray-400">
           AC *
           <input
             type="number"
@@ -315,7 +310,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
             onChange={(e) =>
               setForm({ ...form, armor_class: e.target.value === '' ? '' : +e.target.value })
             }
-            className="border rounded px-2 py-1 w-full mt-0.5"
+            className={`${inputClass} mt-1`}
           />
         </label>
       </div>
@@ -329,7 +324,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
           form.hp_max === '' ||
           form.armor_class === ''
         }
-        className="text-sm bg-gray-900 text-white px-3 py-1 rounded hover:bg-gray-700 disabled:opacity-40"
+        className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg disabled:opacity-40 transition-colors"
       >
         Add to List
       </button>
@@ -507,7 +502,7 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
 
   if (loading) {
     return (
-      <div className="text-gray-500 text-sm py-4">Loading combat sessions...</div>
+      <div className="text-gray-400 text-sm py-4">Loading combat sessions...</div>
     );
   }
 
@@ -525,7 +520,7 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-xl font-semibold text-gray-100">
               {activeSession.name ?? 'Combat'}
             </h2>
             <p className="text-sm text-gray-400">
@@ -537,14 +532,14 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
           <div className="flex gap-2">
             <button
               onClick={() => { setShowAddMidCombat((v) => !v); setError(null); }}
-              className="text-sm border rounded px-3 py-1 hover:bg-gray-100"
+              className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition-colors"
             >
               {showAddMidCombat ? 'Cancel' : '+ Combatant'}
             </button>
             <button
               onClick={handleEndCombat}
               disabled={busy}
-              className="text-sm bg-red-800 text-white px-3 py-1 rounded hover:bg-red-700 disabled:opacity-40"
+              className="text-sm bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg disabled:opacity-40 transition-colors"
             >
               End Combat
             </button>
@@ -552,7 +547,7 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
         </div>
 
         {error && (
-          <div className="mb-3 text-sm text-red-400 bg-red-900/20 border border-red-800 rounded px-3 py-2">
+          <div className="mb-3 text-sm text-red-400 bg-red-900/20 border border-red-800/50 rounded-lg px-3 py-2">
             {error}
           </div>
         )}
@@ -569,9 +564,9 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
         )}
 
         {/* Combatant list */}
-        <div className="space-y-1 mb-4">
+        <div className="space-y-1.5 mb-4">
           {activeSession.combatants.length === 0 ? (
-            <p className="text-gray-500 text-sm">No combatants.</p>
+            <p className="text-gray-400 text-sm">No combatants.</p>
           ) : (
             activeSession.combatants.map((combatant, i) => (
               <CombatantRow
@@ -591,7 +586,7 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
         <button
           onClick={handleNextTurn}
           disabled={busy || activeSession.combatants.length === 0}
-          className="w-full bg-blue-700 text-white py-2 rounded font-semibold hover:bg-blue-600 disabled:opacity-40 transition-colors"
+          className="w-full bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold py-2.5 rounded-lg disabled:opacity-40 transition-colors"
         >
           Next Turn
         </button>
@@ -611,11 +606,11 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Initiative Tracker</h2>
+        <h2 className="text-xl font-semibold text-gray-100">Initiative Tracker</h2>
         {!isCreating && (
           <button
             onClick={() => { setIsCreating(true); setError(null); }}
-            className="text-sm bg-gray-900 text-white px-3 py-1 rounded hover:bg-gray-700"
+            className="text-sm bg-amber-600 hover:bg-amber-500 text-gray-950 font-medium px-3 py-1.5 rounded-lg transition-colors"
           >
             Start Combat
           </button>
@@ -623,25 +618,25 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
       </div>
 
       {error && (
-        <div className="mb-3 text-sm text-red-400 bg-red-900/20 border border-red-800 rounded px-3 py-2">
+        <div className="mb-3 text-sm text-red-400 bg-red-900/20 border border-red-800/50 rounded-lg px-3 py-2">
           {error}
         </div>
       )}
 
       {/* New combat form */}
       {isCreating && (
-        <div className="border rounded p-4 mb-4 space-y-3">
-          <h3 className="font-medium">New Combat Session</h3>
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 mb-4 space-y-3">
+          <h3 className="font-medium text-gray-100">New Combat Session</h3>
 
           <input
             placeholder="Session name (optional)"
             value={sessionName}
             onChange={(e) => setSessionName(e.target.value)}
-            className="border rounded px-2 py-1 w-full text-sm"
+            className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full text-sm placeholder-gray-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
           />
 
           <div>
-            <h4 className="text-sm font-medium mb-2">Combatants</h4>
+            <h4 className="text-sm font-medium text-gray-300 mb-2">Combatants</h4>
             <AddCombatantForm
               characters={characters}
               onAdd={handleAddStaged}
@@ -651,18 +646,18 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
 
           {/* Staged list */}
           {staged.length > 0 && (
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <p className="text-xs text-gray-400">
                 Staged ({staged.length}) — sorted by initiative on start:
               </p>
               {staged.map((s, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between border rounded px-2 py-1 text-sm"
+                  className="flex items-center justify-between bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2 text-sm"
                 >
                   <span>
-                    <span className="font-medium">{s.name}</span>
-                    <span className="text-gray-500 ml-2">
+                    <span className="font-medium text-gray-100">{s.name}</span>
+                    <span className="text-gray-400 ml-2">
                       Init {s.initiative} &middot; HP {s.hp_current}/{s.hp_max} &middot; AC{' '}
                       {s.armor_class}
                     </span>
@@ -671,11 +666,12 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
                     {s.type === 'pc' ? (
                       <span className="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded">PC</span>
                     ) : (
-                      <span className="text-xs bg-red-600 text-white px-1.5 py-0.5 rounded">Monster</span>
+                      <span className="text-xs bg-red-700 text-white px-1.5 py-0.5 rounded">Monster</span>
                     )}
                     <button
                       onClick={() => removeStaged(i)}
-                      className="text-gray-400 hover:text-red-400 text-xs"
+                      className="text-gray-500 hover:text-red-400 text-xs transition-colors"
+                      aria-label={`Remove ${s.name} from staged list`}
                     >
                       ✕
                     </button>
@@ -689,13 +685,13 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
             <button
               onClick={handleBeginCombat}
               disabled={busy || staged.length === 0}
-              className="bg-gray-900 text-white px-4 py-1 rounded hover:bg-gray-700 disabled:opacity-40"
+              className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-medium px-4 py-2 rounded-lg disabled:opacity-40 transition-colors"
             >
               {busy ? 'Starting...' : 'Begin Combat'}
             </button>
             <button
               onClick={handleCancelCreate}
-              className="px-4 py-1 rounded border hover:bg-gray-100"
+              className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg transition-colors"
             >
               Cancel
             </button>
@@ -705,7 +701,7 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
 
       {/* No active combat message */}
       {!isCreating && (
-        <p className="text-gray-500 text-sm mb-4">No active combat. Click "Start Combat" to begin.</p>
+        <p className="text-gray-400 text-sm mb-4">No active combat. Click "Start Combat" to begin.</p>
       )}
 
       {/* Completed sessions (collapsed) */}
@@ -713,23 +709,23 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
         <div className="mt-4">
           <button
             onClick={() => setShowCompleted((v) => !v)}
-            className="text-sm text-gray-400 hover:underline"
+            className="text-sm text-gray-400 hover:text-gray-300 transition-colors"
           >
             {showCompleted ? 'Hide' : 'Show'} completed sessions ({completedSessions.length})
           </button>
 
           {showCompleted && (
-            <div className="mt-2 space-y-1">
+            <div className="mt-2 space-y-1.5">
               {completedSessions.map((s) => (
                 <div
                   key={s.id}
-                  className="border rounded px-3 py-2 text-sm text-gray-500 flex items-center justify-between"
+                  className="bg-gray-800/30 border border-gray-700/50 rounded-lg px-3 py-2 text-sm text-gray-400 flex items-center justify-between"
                 >
                   <span>
                     {s.name ?? 'Unnamed session'} &middot; Round {s.round_number} &middot;{' '}
                     {s.combatants.length} combatant{s.combatants.length !== 1 ? 's' : ''}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-500">
                     {new Date(s.created_at).toLocaleDateString()}
                   </span>
                 </div>

@@ -24,16 +24,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-gray-950">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-950 text-gray-100 min-h-screen`}
       >
-        <nav className="border-b border-gray-200 bg-gray-900 text-white">
+        <nav className="border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-6">
-            <Link href="/" className="text-lg font-bold">
+            <Link
+              href="/"
+              className="text-lg font-bold text-amber-400 hover:text-amber-300 transition-colors duration-150 tracking-wide"
+            >
               DM Co-Pilot
             </Link>
-            <Link href="/campaigns" className="hover:text-gray-300">
+            <Link
+              href="/campaigns"
+              className="text-gray-300 hover:text-amber-400 transition-colors duration-150 text-sm font-medium"
+            >
               Campaigns
             </Link>
           </div>
