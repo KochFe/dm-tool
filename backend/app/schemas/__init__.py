@@ -14,6 +14,11 @@ from app.schemas.location import (
     LocationResponse,
 )
 from app.schemas.common import APIResponse
+from app.schemas.npc import (
+    NpcCreate,
+    NpcUpdate,
+    NpcResponse,
+)
 from app.schemas.combat_session import (
     CombatantData,
     CombatSessionCreate,
@@ -22,13 +27,20 @@ from app.schemas.combat_session import (
     AddCombatantRequest,
     UpdateCombatantRequest,
 )
+from app.schemas.quest import (
+    QuestCreate,
+    QuestUpdate,
+    QuestResponse,
+)
 
 __all__ = [
     "CampaignCreate", "CampaignUpdate", "CampaignResponse",
     "PlayerCharacterCreate", "PlayerCharacterUpdate", "PlayerCharacterResponse",
     "LocationCreate", "LocationUpdate", "LocationResponse",
     "APIResponse",
+    "NpcCreate", "NpcUpdate", "NpcResponse",
     "CombatantData",
     "CombatSessionCreate", "CombatSessionUpdate", "CombatSessionResponse",
     "AddCombatantRequest", "UpdateCombatantRequest",
+    "QuestCreate", "QuestUpdate", "QuestResponse",
 ]
