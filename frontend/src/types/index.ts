@@ -194,3 +194,17 @@ export interface QuestUpdate {
   level?: number;
   location_id?: string | null;
 }
+
+// Chat / Lore Oracle
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface ChatRequest {
+  messages: ChatMessage[];
+}
+
+export interface ChatResponse {
+  message: ChatMessage;
+}
