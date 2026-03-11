@@ -10,6 +10,7 @@ import NPCSection from "@/components/NPCSection";
 import QuestSection from "@/components/QuestSection";
 import DiceRoller from "@/components/DiceRoller";
 import InitiativeTracker from "@/components/InitiativeTracker";
+import ChatSidebar from "@/components/ChatSidebar";
 
 export default function CampaignDetailPage({
   params,
@@ -22,6 +23,7 @@ export default function CampaignDetailPage({
   const [locations, setLocations] = useState<Location[]>([]);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ name: "", party_level: 1, in_game_time: "" });
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const load = async () => {
     const [c, chars, locs] = await Promise.all([
@@ -57,7 +59,7 @@ export default function CampaignDetailPage({
   }
 
   return (
-    <div>
+    <div className={`transition-[margin] duration-200 ease-in-out ${isChatOpen ? 'mr-[380px]' : ''}`}>
       {/* Back navigation */}
       <Link
         href="/campaigns"
@@ -181,6 +183,31 @@ export default function CampaignDetailPage({
           />
         </div>
       </section>
+
+      {/* Lore Oracle floating trigger */}
+      <button
+        onClick={() => setIsChatOpen((v) => !v)}
+        aria-label="Open Lore Oracle chat"
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-gray-900 border border-gray-700/50 border-r-0 rounded-l-xl px-2 py-4 flex flex-col items-center gap-2 hover:bg-gray-800 hover:border-amber-500/30 transition-colors duration-150 group"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="text-amber-400 w-5 h-5"
+        >
+          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" />
+        </svg>
+        <span className="text-xs font-medium text-gray-400 group-hover:text-amber-400 [writing-mode:vertical-lr] rotate-180 tracking-wider transition-colors duration-150">
+          Oracle
+        </span>
+      </button>
+
+      <ChatSidebar
+        campaignId={campaign.id}
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+      />
     </div>
   );
 }
