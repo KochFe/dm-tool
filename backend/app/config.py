@@ -5,6 +5,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://dmtool:dmtool_dev_password@db:5432/dmtool"
     DATABASE_URL_SYNC: str = "postgresql://dmtool:dmtool_dev_password@db:5432/dmtool"
     BACKEND_CORS_ORIGINS: str = "http://localhost:3000"
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
     model_config = {"env_file": ".env"}
 

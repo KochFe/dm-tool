@@ -8,9 +8,9 @@ A comprehensive digital assistant for Dungeons & Dragons Dungeon Masters. The go
 |-------|-------------|--------|
 | 1 | Setup & Data Modeling | Complete |
 | 2 | Session Mechanics (Dice + Initiative) | Complete |
-| 3 | Relational Data (NPCs & Quests) | Pending |
-| 4 | AI Base Integration (LLM + LangGraph) | Pending |
-| 5 | LangGraph Context & Tools | Pending |
+| 3 | Relational Data (NPCs & Quests) | Complete |
+| 4 | AI Base Integration (LLM + LangGraph) | Complete |
+| 5 | LangGraph Context & Tools | In Progress |
 | 6 | Deployment Preparation | Pending |
 
 ## Quick Start
@@ -24,7 +24,7 @@ cd dm-tool
 
 # 2. Set up environment
 cp .env.example .env
-# Edit .env — fill in POSTGRES_PASSWORD and any other required values
+# Edit .env — set POSTGRES_PASSWORD, GROQ_API_KEY (for AI features), and any other required values
 
 # 3. Start all services
 docker compose up --build
@@ -59,5 +59,5 @@ The backend will automatically run database migrations on startup.
 docker compose exec backend pytest
 ```
 
-All 60 tests run against SQLite in-memory — no running database required for testing.
+All 111 tests run against SQLite in-memory — no running database required for testing.
 
