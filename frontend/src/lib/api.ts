@@ -170,4 +170,22 @@ export const api = {
     }),
   deleteQuest: (questId: string) =>
     request<void>(`/api/v1/quests/${questId}`, { method: "DELETE" }),
+
+  // Chat / Lore Oracle
+  sendChatMessage: async (campaignId: string, messages: import("@/types").ChatMessage[]): Promise<import("@/types").ChatMessage> => {
+    const res = await fetch(`${API_BASE}/api/v1/campaigns/${campaignId}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages }),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      const detail = json.detail;
+      const msg = Array.isArray(detail)
+        ? detail.map((d: { msg?: string }) => d.msg ?? String(d)).join('; ')
+        : (detail ?? 'AI service error');
+      throw new Error(msg);
+    }
+    return json.data.message;
+  },
 };
