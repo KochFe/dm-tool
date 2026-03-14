@@ -48,7 +48,9 @@ ENCOUNTER_GENERATOR_PROMPT = (
     '  "difficulty": "{difficulty}"\n'
     "}}\n\n"
     "Scale monster CR and count to the party level. Include 1-4 distinct monster types. "
-    "Use monsters that fit the {biome} environment."
+    "Use monsters that fit the {biome} environment.\n"
+    "Be inventive — avoid generic goblin/bandit encounters. "
+    "Use surprising creature combinations, unusual terrain features, or unexpected motivations."
 )
 
 NPC_GENERATOR_PROMPT = (
@@ -66,7 +68,9 @@ NPC_GENERATOR_PROMPT = (
     '  "motivation": "<what this NPC wants or needs>",\n'
     '  "stats": {{"str": <int>, "dex": <int>, "con": <int>, "int": <int>, "wis": <int>, "cha": <int>}}\n'
     "}}\n\n"
-    "Make the NPC feel grounded in the {biome} setting and interesting to roleplay."
+    "Make the NPC feel grounded in the {biome} setting and interesting to roleplay.\n"
+    "Be wildly creative — use unusual names, unexpected backgrounds, and distinctive quirks. "
+    "Never repeat common fantasy tropes."
 )
 
 LOOT_GENERATOR_PROMPT = (
@@ -87,5 +91,7 @@ LOOT_GENERATOR_PROMPT = (
     '  "context": "<one sentence describing where this loot was found>"\n'
     "}}\n\n"
     "Include 3-6 items. Scale rarity and gold value to party level {party_level}. "
-    "Favour items that fit the {biome} environment and the provided context."
+    "Favour items that fit the {biome} environment and the provided context.\n"
+    "Be inventive — avoid plain gold coins or generic potions as the only rewards. "
+    "Include at least one item with a flavourful name or unusual property."
 )

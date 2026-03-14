@@ -60,9 +60,11 @@ const TEXTAREA_CLS =
 export default function NPCSection({
   campaignId,
   locations,
+  refreshKey = 0,
 }: {
   campaignId: string;
   locations: Location[];
+  refreshKey?: number;
 }) {
   const [npcs, setNpcs] = useState<Npc[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,7 +91,7 @@ export default function NPCSection({
   useEffect(() => {
     loadNpcs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [campaignId]);
+  }, [campaignId, refreshKey]);
 
   const openCreate = () => {
     setForm(EMPTY_FORM);

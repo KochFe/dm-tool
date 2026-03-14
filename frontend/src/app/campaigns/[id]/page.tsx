@@ -26,6 +26,7 @@ export default function CampaignDetailPage({
   const [locations, setLocations] = useState<Location[]>([]);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ name: "", party_level: 1, in_game_time: "" });
+  const [npcRefreshKey, setNpcRefreshKey] = useState(0);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [generatorResult, setGeneratorResult] = useState<{
     type: "encounter" | "npc" | "loot";
@@ -46,6 +47,7 @@ export default function CampaignDetailPage({
       party_level: c.party_level,
       in_game_time: c.in_game_time,
     });
+    setNpcRefreshKey((k) => k + 1);
   };
 
   useEffect(() => {
@@ -186,11 +188,13 @@ export default function CampaignDetailPage({
           <LocationSection
             campaignId={id}
             locations={locations}
+            currentLocationId={campaign.current_location_id}
             onUpdate={load}
           />
           <NPCSection
             campaignId={id}
             locations={locations}
+            refreshKey={npcRefreshKey}
           />
           <QuestSection
             campaignId={id}
@@ -232,6 +236,7 @@ export default function CampaignDetailPage({
           type={generatorResult.type}
           result={generatorResult.result}
           campaignId={id}
+          characters={characters}
           onClose={() => setGeneratorResult(null)}
           onSaved={() => load()}
         />

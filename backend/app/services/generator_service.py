@@ -9,7 +9,7 @@ from app.config import settings
 from app.schemas.generators import GeneratedEncounter, GeneratedLoot, GeneratedNpc
 
 
-def _get_llm() -> ChatGroq:
+def _get_llm(temperature: float = 1.0) -> ChatGroq:
     """Instantiate ChatGroq at call time to avoid import-side effects.
 
     Raises:
@@ -20,7 +20,7 @@ def _get_llm() -> ChatGroq:
             "GROQ_API_KEY is not configured. "
             "Set the GROQ_API_KEY environment variable or add it to .env."
         )
-    return ChatGroq(model=settings.GROQ_MODEL, api_key=settings.GROQ_API_KEY)
+    return ChatGroq(model=settings.GROQ_MODEL, api_key=settings.GROQ_API_KEY, temperature=temperature)
 
 
 async def generate_encounter(
@@ -42,7 +42,7 @@ async def generate_encounter(
         RuntimeError: If GROQ_API_KEY is missing or structured output fails
             after one retry.
     """
-    llm = _get_llm()
+    llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(GeneratedEncounter)
     prompt = ENCOUNTER_GENERATOR_PROMPT.format(
         party_level=campaign_context["party_level"],
@@ -82,7 +82,7 @@ async def generate_npc(
         RuntimeError: If GROQ_API_KEY is missing or structured output fails
             after one retry.
     """
-    llm = _get_llm()
+    llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(GeneratedNpc)
     prompt = NPC_GENERATOR_PROMPT.format(
         party_level=campaign_context["party_level"],
@@ -122,7 +122,7 @@ async def generate_loot(
         RuntimeError: If GROQ_API_KEY is missing or structured output fails
             after one retry.
     """
-    llm = _get_llm()
+    llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(GeneratedLoot)
     prompt = LOOT_GENERATOR_PROMPT.format(
         party_level=campaign_context["party_level"],

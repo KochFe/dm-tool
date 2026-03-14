@@ -127,6 +127,8 @@ export default function SmartPrompts({
 }: SmartPromptsProps) {
   const [loading, setLoading] = useState<GeneratorType | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [npcRole, setNpcRole] = useState('');
+  const [showNpcPrompt, setShowNpcPrompt] = useState(false);
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Clear any pending dismiss timer on unmount
@@ -161,7 +163,7 @@ export default function SmartPrompts({
       if (type === 'encounter') {
         result = await api.generateEncounter(campaignId);
       } else if (type === 'npc') {
-        result = await api.generateNpc(campaignId);
+        result = await api.generateNpc(campaignId, npcRole.trim() ? { role: npcRole.trim() } : undefined);
       } else {
         result = await api.generateLoot(campaignId);
       }
@@ -194,31 +196,41 @@ export default function SmartPrompts({
       </div>
 
       {/* Button row */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 items-center">
         {BUTTONS.map(({ type, label, Icon }) => {
           const isActive = loading === type;
           const isDisabled = disabled || loading !== null;
 
+          function handleClick() {
+            if (type === 'npc') {
+              setNpcRole('');
+              setShowNpcPrompt(true);
+            } else {
+              handleGenerate(type);
+            }
+          }
+
           return (
-            <button
-              key={type}
-              onClick={() => handleGenerate(type)}
-              disabled={isDisabled}
-              title={disabled ? 'Set a location first to enable AI generators' : label}
-              className={`
-                flex items-center gap-2
-                bg-gray-800 border border-gray-700 rounded-lg px-4 py-2
-                text-sm text-gray-200
-                transition-colors duration-150
-                ${isDisabled
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:bg-gray-700 hover:border-gray-600 cursor-pointer'
-                }
-              `}
-            >
-              {isActive ? <SpinnerIcon /> : <Icon />}
-              <span>{isActive ? 'Generating\u2026' : label}</span>
-            </button>
+            <div key={type} className="flex items-center gap-2">
+              <button
+                onClick={handleClick}
+                disabled={isDisabled}
+                title={disabled ? 'Set a location first to enable AI generators' : label}
+                className={`
+                  flex items-center gap-2
+                  bg-gray-800 border border-gray-700 rounded-lg px-4 py-2
+                  text-sm text-gray-200
+                  transition-colors duration-150
+                  ${isDisabled
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-gray-700 hover:border-gray-600 cursor-pointer'
+                  }
+                `}
+              >
+                {isActive ? <SpinnerIcon /> : <Icon />}
+                <span>{isActive ? 'Generating\u2026' : label}</span>
+              </button>
+            </div>
           );
         })}
       </div>
@@ -228,6 +240,79 @@ export default function SmartPrompts({
         <p className="text-sm text-red-400 bg-red-900/20 border border-red-800 rounded px-3 py-2">
           {error}
         </p>
+      )}
+
+      {/* NPC prompt modal */}
+      {showNpcPrompt && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowNpcPrompt(false);
+              setNpcRole('');
+            }
+          }}
+        >
+          <div className="bg-gray-900 border border-gray-700/50 rounded-xl p-6 w-full max-w-sm mx-4 space-y-4">
+            <h3 className="text-base font-semibold text-gray-100">Generate NPC</h3>
+            <div className="space-y-1">
+              <label className="text-xs text-gray-400" htmlFor="npc-role-input">
+                Role or archetype (optional)
+              </label>
+              <input
+                id="npc-role-input"
+                type="text"
+                value={npcRole}
+                onChange={(e) => setNpcRole(e.target.value)}
+                placeholder="e.g. blacksmith, bandit captain"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && loading === null) {
+                    setShowNpcPrompt(false);
+                    handleGenerate('npc');
+                  }
+                  if (e.key === 'Escape') {
+                    setShowNpcPrompt(false);
+                    setNpcRole('');
+                  }
+                }}
+                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowNpcPrompt(false);
+                  setNpcRole('');
+                }}
+                className="px-4 py-2 rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800 text-sm transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowNpcPrompt(false);
+                  handleGenerate('npc');
+                }}
+                disabled={loading !== null}
+                className={`
+                  bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold px-4 py-2 rounded-lg text-sm transition-colors
+                  flex items-center gap-2
+                  ${loading !== null ? 'opacity-50 cursor-not-allowed' : ''}
+                `}
+              >
+                {loading === 'npc' ? (
+                  <>
+                    <SpinnerIcon />
+                    <span>Generating&hellip;</span>
+                  </>
+                ) : (
+                  'Generate'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
