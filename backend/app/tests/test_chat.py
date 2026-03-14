@@ -22,11 +22,16 @@ async def _create_campaign(client: AsyncClient) -> str:
 
 async def test_chat_happy_path(client: AsyncClient):
     """Valid campaign + valid user message returns 200 with assistant reply."""
+    from app.schemas.chat import ChatMessage, ChatResponse
+
     cid = await _create_campaign(client)
+    mock_response = ChatResponse(
+        message=ChatMessage(role="assistant", content="The ancient dragon sleeps beneath the mountain.")
+    )
     with patch(
-        "app.services.chat_service.invoke_lore_oracle", new_callable=AsyncMock
+        "app.routers.chat.process_chat", new_callable=AsyncMock
     ) as mock_oracle:
-        mock_oracle.return_value = "The ancient dragon sleeps beneath the mountain."
+        mock_oracle.return_value = mock_response
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={"messages": [{"role": "user", "content": "Where is the dragon?"}]},
@@ -84,10 +89,10 @@ async def test_chat_invalid_role(client: AsyncClient):
 
 
 async def test_chat_missing_api_key(client: AsyncClient):
-    """When invoke_lore_oracle raises a missing-key RuntimeError, the endpoint returns 503."""
+    """When process_chat raises a GROQ_API_KEY RuntimeError, the endpoint returns 503."""
     cid = await _create_campaign(client)
     with patch(
-        "app.services.chat_service.invoke_lore_oracle", new_callable=AsyncMock
+        "app.routers.chat.process_chat", new_callable=AsyncMock
     ) as mock_oracle:
         mock_oracle.side_effect = RuntimeError(
             "GROQ_API_KEY is not configured. "
@@ -103,10 +108,10 @@ async def test_chat_missing_api_key(client: AsyncClient):
 
 
 async def test_chat_ai_service_error(client: AsyncClient):
-    """When invoke_lore_oracle raises a generic RuntimeError, the endpoint returns 503 with the message."""
+    """When process_chat raises a generic RuntimeError, the endpoint returns 503 with the message."""
     cid = await _create_campaign(client)
     with patch(
-        "app.services.chat_service.invoke_lore_oracle", new_callable=AsyncMock
+        "app.routers.chat.process_chat", new_callable=AsyncMock
     ) as mock_oracle:
         mock_oracle.side_effect = RuntimeError("AI service error: connection timeout")
         resp = await client.post(
@@ -125,11 +130,16 @@ async def test_chat_ai_service_error(client: AsyncClient):
 
 async def test_chat_response_envelope(client: AsyncClient):
     """The response always has the data/error/meta envelope with correct message fields."""
+    from app.schemas.chat import ChatMessage, ChatResponse
+
     cid = await _create_campaign(client)
+    mock_response = ChatResponse(
+        message=ChatMessage(role="assistant", content="Roll a d20 for perception.")
+    )
     with patch(
-        "app.services.chat_service.invoke_lore_oracle", new_callable=AsyncMock
+        "app.routers.chat.process_chat", new_callable=AsyncMock
     ) as mock_oracle:
-        mock_oracle.return_value = "Roll a d20 for perception."
+        mock_oracle.return_value = mock_response
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={
