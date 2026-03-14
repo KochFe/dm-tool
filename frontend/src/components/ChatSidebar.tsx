@@ -8,13 +8,9 @@ interface ChatSidebarProps {
   campaignId: string;
   isOpen: boolean;
   onClose: () => void;
+  currentLocationName?: string | null;
+  partyLevel?: number;
 }
-
-const SUGGESTIONS = [
-  'What are the rules for grappling?',
-  'Generate a forest ambush encounter for level 5 party',
-  'What is the history of the Underdark?',
-];
 
 const SparklesIcon = ({ className }: { className?: string }) => (
   <svg
@@ -53,7 +49,7 @@ const SendIcon = () => (
   </svg>
 );
 
-export default function ChatSidebar({ campaignId, isOpen, onClose }: ChatSidebarProps) {
+export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocationName, partyLevel: _partyLevel }: ChatSidebarProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -61,6 +57,18 @@ export default function ChatSidebar({ campaignId, isOpen, onClose }: ChatSidebar
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const suggestions = currentLocationName
+    ? [
+        `Who are the NPCs in ${currentLocationName}?`,
+        `What quests are available in ${currentLocationName}?`,
+        `Tell me about ${currentLocationName} lore`,
+      ]
+    : [
+        'What are the rules for grappling?',
+        'Suggest an interesting plot hook',
+        'What is the history of the Underdark?',
+      ];
 
   // Auto-scroll to bottom on new messages or loading state change
   useEffect(() => {
@@ -178,7 +186,7 @@ export default function ChatSidebar({ campaignId, isOpen, onClose }: ChatSidebar
               </p>
             </div>
             <div className="flex flex-col gap-2 w-full">
-              {SUGGESTIONS.map((suggestion) => (
+              {suggestions.map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => handleSuggestionClick(suggestion)}
