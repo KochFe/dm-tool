@@ -22,10 +22,12 @@ const EMPTY_LOC = { name: "", description: "", biome: "urban" };
 export default function LocationSection({
   campaignId,
   locations,
+  currentLocationId,
   onUpdate,
 }: {
   campaignId: string;
   locations: Location[];
+  currentLocationId: string | null;
   onUpdate: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
@@ -58,6 +60,11 @@ export default function LocationSection({
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete ${name}?`)) return;
     await api.deleteLocation(id);
+    onUpdate();
+  };
+
+  const handleSetCurrent = async (locationId: string) => {
+    await api.updateCampaign(campaignId, { current_location_id: locationId });
     onUpdate();
   };
 
@@ -122,37 +129,59 @@ export default function LocationSection({
         <p className="text-gray-400 text-sm">No locations yet.</p>
       ) : (
         <div className="space-y-2">
-          {locations.map((loc) => (
-            <div
-              key={loc.id}
-              className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 flex items-start justify-between gap-3"
-            >
-              <div className="min-w-0">
-                <p className="font-medium text-gray-100">{loc.name}</p>
-                <p className="text-sm text-gray-400 capitalize">
-                  {loc.biome}
-                  {loc.description && (
-                    <span className="text-gray-500"> &mdash; {loc.description}</span>
+          {locations.map((loc) => {
+            const isCurrent = loc.id === currentLocationId;
+            return (
+              <div
+                key={loc.id}
+                className={`bg-gray-800/50 border rounded-xl p-4 flex items-start justify-between gap-3 ${
+                  isCurrent
+                    ? "border-amber-500/50 ring-1 ring-amber-500/20"
+                    : "border-gray-700/50"
+                }`}
+              >
+                <div className="min-w-0">
+                  <p className="font-medium text-gray-100">
+                    {loc.name}
+                    {isCurrent && (
+                      <span className="ml-2 text-xs text-amber-400 font-normal">
+                        Current
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-sm text-gray-400 capitalize">
+                    {loc.biome}
+                    {loc.description && (
+                      <span className="text-gray-500"> &mdash; {loc.description}</span>
+                    )}
+                  </p>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  {!isCurrent && (
+                    <button
+                      onClick={() => handleSetCurrent(loc.id)}
+                      className="text-sm bg-amber-700/30 hover:bg-amber-700/60 text-amber-300 px-3 py-1 rounded-lg transition-colors"
+                    >
+                      Set Current
+                    </button>
                   )}
-                </p>
+                  <button
+                    onClick={() => startEdit(loc)}
+                    className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(loc.id, loc.name)}
+                    aria-label={`Delete ${loc.name}`}
+                    className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-2 shrink-0">
-                <button
-                  onClick={() => startEdit(loc)}
-                  className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(loc.id, loc.name)}
-                  aria-label={`Delete ${loc.name}`}
-                  className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
