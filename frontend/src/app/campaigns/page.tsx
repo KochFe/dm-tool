@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import type { Campaign } from "@/types";
+import ConfirmButton from "@/components/ConfirmButton";
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -34,7 +35,6 @@ export default function CampaignsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this campaign and all its data?")) return;
     await api.deleteCampaign(id);
     load();
   };
@@ -90,12 +90,12 @@ export default function CampaignsPage() {
                   Level {c.party_level} &middot; {c.in_game_time}
                 </p>
               </div>
-              <button
-                onClick={() => handleDelete(c.id)}
+              <ConfirmButton
+                onConfirm={() => handleDelete(c.id)}
+                label="Delete"
+                confirmLabel="Are you sure?"
                 className="bg-red-900/40 hover:bg-red-800/60 text-red-400 hover:text-red-300 border border-red-800/50 hover:border-red-700 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors duration-150"
-              >
-                Delete
-              </button>
+              />
             </div>
           ))}
         </div>

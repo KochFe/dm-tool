@@ -1,3 +1,6 @@
+import logging
+
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -9,6 +12,20 @@ class Settings(BaseSettings):
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
     model_config = {"env_file": ".env"}
+
+    @model_validator(mode="after")
+    def validate_settings(self) -> "Settings":
+        if not self.GROQ_API_KEY:
+            raise ValueError(
+                "GROQ_API_KEY must be set. "
+                "Add it to your .env file or set the environment variable before starting the server."
+            )
+        if "dmtool_dev_password" in self.DATABASE_URL:
+            logging.warning(
+                "DATABASE_URL contains the default development password. "
+                "Set a strong password in your .env file before deploying to production."
+            )
+        return self
 
 
 settings = Settings()

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import type { Quest, QuestCreate, QuestStatus, Location } from "@/types";
+import ConfirmButton from "@/components/ConfirmButton";
 
 const STATUS_LABELS: Record<QuestStatus, string> = {
   not_started: "Not Started",
@@ -114,8 +115,7 @@ export default function QuestSection({
     setSubmitError(null);
   };
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Delete quest "${title}"?`)) return;
+  const handleDelete = async (id: string) => {
     setDeleteError(null);
     try {
       await api.deleteQuest(id);
@@ -294,9 +294,11 @@ export default function QuestSection({
                         <span
                           className={`text-xs font-medium ${levelIndicatorClass(quest.level, partyLevel)}`}
                           title={
-                            quest.level !== partyLevel
-                              ? `Party is Lv.${partyLevel}`
-                              : undefined
+                            quest.level > partyLevel
+                              ? `Quest Level ${quest.level} - Above party level (${partyLevel}), may be dangerous`
+                              : quest.level === partyLevel
+                              ? `Quest Level ${quest.level} - Appropriate for party level`
+                              : `Quest Level ${quest.level} - Below party level (${partyLevel})`
                           }
                         >
                           Lv.{quest.level}
@@ -328,13 +330,12 @@ export default function QuestSection({
                     >
                       Edit
                     </button>
-                    <button
-                      onClick={() => handleDelete(quest.id, quest.title)}
-                      aria-label={`Delete ${quest.title}`}
+                    <ConfirmButton
+                      onConfirm={() => handleDelete(quest.id)}
+                      label="Delete"
+                      confirmLabel="Are you sure?"
                       className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
-                    >
-                      Delete
-                    </button>
+                    />
                   </div>
                 </div>
               </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { api } from "@/lib/api";
 import type { Location } from "@/types";
+import ConfirmButton from "@/components/ConfirmButton";
 
 const BIOMES = [
   "Arctic",
@@ -57,8 +58,7 @@ export default function LocationSection({
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete ${name}?`)) return;
+  const handleDelete = async (id: string) => {
     await api.deleteLocation(id);
     onUpdate();
   };
@@ -171,13 +171,12 @@ export default function LocationSection({
                   >
                     Edit
                   </button>
-                  <button
-                    onClick={() => handleDelete(loc.id, loc.name)}
-                    aria-label={`Delete ${loc.name}`}
+                  <ConfirmButton
+                    onConfirm={() => handleDelete(loc.id)}
+                    label="Delete"
+                    confirmLabel="Are you sure?"
                     className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
-                  >
-                    Delete
-                  </button>
+                  />
                 </div>
               </div>
             );

@@ -9,6 +9,7 @@ import type {
   PlayerCharacter,
   AddCombatantRequest,
 } from '@/types';
+import ConfirmButton from '@/components/ConfirmButton';
 
 interface InitiativeTrackerProps {
   campaignId: string;
@@ -116,7 +117,6 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
   const [removing, setRemoving] = useState(false);
 
   const handleRemove = async () => {
-    if (!confirm(`Remove ${combatant.name} from combat?`)) return;
     setRemoving(true);
     try {
       const updated = await api.removeCombatant(sessionId, index);
@@ -178,15 +178,13 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
       </div>
 
       {/* Remove */}
-      <button
-        onClick={handleRemove}
+      <ConfirmButton
+        onConfirm={handleRemove}
+        label="✕"
+        confirmLabel="Remove?"
         disabled={removing}
         className="shrink-0 text-gray-500 hover:text-red-400 disabled:opacity-40 text-sm leading-none px-1 transition-colors"
-        title="Remove combatant"
-        aria-label={`Remove ${combatant.name} from combat`}
-      >
-        ✕
-      </button>
+      />
     </div>
   );
 }
@@ -473,7 +471,6 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   // End combat
   const handleEndCombat = async () => {
     if (!activeSession) return;
-    if (!confirm('End this combat session?')) return;
     setBusy(true);
     setError(null);
     try {
@@ -537,13 +534,13 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
             >
               {showAddMidCombat ? 'Cancel' : '+ Combatant'}
             </button>
-            <button
-              onClick={handleEndCombat}
+            <ConfirmButton
+              onConfirm={handleEndCombat}
+              label="End Combat"
+              confirmLabel="End session?"
               disabled={busy}
               className="text-sm bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg disabled:opacity-40 transition-colors"
-            >
-              End Combat
-            </button>
+            />
           </div>
         </div>
 
