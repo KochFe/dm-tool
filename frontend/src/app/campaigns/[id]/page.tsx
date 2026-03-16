@@ -27,6 +27,7 @@ export default function CampaignDetailPage({
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ name: "", party_level: 1, in_game_time: "" });
   const [npcRefreshKey, setNpcRefreshKey] = useState(0);
+  const [combatRefreshKey, setCombatRefreshKey] = useState(0);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [generatorResult, setGeneratorResult] = useState<{
     type: "encounter" | "npc" | "loot";
@@ -48,6 +49,7 @@ export default function CampaignDetailPage({
       in_game_time: c.in_game_time,
     });
     setNpcRefreshKey((k) => k + 1);
+    setCombatRefreshKey((k) => k + 1);
   };
 
   useEffect(() => {
@@ -168,7 +170,7 @@ export default function CampaignDetailPage({
         />
         <div className="grid xl:grid-cols-[1fr_320px] gap-6">
           <div className="bg-gray-900 border border-gray-700/50 rounded-xl p-5">
-            <InitiativeTracker campaignId={id} characters={characters} />
+            <InitiativeTracker campaignId={id} characters={characters} refreshKey={combatRefreshKey} />
           </div>
           <DiceRoller className="self-start" />
         </div>

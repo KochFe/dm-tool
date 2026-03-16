@@ -570,8 +570,8 @@ export default function GeneratorResultModal({
       const combatants = stagedCombatants.map((c) => ({
         name: c.name,
         initiative: c.initiative === '' ? 0 : c.initiative,
-        hp_current: c.hp_current === '' ? 0 : c.hp_current,
-        hp_max: c.hp_max === '' ? 0 : c.hp_max,
+        hp_current: c.hp_current === '' ? 1 : c.hp_current,
+        hp_max: c.hp_max === '' ? 1 : c.hp_max,
         armor_class: c.armor_class === '' ? 0 : c.armor_class,
         type: c.type,
         player_character_id: c.player_character_id ?? null,
