@@ -13,6 +13,7 @@ import type {
 interface InitiativeTrackerProps {
   campaignId: string;
   characters: PlayerCharacter[];
+  refreshKey?: number;
 }
 
 interface StagedCombatant {
@@ -334,7 +335,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
 
 // ---- Main component ----
 
-export default function InitiativeTracker({ campaignId, characters }: InitiativeTrackerProps) {
+export default function InitiativeTracker({ campaignId, characters, refreshKey = 0 }: InitiativeTrackerProps) {
   const [sessions, setSessions] = useState<CombatSession[]>([]);
   const [activeSession, setActiveSession] = useState<CombatSession | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -365,7 +366,7 @@ export default function InitiativeTracker({ campaignId, characters }: Initiative
 
   useEffect(() => {
     loadSessions();
-  }, [loadSessions]);
+  }, [loadSessions, refreshKey]);
 
   // ---- Handlers ----
 

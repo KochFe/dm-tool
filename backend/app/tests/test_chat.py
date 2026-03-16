@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from httpx import AsyncClient
 from unittest.mock import patch, AsyncMock
@@ -22,11 +24,16 @@ async def _create_campaign(client: AsyncClient) -> str:
 
 async def test_chat_happy_path(client: AsyncClient):
     """Valid campaign + valid user message returns 200 with assistant reply."""
+    from app.schemas.chat import ChatMessage, ChatResponse
+
     cid = await _create_campaign(client)
+    mock_response = ChatResponse(
+        message=ChatMessage(role="assistant", content="The ancient dragon sleeps beneath the mountain.")
+    )
     with patch(
-        "app.services.chat_service.invoke_lore_oracle", new_callable=AsyncMock
+        "app.routers.chat.process_chat", new_callable=AsyncMock
     ) as mock_oracle:
-        mock_oracle.return_value = "The ancient dragon sleeps beneath the mountain."
+        mock_oracle.return_value = mock_response
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={"messages": [{"role": "user", "content": "Where is the dragon?"}]},
@@ -84,10 +91,10 @@ async def test_chat_invalid_role(client: AsyncClient):
 
 
 async def test_chat_missing_api_key(client: AsyncClient):
-    """When invoke_lore_oracle raises a missing-key RuntimeError, the endpoint returns 503."""
+    """When process_chat raises a GROQ_API_KEY RuntimeError, the endpoint returns 503."""
     cid = await _create_campaign(client)
     with patch(
-        "app.services.chat_service.invoke_lore_oracle", new_callable=AsyncMock
+        "app.routers.chat.process_chat", new_callable=AsyncMock
     ) as mock_oracle:
         mock_oracle.side_effect = RuntimeError(
             "GROQ_API_KEY is not configured. "
@@ -103,10 +110,10 @@ async def test_chat_missing_api_key(client: AsyncClient):
 
 
 async def test_chat_ai_service_error(client: AsyncClient):
-    """When invoke_lore_oracle raises a generic RuntimeError, the endpoint returns 503 with the message."""
+    """When process_chat raises a generic RuntimeError, the endpoint returns 503 with the message."""
     cid = await _create_campaign(client)
     with patch(
-        "app.services.chat_service.invoke_lore_oracle", new_callable=AsyncMock
+        "app.routers.chat.process_chat", new_callable=AsyncMock
     ) as mock_oracle:
         mock_oracle.side_effect = RuntimeError("AI service error: connection timeout")
         resp = await client.post(
@@ -125,11 +132,16 @@ async def test_chat_ai_service_error(client: AsyncClient):
 
 async def test_chat_response_envelope(client: AsyncClient):
     """The response always has the data/error/meta envelope with correct message fields."""
+    from app.schemas.chat import ChatMessage, ChatResponse
+
     cid = await _create_campaign(client)
+    mock_response = ChatResponse(
+        message=ChatMessage(role="assistant", content="Roll a d20 for perception.")
+    )
     with patch(
-        "app.services.chat_service.invoke_lore_oracle", new_callable=AsyncMock
+        "app.routers.chat.process_chat", new_callable=AsyncMock
     ) as mock_oracle:
-        mock_oracle.return_value = "Roll a d20 for perception."
+        mock_oracle.return_value = mock_response
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={
@@ -156,3 +168,111 @@ async def test_chat_response_envelope(client: AsyncClient):
     assert "content" in message
     assert message["role"] == "assistant"
     assert message["content"] == "Roll a d20 for perception."
+
+
+# ---------------------------------------------------------------------------
+# Context injection
+# ---------------------------------------------------------------------------
+
+
+async def test_chat_context_includes_campaign_data(client: AsyncClient):
+    """campaign_context passed to process_chat includes location and party_level when set."""
+    from app.schemas.chat import ChatMessage, ChatResponse
+
+    cid = await _create_campaign(client)
+
+    # Create a location and attach it to the campaign
+    loc_resp = await client.post(
+        f"/api/v1/campaigns/{cid}/locations",
+        json={"name": "Waterdeep", "biome": "urban"},
+    )
+    assert loc_resp.status_code == 201
+    loc_id = loc_resp.json()["data"]["id"]
+
+    patch_resp = await client.patch(
+        f"/api/v1/campaigns/{cid}",
+        json={"current_location_id": loc_id, "party_level": 7},
+    )
+    assert patch_resp.status_code == 200
+
+    mock_response = ChatResponse(message=ChatMessage(role="assistant", content="Hello!"))
+    with patch("app.routers.chat.process_chat", new_callable=AsyncMock) as mock_chat:
+        mock_chat.return_value = mock_response
+        resp = await client.post(
+            CHAT_URL.format(campaign_id=cid),
+            json={"messages": [{"role": "user", "content": "Where are we?"}]},
+        )
+
+    assert resp.status_code == 200
+    args, _kwargs = mock_chat.call_args
+    # process_chat(campaign_id, messages, campaign_context, session_factory)
+    campaign_context = args[2]
+    assert campaign_context["location_name"] == "Waterdeep"
+    assert campaign_context["biome"] == "urban"
+    assert campaign_context["party_level"] == 7
+
+
+async def test_chat_context_no_location(client: AsyncClient):
+    """campaign_context has None for location fields when campaign has no current location."""
+    from app.schemas.chat import ChatMessage, ChatResponse
+
+    cid = await _create_campaign(client)
+    # Do not set current_location_id — it defaults to None
+
+    mock_response = ChatResponse(message=ChatMessage(role="assistant", content="Anywhere!"))
+    with patch("app.routers.chat.process_chat", new_callable=AsyncMock) as mock_chat:
+        mock_chat.return_value = mock_response
+        resp = await client.post(
+            CHAT_URL.format(campaign_id=cid),
+            json={"messages": [{"role": "user", "content": "Where am I?"}]},
+        )
+
+    assert resp.status_code == 200
+    args, _kwargs = mock_chat.call_args
+    campaign_context = args[2]
+    assert campaign_context["location_name"] is None
+    assert campaign_context["biome"] is None
+
+
+async def test_chat_campaign_id_is_uuid(client: AsyncClient):
+    """The campaign_id argument forwarded to process_chat is a uuid.UUID, not a string."""
+    from app.schemas.chat import ChatMessage, ChatResponse
+
+    cid = await _create_campaign(client)
+
+    mock_response = ChatResponse(message=ChatMessage(role="assistant", content="Indeed."))
+    with patch("app.routers.chat.process_chat", new_callable=AsyncMock) as mock_chat:
+        mock_chat.return_value = mock_response
+        resp = await client.post(
+            CHAT_URL.format(campaign_id=cid),
+            json={"messages": [{"role": "user", "content": "Hello?"}]},
+        )
+
+    assert resp.status_code == 200
+    args, _kwargs = mock_chat.call_args
+    forwarded_id = args[0]
+    assert isinstance(forwarded_id, uuid.UUID), (
+        f"Expected uuid.UUID, got {type(forwarded_id)}"
+    )
+
+
+async def test_chat_passes_session_factory(client: AsyncClient):
+    """The session_factory argument forwarded to process_chat is app.database.async_session."""
+    from app.schemas.chat import ChatMessage, ChatResponse
+    from app.database import async_session as expected_factory
+
+    cid = await _create_campaign(client)
+
+    mock_response = ChatResponse(message=ChatMessage(role="assistant", content="Sure."))
+    with patch("app.routers.chat.process_chat", new_callable=AsyncMock) as mock_chat:
+        mock_chat.return_value = mock_response
+        resp = await client.post(
+            CHAT_URL.format(campaign_id=cid),
+            json={"messages": [{"role": "user", "content": "Test."}]},
+        )
+
+    assert resp.status_code == 200
+    args, _kwargs = mock_chat.call_args
+    # process_chat(campaign_id, messages, campaign_context, session_factory)
+    session_factory = args[3]
+    assert session_factory is expected_factory

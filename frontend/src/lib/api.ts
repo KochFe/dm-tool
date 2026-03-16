@@ -188,4 +188,23 @@ export const api = {
     }
     return json.data.message;
   },
+
+  // Generators
+  generateEncounter: (campaignId: string, options?: import("@/types").GenerateEncounterRequest) =>
+    request<import("@/types").GeneratedEncounter>(`/api/v1/campaigns/${campaignId}/generate/encounter`, {
+      method: "POST",
+      body: JSON.stringify(options ?? {}),
+    }),
+
+  generateNpc: (campaignId: string, options?: import("@/types").GenerateNpcRequest) =>
+    request<import("@/types").GeneratedNpc>(`/api/v1/campaigns/${campaignId}/generate/npc`, {
+      method: "POST",
+      body: JSON.stringify(options ?? {}),
+    }),
+
+  generateLoot: (campaignId: string, options?: import("@/types").GenerateLootRequest) =>
+    request<import("@/types").GeneratedLoot>(`/api/v1/campaigns/${campaignId}/generate/loot`, {
+      method: "POST",
+      body: JSON.stringify(options ?? {}),
+    }),
 };

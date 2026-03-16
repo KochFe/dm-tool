@@ -208,3 +208,57 @@ export interface ChatRequest {
 export interface ChatResponse {
   message: ChatMessage;
 }
+
+// Generator response types
+export interface GeneratedMonster {
+  name: string;
+  cr: string;
+  hp: number;
+  ac: number;
+  count: number;
+}
+
+export interface GeneratedEncounter {
+  description: string;
+  monsters: GeneratedMonster[];
+  tactical_notes: string;
+  difficulty: string;
+}
+
+export interface GeneratedNpc {
+  name: string;
+  race: string;
+  npc_class: string | null;
+  description: string;
+  personality: string;
+  secrets: string;
+  motivation: string;
+  stats: Record<string, number> | null;
+}
+
+export interface GeneratedLootItem {
+  name: string;
+  description: string;
+  rarity: string;
+  value: string;
+}
+
+export interface GeneratedLoot {
+  items: GeneratedLootItem[];
+  total_value: string;
+  context: string;
+}
+
+// Generator request types
+export interface GenerateEncounterRequest {
+  difficulty?: string;
+}
+
+export interface GenerateNpcRequest {
+  location_id?: string;
+  role?: string;
+}
+
+export interface GenerateLootRequest {
+  context?: string;
+}

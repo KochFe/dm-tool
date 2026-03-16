@@ -10,8 +10,8 @@ A comprehensive digital assistant for Dungeons & Dragons Dungeon Masters. The go
 | 2 | Session Mechanics (Dice + Initiative) | Complete |
 | 3 | Relational Data (NPCs & Quests) | Complete |
 | 4 | AI Base Integration (LLM + LangGraph) | Complete |
-| 5 | LangGraph Context & Tools | In Progress |
-| 6 | Deployment Preparation | Pending |
+| 5 | LangGraph Context & Tools | Complete |
+| 6 | Deployment Preparation | In Progress |
 
 ## Quick Start
 
@@ -59,5 +59,5 @@ The backend will automatically run database migrations on startup.
 docker compose exec backend pytest
 ```
 
-All 111 tests run against SQLite in-memory — no running database required for testing.
+All 140 tests run against SQLite in-memory — no running database required for testing.
 

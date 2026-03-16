@@ -11,6 +11,9 @@ import QuestSection from "@/components/QuestSection";
 import DiceRoller from "@/components/DiceRoller";
 import InitiativeTracker from "@/components/InitiativeTracker";
 import ChatSidebar from "@/components/ChatSidebar";
+import SmartPrompts from "@/components/SmartPrompts";
+import GeneratorResultModal from "@/components/GeneratorResultModal";
+import type { GeneratedEncounter, GeneratedNpc, GeneratedLoot } from "@/types";
 
 export default function CampaignDetailPage({
   params,
@@ -23,7 +26,13 @@ export default function CampaignDetailPage({
   const [locations, setLocations] = useState<Location[]>([]);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ name: "", party_level: 1, in_game_time: "" });
+  const [npcRefreshKey, setNpcRefreshKey] = useState(0);
+  const [combatRefreshKey, setCombatRefreshKey] = useState(0);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [generatorResult, setGeneratorResult] = useState<{
+    type: "encounter" | "npc" | "loot";
+    result: GeneratedEncounter | GeneratedNpc | GeneratedLoot;
+  } | null>(null);
 
   const load = async () => {
     const [c, chars, locs] = await Promise.all([
@@ -39,6 +48,8 @@ export default function CampaignDetailPage({
       party_level: c.party_level,
       in_game_time: c.in_game_time,
     });
+    setNpcRefreshKey((k) => k + 1);
+    setCombatRefreshKey((k) => k + 1);
   };
 
   useEffect(() => {
@@ -57,6 +68,9 @@ export default function CampaignDetailPage({
       <p className="text-gray-400 text-sm">Loading campaign...</p>
     );
   }
+
+  const currentLocation = locations.find(l => l.id === campaign.current_location_id);
+  const currentLocationName = currentLocation?.name ?? null;
 
   return (
     <div className={`transition-[margin] duration-200 ease-in-out ${isChatOpen ? 'mr-[380px]' : ''}`}>
@@ -148,9 +162,15 @@ export default function CampaignDetailPage({
         <h2 className="text-lg font-semibold text-gray-300 mb-4">
           Session Tools
         </h2>
+        <SmartPrompts
+          campaignId={id}
+          currentLocationName={currentLocationName}
+          partyLevel={campaign.party_level}
+          onResult={(type, result) => setGeneratorResult({ type, result })}
+        />
         <div className="grid xl:grid-cols-[1fr_320px] gap-6">
           <div className="bg-gray-900 border border-gray-700/50 rounded-xl p-5">
-            <InitiativeTracker campaignId={id} characters={characters} />
+            <InitiativeTracker campaignId={id} characters={characters} refreshKey={combatRefreshKey} />
           </div>
           <DiceRoller className="self-start" />
         </div>
@@ -170,11 +190,13 @@ export default function CampaignDetailPage({
           <LocationSection
             campaignId={id}
             locations={locations}
+            currentLocationId={campaign.current_location_id}
             onUpdate={load}
           />
           <NPCSection
             campaignId={id}
             locations={locations}
+            refreshKey={npcRefreshKey}
           />
           <QuestSection
             campaignId={id}
@@ -207,7 +229,20 @@ export default function CampaignDetailPage({
         campaignId={campaign.id}
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
+        currentLocationName={currentLocationName}
+        partyLevel={campaign.party_level}
       />
+
+      {generatorResult && (
+        <GeneratorResultModal
+          type={generatorResult.type}
+          result={generatorResult.result}
+          campaignId={id}
+          characters={characters}
+          onClose={() => setGeneratorResult(null)}
+          onSaved={() => load()}
+        />
+      )}
     </div>
   );
 }
