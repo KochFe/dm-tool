@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import type { Npc, NpcCreate, Location } from "@/types";
+import ConfirmButton from "@/components/ConfirmButton";
 
 const EMPTY_FORM = {
   name: "",
@@ -386,13 +387,12 @@ export default function NPCSection({
                     >
                       Edit
                     </button>
-                    <button
-                      onClick={() => handleDelete(npc)}
-                      aria-label={`Delete ${npc.name}`}
+                    <ConfirmButton
+                      onConfirm={() => handleDelete(npc)}
+                      label="Delete"
+                      confirmLabel="Are you sure?"
                       className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
-                    >
-                      Delete
-                    </button>
+                    />
                   </div>
                 </div>
               </div>

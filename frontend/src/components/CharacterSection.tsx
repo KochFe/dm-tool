@@ -4,6 +4,7 @@ import { useState } from "react";
 import { api } from "@/lib/api";
 import { hpColor, hpBarColor } from "@/lib/utils";
 import type { PlayerCharacter } from "@/types";
+import ConfirmButton from "@/components/ConfirmButton";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -393,7 +394,6 @@ export default function CharacterSection({
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete ${name}?`)) return;
     try {
       await api.deleteCharacter(id);
       onUpdate();
@@ -702,13 +702,12 @@ export default function CharacterSection({
                     >
                       Edit
                     </button>
-                    <button
-                      onClick={() => handleDelete(pc.id, pc.name)}
-                      aria-label={`Delete ${pc.name}`}
+                    <ConfirmButton
+                      onConfirm={() => handleDelete(pc.id, pc.name)}
+                      label="Delete"
+                      confirmLabel="Are you sure?"
                       className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
-                    >
-                      Delete
-                    </button>
+                    />
                   </div>
                 </div>
 
