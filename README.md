@@ -2,6 +2,8 @@
 
 A comprehensive digital assistant for Dungeons & Dragons Dungeon Masters. The goal is to significantly reduce cognitive load during a campaign by combining deterministic tools (initiative tracking, dice engine, state management) with context-aware AI generation (NPC creation, encounter scaling, dialog suggestions).
 
+**Live at:** [https://dm.kochfe.de](https://dm.kochfe.de) (basic auth protected)
+
 ## Status
 
 | Phase | Description | Status |
@@ -11,15 +13,16 @@ A comprehensive digital assistant for Dungeons & Dragons Dungeon Masters. The go
 | 3 | Relational Data (NPCs & Quests) | Complete |
 | 4 | AI Base Integration (LLM + LangGraph) | Complete |
 | 5 | LangGraph Context & Tools | Complete |
-| 6 | Deployment Preparation | In Progress |
+| 6 | Deployment & CI/CD | Complete |
+| 7 | App-Level Authentication | Next |
 
-## Quick Start
+## Quick Start (Development)
 
 **Prerequisites:** Docker and Docker Compose.
 
 ```bash
 # 1. Clone the repo
-git clone <repo-url>
+git clone https://github.com/KochFe/dm-tool.git
 cd dm-tool
 
 # 2. Set up environment
@@ -39,13 +42,25 @@ The backend will automatically run database migrations on startup.
 | API Docs | http://localhost:8000/docs |
 | Adminer  | http://localhost:8080 |
 
+## Production
+
+The app is deployed on a Hetzner VPS with automatic CI/CD:
+
+- **URL:** `https://dm.kochfe.de` (Caddy reverse proxy, auto-HTTPS via Let's Encrypt)
+- **Auth:** HTTP basic auth (replaced by app-level auth in Phase 7)
+- **CI/CD:** Push to `main` → GitHub Actions CI (tests + build) → auto-deploy to VPS
+- **Stack:** `docker-compose.prod.yml` with Caddy, FastAPI (2 workers), Next.js (standalone), PostgreSQL
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for setup, operations, and troubleshooting.
+
 ## Tech Stack
 
 - **Frontend:** Next.js (App Router) + TypeScript + Tailwind CSS
 - **Backend:** FastAPI + SQLAlchemy 2.0 (async) + Alembic
 - **Database:** PostgreSQL 16
-- **AI (Phase 4+):** LangGraph + groq API (LLama 3.3 70B)
-- **Infrastructure:** Docker Compose (dev), Hetzner VPS (production)
+- **AI:** LangGraph + Groq API (LLama 3.3 70B)
+- **Infrastructure:** Docker Compose (dev), Hetzner VPS with Caddy (production)
+- **CI/CD:** GitHub Actions (CI gates Deploy via `workflow_run`)
 
 ## Architecture Principles
 
