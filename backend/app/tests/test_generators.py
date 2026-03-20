@@ -181,7 +181,7 @@ async def test_generate_encounter_ai_failure(client: AsyncClient):
         )
 
     assert resp.status_code == 503
-    assert "AI service unavailable" in resp.json()["detail"]
+    assert resp.json()["detail"] == "AI generation failed"
 
 
 async def test_generate_npc_ai_failure(client: AsyncClient):

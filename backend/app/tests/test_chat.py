@@ -122,7 +122,7 @@ async def test_chat_ai_service_error(client: AsyncClient):
         )
 
     assert resp.status_code == 503
-    assert "connection timeout" in resp.json()["detail"]
+    assert resp.json()["detail"] == "AI service error"
 
 
 # ---------------------------------------------------------------------------

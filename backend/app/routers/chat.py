@@ -1,7 +1,10 @@
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from app.database import async_session
 from app.dependencies import get_db
@@ -60,6 +63,7 @@ async def chat(
             raise HTTPException(
                 status_code=503, detail="AI service is not configured"
             )
-        raise HTTPException(status_code=503, detail=str(exc))
+        logger.exception("Chat service error for campaign %s", campaign_id)
+        raise HTTPException(status_code=503, detail="AI service error")
 
     return APIResponse(data=result)
