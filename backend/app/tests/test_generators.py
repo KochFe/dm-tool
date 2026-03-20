@@ -197,7 +197,7 @@ async def test_generate_npc_ai_failure(client: AsyncClient):
         )
 
     assert resp.status_code == 503
-    assert "GROQ_API_KEY" in resp.json()["detail"]
+    assert resp.json()["detail"] == "AI generation failed"
 
 
 async def test_generate_loot_ai_failure(client: AsyncClient):
@@ -213,7 +213,7 @@ async def test_generate_loot_ai_failure(client: AsyncClient):
         )
 
     assert resp.status_code == 503
-    assert "connection timeout" in resp.json()["detail"]
+    assert resp.json()["detail"] == "AI generation failed"
 
 
 # ---------------------------------------------------------------------------
