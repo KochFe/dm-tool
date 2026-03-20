@@ -23,4 +23,4 @@ jobs:
             docker compose -f docker-compose.prod.yml build
             docker compose -f docker-compose.prod.yml up -d
             sleep 10
-            curl -sf http://localhost:8000/health || exit 1
+            docker compose -f docker-compose.prod.yml exec -T backend curl -sf http://localhost:8000/health || exit 1
