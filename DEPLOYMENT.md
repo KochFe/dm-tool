@@ -110,6 +110,7 @@ curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 
 # Add your user to the docker group (so you can run docker without sudo)
+# This is preferred over passwordless sudo — it scopes access to Docker only
 sudo usermod -aG docker $USER
 
 # Log out and log back in for group membership to take effect
@@ -128,14 +129,11 @@ Both commands should print version numbers.
 
 ### Step 2: Clone the Repository
 
-Choose a location to deploy your app. We recommend `/opt/dm-tool`:
+Clone the repository into your home directory:
 
 ```bash
-sudo mkdir -p /opt/dm-tool
-cd /opt/dm-tool
-
-# Clone the repository
-git clone https://github.com/YOUR_ORG/dm-tool .
+git clone https://github.com/KochFe/dm-tool.git ~/dm-tool
+cd ~/dm-tool
 
 # Verify Dockerfile and compose files exist
 ls -la docker-compose.prod.yml Caddyfile
@@ -182,11 +180,11 @@ NEXT_PUBLIC_API_URL=
 
 | Field | How to Obtain | Example |
 |-------|---------------|---------|
-| `DOMAIN` | Your domain name | `dmtool.example.com` |
+| `DOMAIN` | Your subdomain | `dm.kochfe.de` |
 | `POSTGRES_PASSWORD` | Generate a strong password (20+ chars, mix of letters/numbers/symbols) | `aB3xYz9#mK$qW2pL7&vN` |
 | `DATABASE_URL` | Use the password above | `postgresql+asyncpg://dmtool:aB3xYz9#mK$qW2pL7&vN@db:5432/dmtool` |
 | `DATABASE_URL_SYNC` | Same password, same host | `postgresql://dmtool:aB3xYz9#mK$qW2pL7&vN@db:5432/dmtool` |
-| `BACKEND_CORS_ORIGINS` | Your domain with HTTPS | `https://dmtool.example.com` |
+| `BACKEND_CORS_ORIGINS` | Your subdomain with HTTPS | `https://dm.kochfe.de` |
 | `GROQ_API_KEY` | Get from [console.groq.com](https://console.groq.com) | `gsk_...` (long alphanumeric string) |
 | `BASIC_AUTH_PASSWORD_HASH` | Generate in step 4 | (see below) |
 | `NEXT_PUBLIC_API_URL` | Leave empty | (leave blank — Caddy proxies on same origin) |
@@ -226,20 +224,17 @@ Add or update an **A record:**
 
 | Field | Value |
 |-------|-------|
-| Name | `dmtool` (or the subdomain you want) |
+| Name | `dm` (subdomain — results in `dm.kochfe.de`) |
 | Type | A |
-| Value | Your VPS's public IP address |
+| Value | `91.99.95.120` (VPS public IP) |
 | TTL | 3600 (or default) |
-
-If your VPS IP is `123.45.67.89` and your domain is `example.com`, the final domain will be `dmtool.example.com`.
 
 **Verify DNS propagation:**
 
 ```bash
 # Wait 5-10 minutes, then:
-nslookup dmtool.example.com
-
-# Output should show your VPS's IP
+nslookup dm.kochfe.de
+# Output should show 91.99.95.120
 ```
 
 Don't proceed until DNS is propagated. Caddy will fail to provision a Let's Encrypt certificate if it can't verify you own the domain.
@@ -249,7 +244,7 @@ Don't proceed until DNS is propagated. Caddy will fail to provision a Let's Encr
 Now all configuration is in place. Start the containers:
 
 ```bash
-cd /opt/dm-tool
+cd ~/dm-tool
 
 # Start all services in the background
 docker compose -f docker-compose.prod.yml up -d
@@ -324,8 +319,8 @@ In your GitHub repository:
 | Secret Name | Value |
 |-------------|-------|
 | `DEPLOY_SSH_KEY` | Contents of `~/.ssh/deploy_key` (the **private** key, starts with `-----BEGIN`) |
-| `DEPLOY_HOST` | Your VPS's IP address or `dmtool.example.com` |
-| `DEPLOY_USER` | Your VPS username (usually `root`) |
+| `DEPLOY_HOST` | `91.99.95.120` (VPS public IP) |
+| `DEPLOY_USER` | `felix` |
 
 #### Verify Deployment Works
 
@@ -335,7 +330,7 @@ When you push to `main`, GitHub Actions should:
 2. Run frontend build (npm run build)
 3. If both pass, SSH into your VPS and run:
    ```bash
-   cd /opt/dm-tool
+   cd ~/dm-tool
    git pull origin main
    docker compose -f docker-compose.prod.yml build
    docker compose -f docker-compose.prod.yml up -d
@@ -397,7 +392,7 @@ docker compose -f docker-compose.prod.yml up -d
 When you have new code to deploy:
 
 ```bash
-cd /opt/dm-tool
+cd ~/dm-tool
 
 # Pull latest code from main branch
 git pull origin main
