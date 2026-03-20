@@ -22,5 +22,4 @@ jobs:
             git pull origin main
             docker compose -f docker-compose.prod.yml build
             docker compose -f docker-compose.prod.yml up -d
-            sleep 10
-            docker compose -f docker-compose.prod.yml exec -T backend curl -sf http://localhost:8000/health || exit 1
+            docker compose -f docker-compose.prod.yml exec -T backend python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
