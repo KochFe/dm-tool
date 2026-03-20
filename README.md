@@ -51,7 +51,6 @@ The app is deployed on a Hetzner VPS with automatic CI/CD:
 - **CI/CD:** Push to `main` → GitHub Actions CI (tests + build) → auto-deploy to VPS
 - **Stack:** `docker-compose.prod.yml` with Caddy, FastAPI (2 workers), Next.js (standalone), PostgreSQL
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for setup, operations, and troubleshooting.
 
 ## Tech Stack
 
