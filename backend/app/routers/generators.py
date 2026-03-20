@@ -1,7 +1,10 @@
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from app.dependencies import get_db
 from app.models.location import Location
@@ -88,7 +91,8 @@ async def generate_encounter_endpoint(
     try:
         result = await generate_encounter(context, difficulty=request.difficulty)
     except RuntimeError as exc:
-        raise HTTPException(status_code=503, detail=str(exc))
+        logger.exception("Generator error for campaign %s", campaign_id)
+        raise HTTPException(status_code=503, detail="AI generation failed")
 
     return APIResponse(data=result)
 
@@ -117,7 +121,8 @@ async def generate_npc_endpoint(
     try:
         result = await generate_npc(context, role=request.role)
     except RuntimeError as exc:
-        raise HTTPException(status_code=503, detail=str(exc))
+        logger.exception("Generator error for campaign %s", campaign_id)
+        raise HTTPException(status_code=503, detail="AI generation failed")
 
     return APIResponse(data=result)
 
@@ -144,6 +149,7 @@ async def generate_loot_endpoint(
     try:
         result = await generate_loot(context, context=request.context)
     except RuntimeError as exc:
-        raise HTTPException(status_code=503, detail=str(exc))
+        logger.exception("Generator error for campaign %s", campaign_id)
+        raise HTTPException(status_code=503, detail="AI generation failed")
 
     return APIResponse(data=result)
