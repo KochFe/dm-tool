@@ -1,8 +1,4 @@
 {$DOMAIN} {
-    basicauth * {
-        {$BASIC_AUTH_USER} {$BASIC_AUTH_PASSWORD_HASH}
-    }
-
     handle /api/* {
         reverse_proxy backend:8000
     }
