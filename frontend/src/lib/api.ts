@@ -16,11 +16,14 @@ function getRefreshToken(): string | null {
 export function setTokens(access: string, refresh: string): void {
   localStorage.setItem("access_token", access);
   localStorage.setItem("refresh_token", refresh);
+  // Set a cookie flag so Next.js middleware can detect auth state server-side
+  document.cookie = "has_token=1; path=/; SameSite=Lax";
 }
 
 export function clearTokens(): void {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
+  document.cookie = "has_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 }
 
 async function request<T>(
