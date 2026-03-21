@@ -17,7 +17,8 @@ export function setTokens(access: string, refresh: string): void {
   localStorage.setItem("access_token", access);
   localStorage.setItem("refresh_token", refresh);
   // Set a cookie flag so Next.js middleware can detect auth state server-side
-  document.cookie = "has_token=1; path=/; SameSite=Lax";
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `has_token=1; path=/; SameSite=Lax${secure}`;
 }
 
 export function clearTokens(): void {
