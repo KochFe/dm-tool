@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 from app.database import Base
 from app.dependencies import get_db
 from app.main import app
+from app.services.auth_service import create_user, create_access_token
 
 TEST_DATABASE_URL = "sqlite+aiosqlite://"
 
@@ -53,3 +54,24 @@ async def client() -> AsyncGenerator[AsyncClient, None]:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
         yield ac
+
+
+@pytest.fixture
+async def test_user(setup_db):
+    """Create a test user and return the User object."""
+    async with async_session_test() as db:
+        user = await create_user(
+            db,
+            email="testuser@example.com",
+            password="testpassword123",
+            display_name="Test User",
+            role="dm",
+        )
+        return user
+
+
+@pytest.fixture
+def auth_headers(test_user):
+    """Return Authorization headers with a valid access token."""
+    token = create_access_token(test_user.id)
+    return {"Authorization": f"Bearer {token}"}

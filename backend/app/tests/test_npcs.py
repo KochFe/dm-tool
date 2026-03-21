@@ -23,23 +23,24 @@ FULL_NPC = {
 }
 
 
-async def _create_campaign(client: AsyncClient) -> str:
-    resp = await client.post("/api/v1/campaigns", json={"name": "NPC Test Campaign"})
+async def _create_campaign(client: AsyncClient, auth_headers: dict) -> str:
+    resp = await client.post("/api/v1/campaigns", json={"name": "NPC Test Campaign"}, headers=auth_headers)
     assert resp.status_code == 201
     return resp.json()["data"]["id"]
 
 
-async def _create_location(client: AsyncClient, campaign_id: str) -> str:
+async def _create_location(client: AsyncClient, campaign_id: str, auth_headers: dict) -> str:
     resp = await client.post(
         f"/api/v1/campaigns/{campaign_id}/locations",
         json={"name": "Silvermoon Inn", "biome": "urban"},
+        headers=auth_headers,
     )
     assert resp.status_code == 201
     return resp.json()["data"]["id"]
 
 
-async def _create_npc(client: AsyncClient, campaign_id: str, data: dict) -> dict:
-    resp = await client.post(f"/api/v1/campaigns/{campaign_id}/npcs", json=data)
+async def _create_npc(client: AsyncClient, campaign_id: str, data: dict, auth_headers: dict) -> dict:
+    resp = await client.post(f"/api/v1/campaigns/{campaign_id}/npcs", json=data, headers=auth_headers)
     assert resp.status_code == 201
     return resp.json()["data"]
 
@@ -49,10 +50,10 @@ async def _create_npc(client: AsyncClient, campaign_id: str, data: dict) -> dict
 # ---------------------------------------------------------------------------
 
 
-async def test_create_npc_minimal(client: AsyncClient):
+async def test_create_npc_minimal(client: AsyncClient, auth_headers):
     """Creating an NPC with only required fields (name, race) returns 201."""
-    cid = await _create_campaign(client)
-    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=MINIMAL_NPC)
+    cid = await _create_campaign(client, auth_headers)
+    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=MINIMAL_NPC, headers=auth_headers)
     assert resp.status_code == 201
     body = resp.json()
     assert "data" in body
@@ -73,12 +74,12 @@ async def test_create_npc_minimal(client: AsyncClient):
     assert data["is_alive"] is True
 
 
-async def test_create_npc_all_fields(client: AsyncClient):
+async def test_create_npc_all_fields(client: AsyncClient, auth_headers):
     """Creating an NPC with all optional fields persists them correctly."""
-    cid = await _create_campaign(client)
-    lid = await _create_location(client, cid)
+    cid = await _create_campaign(client, auth_headers)
+    lid = await _create_location(client, cid, auth_headers)
     payload = {**FULL_NPC, "location_id": lid}
-    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=payload)
+    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=payload, headers=auth_headers)
     assert resp.status_code == 201
     data = resp.json()["data"]
     assert data["name"] == "Zara Moonwhisper"
@@ -93,19 +94,19 @@ async def test_create_npc_all_fields(client: AsyncClient):
     assert data["is_alive"] is True
 
 
-async def test_create_npc_invalid_campaign_returns_404(client: AsyncClient):
+async def test_create_npc_invalid_campaign_returns_404(client: AsyncClient, auth_headers):
     """Creating an NPC under a non-existent campaign returns 404."""
     resp = await client.post(
-        f"/api/v1/campaigns/{NULL_UUID}/npcs", json=MINIMAL_NPC
+        f"/api/v1/campaigns/{NULL_UUID}/npcs", json=MINIMAL_NPC, headers=auth_headers
     )
     assert resp.status_code == 404
 
 
-async def test_create_npc_invalid_location_returns_404(client: AsyncClient):
+async def test_create_npc_invalid_location_returns_404(client: AsyncClient, auth_headers):
     """Creating an NPC with a non-existent location_id returns 404."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     payload = {**MINIMAL_NPC, "location_id": NULL_UUID}
-    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=payload)
+    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=payload, headers=auth_headers)
     assert resp.status_code == 404
 
 
@@ -114,29 +115,29 @@ async def test_create_npc_invalid_location_returns_404(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_list_npcs_for_campaign(client: AsyncClient):
+async def test_list_npcs_for_campaign(client: AsyncClient, auth_headers):
     """Listing NPCs returns all NPCs scoped to that campaign."""
-    cid = await _create_campaign(client)
-    await _create_npc(client, cid, MINIMAL_NPC)
-    await _create_npc(client, cid, {**FULL_NPC})
-    resp = await client.get(f"/api/v1/campaigns/{cid}/npcs")
+    cid = await _create_campaign(client, auth_headers)
+    await _create_npc(client, cid, MINIMAL_NPC, auth_headers)
+    await _create_npc(client, cid, {**FULL_NPC}, auth_headers)
+    resp = await client.get(f"/api/v1/campaigns/{cid}/npcs", headers=auth_headers)
     assert resp.status_code == 200
     body = resp.json()
     assert body["error"] is None
     assert len(body["data"]) == 2
 
 
-async def test_list_npcs_filtered_by_location(client: AsyncClient):
+async def test_list_npcs_filtered_by_location(client: AsyncClient, auth_headers):
     """Listing NPCs with location_id filter returns only NPCs at that location."""
-    cid = await _create_campaign(client)
-    lid = await _create_location(client, cid)
+    cid = await _create_campaign(client, auth_headers)
+    lid = await _create_location(client, cid, auth_headers)
 
     # Create one NPC at the location and one without a location
-    await _create_npc(client, cid, {**MINIMAL_NPC, "location_id": lid})
-    await _create_npc(client, cid, {"name": "Wanderer", "race": "Dwarf"})
+    await _create_npc(client, cid, {**MINIMAL_NPC, "location_id": lid}, auth_headers)
+    await _create_npc(client, cid, {"name": "Wanderer", "race": "Dwarf"}, auth_headers)
 
     resp = await client.get(
-        f"/api/v1/campaigns/{cid}/npcs", params={"location_id": lid}
+        f"/api/v1/campaigns/{cid}/npcs", params={"location_id": lid}, headers=auth_headers
     )
     assert resp.status_code == 200
     data = resp.json()["data"]
@@ -145,17 +146,17 @@ async def test_list_npcs_filtered_by_location(client: AsyncClient):
     assert data[0]["location_id"] == lid
 
 
-async def test_list_npcs_empty_campaign(client: AsyncClient):
+async def test_list_npcs_empty_campaign(client: AsyncClient, auth_headers):
     """Listing NPCs for a campaign with no NPCs returns an empty list."""
-    cid = await _create_campaign(client)
-    resp = await client.get(f"/api/v1/campaigns/{cid}/npcs")
+    cid = await _create_campaign(client, auth_headers)
+    resp = await client.get(f"/api/v1/campaigns/{cid}/npcs", headers=auth_headers)
     assert resp.status_code == 200
     assert resp.json()["data"] == []
 
 
-async def test_list_npcs_campaign_not_found(client: AsyncClient):
+async def test_list_npcs_campaign_not_found(client: AsyncClient, auth_headers):
     """Listing NPCs for a non-existent campaign returns 404."""
-    resp = await client.get(f"/api/v1/campaigns/{NULL_UUID}/npcs")
+    resp = await client.get(f"/api/v1/campaigns/{NULL_UUID}/npcs", headers=auth_headers)
     assert resp.status_code == 404
 
 
@@ -164,13 +165,13 @@ async def test_list_npcs_campaign_not_found(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_get_npc(client: AsyncClient):
+async def test_get_npc(client: AsyncClient, auth_headers):
     """Retrieving an NPC by ID returns the correct NPC with envelope."""
-    cid = await _create_campaign(client)
-    created = await _create_npc(client, cid, MINIMAL_NPC)
+    cid = await _create_campaign(client, auth_headers)
+    created = await _create_npc(client, cid, MINIMAL_NPC, auth_headers)
     npc_id = created["id"]
 
-    resp = await client.get(f"/api/v1/npcs/{npc_id}")
+    resp = await client.get(f"/api/v1/npcs/{npc_id}", headers=auth_headers)
     assert resp.status_code == 200
     body = resp.json()
     assert body["error"] is None
@@ -178,9 +179,9 @@ async def test_get_npc(client: AsyncClient):
     assert body["data"]["name"] == "Aldric"
 
 
-async def test_get_npc_not_found(client: AsyncClient):
+async def test_get_npc_not_found(client: AsyncClient, auth_headers):
     """Retrieving a non-existent NPC by ID returns 404."""
-    resp = await client.get(f"/api/v1/npcs/{NULL_UUID}")
+    resp = await client.get(f"/api/v1/npcs/{NULL_UUID}", headers=auth_headers)
     assert resp.status_code == 404
 
 
@@ -189,14 +190,14 @@ async def test_get_npc_not_found(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_update_npc_partial_name(client: AsyncClient):
+async def test_update_npc_partial_name(client: AsyncClient, auth_headers):
     """PATCH with only name updates name; all other fields remain unchanged."""
-    cid = await _create_campaign(client)
-    created = await _create_npc(client, cid, FULL_NPC)
+    cid = await _create_campaign(client, auth_headers)
+    created = await _create_npc(client, cid, FULL_NPC, auth_headers)
     npc_id = created["id"]
 
     resp = await client.patch(
-        f"/api/v1/npcs/{npc_id}", json={"name": "Zara the Betrayer"}
+        f"/api/v1/npcs/{npc_id}", json={"name": "Zara the Betrayer"}, headers=auth_headers
     )
     assert resp.status_code == 200
     data = resp.json()["data"]
@@ -209,48 +210,48 @@ async def test_update_npc_partial_name(client: AsyncClient):
     assert data["is_alive"] is True
 
 
-async def test_update_npc_set_location(client: AsyncClient):
+async def test_update_npc_set_location(client: AsyncClient, auth_headers):
     """PATCH with location_id assigns the NPC to that location."""
-    cid = await _create_campaign(client)
-    lid = await _create_location(client, cid)
-    created = await _create_npc(client, cid, MINIMAL_NPC)
+    cid = await _create_campaign(client, auth_headers)
+    lid = await _create_location(client, cid, auth_headers)
+    created = await _create_npc(client, cid, MINIMAL_NPC, auth_headers)
     npc_id = created["id"]
     assert created["location_id"] is None
 
     resp = await client.patch(
-        f"/api/v1/npcs/{npc_id}", json={"location_id": lid}
+        f"/api/v1/npcs/{npc_id}", json={"location_id": lid}, headers=auth_headers
     )
     assert resp.status_code == 200
     assert resp.json()["data"]["location_id"] == lid
 
 
-async def test_update_npc_invalid_location_returns_404(client: AsyncClient):
+async def test_update_npc_invalid_location_returns_404(client: AsyncClient, auth_headers):
     """PATCH with a non-existent location_id returns 404."""
-    cid = await _create_campaign(client)
-    created = await _create_npc(client, cid, MINIMAL_NPC)
+    cid = await _create_campaign(client, auth_headers)
+    created = await _create_npc(client, cid, MINIMAL_NPC, auth_headers)
     npc_id = created["id"]
 
     resp = await client.patch(
-        f"/api/v1/npcs/{npc_id}", json={"location_id": NULL_UUID}
+        f"/api/v1/npcs/{npc_id}", json={"location_id": NULL_UUID}, headers=auth_headers
     )
     assert resp.status_code == 404
 
 
-async def test_update_npc_not_found(client: AsyncClient):
+async def test_update_npc_not_found(client: AsyncClient, auth_headers):
     """PATCH on a non-existent NPC returns 404."""
     resp = await client.patch(
-        f"/api/v1/npcs/{NULL_UUID}", json={"name": "Ghost NPC"}
+        f"/api/v1/npcs/{NULL_UUID}", json={"name": "Ghost NPC"}, headers=auth_headers
     )
     assert resp.status_code == 404
 
 
-async def test_update_npc_is_alive(client: AsyncClient):
+async def test_update_npc_is_alive(client: AsyncClient, auth_headers):
     """PATCH can mark an NPC as dead without affecting other fields."""
-    cid = await _create_campaign(client)
-    created = await _create_npc(client, cid, MINIMAL_NPC)
+    cid = await _create_campaign(client, auth_headers)
+    created = await _create_npc(client, cid, MINIMAL_NPC, auth_headers)
     npc_id = created["id"]
 
-    resp = await client.patch(f"/api/v1/npcs/{npc_id}", json={"is_alive": False})
+    resp = await client.patch(f"/api/v1/npcs/{npc_id}", json={"is_alive": False}, headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()["data"]
     assert data["is_alive"] is False
@@ -262,22 +263,22 @@ async def test_update_npc_is_alive(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_delete_npc(client: AsyncClient):
+async def test_delete_npc(client: AsyncClient, auth_headers):
     """Deleting an NPC returns 204 and subsequent GET returns 404."""
-    cid = await _create_campaign(client)
-    created = await _create_npc(client, cid, MINIMAL_NPC)
+    cid = await _create_campaign(client, auth_headers)
+    created = await _create_npc(client, cid, MINIMAL_NPC, auth_headers)
     npc_id = created["id"]
 
-    resp = await client.delete(f"/api/v1/npcs/{npc_id}")
+    resp = await client.delete(f"/api/v1/npcs/{npc_id}", headers=auth_headers)
     assert resp.status_code == 204
 
-    get_resp = await client.get(f"/api/v1/npcs/{npc_id}")
+    get_resp = await client.get(f"/api/v1/npcs/{npc_id}", headers=auth_headers)
     assert get_resp.status_code == 404
 
 
-async def test_delete_npc_not_found(client: AsyncClient):
+async def test_delete_npc_not_found(client: AsyncClient, auth_headers):
     """Deleting a non-existent NPC returns 404."""
-    resp = await client.delete(f"/api/v1/npcs/{NULL_UUID}")
+    resp = await client.delete(f"/api/v1/npcs/{NULL_UUID}", headers=auth_headers)
     assert resp.status_code == 404
 
 
@@ -286,13 +287,13 @@ async def test_delete_npc_not_found(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_npc_response_envelope_structure(client: AsyncClient):
+async def test_npc_response_envelope_structure(client: AsyncClient, auth_headers):
     """Every NPC response contains the data/error/meta envelope keys."""
-    cid = await _create_campaign(client)
-    created = await _create_npc(client, cid, MINIMAL_NPC)
+    cid = await _create_campaign(client, auth_headers)
+    created = await _create_npc(client, cid, MINIMAL_NPC, auth_headers)
     npc_id = created["id"]
 
-    resp = await client.get(f"/api/v1/npcs/{npc_id}")
+    resp = await client.get(f"/api/v1/npcs/{npc_id}", headers=auth_headers)
     body = resp.json()
     assert "data" in body
     assert "error" in body
