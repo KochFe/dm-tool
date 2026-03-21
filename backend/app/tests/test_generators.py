@@ -59,8 +59,8 @@ MOCK_LOOT = GeneratedLoot(
 # ---------------------------------------------------------------------------
 
 
-async def _create_campaign(client: AsyncClient) -> str:
-    resp = await client.post("/api/v1/campaigns", json={"name": "Generator Test Campaign"})
+async def _create_campaign(client: AsyncClient, auth_headers: dict) -> str:
+    resp = await client.post("/api/v1/campaigns", json={"name": "Generator Test Campaign"}, headers=auth_headers)
     assert resp.status_code == 201
     return resp.json()["data"]["id"]
 
@@ -70,9 +70,9 @@ async def _create_campaign(client: AsyncClient) -> str:
 # ---------------------------------------------------------------------------
 
 
-async def test_generate_encounter_happy_path(client: AsyncClient):
+async def test_generate_encounter_happy_path(client: AsyncClient, auth_headers):
     """Valid campaign returns 200 with a GeneratedEncounter in the data envelope."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     with patch(
         "app.routers.generators.generate_encounter", new_callable=AsyncMock
     ) as mock_gen:
@@ -80,6 +80,7 @@ async def test_generate_encounter_happy_path(client: AsyncClient):
         resp = await client.post(
             ENCOUNTER_URL.format(campaign_id=cid),
             json={"difficulty": "medium"},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 200
@@ -91,9 +92,9 @@ async def test_generate_encounter_happy_path(client: AsyncClient):
     mock_gen.assert_awaited_once()
 
 
-async def test_generate_npc_happy_path(client: AsyncClient):
+async def test_generate_npc_happy_path(client: AsyncClient, auth_headers):
     """Valid campaign returns 200 with a GeneratedNpc in the data envelope."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     with patch(
         "app.routers.generators.generate_npc", new_callable=AsyncMock
     ) as mock_gen:
@@ -101,6 +102,7 @@ async def test_generate_npc_happy_path(client: AsyncClient):
         resp = await client.post(
             NPC_URL.format(campaign_id=cid),
             json={"role": "blacksmith"},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 200
@@ -111,9 +113,9 @@ async def test_generate_npc_happy_path(client: AsyncClient):
     mock_gen.assert_awaited_once()
 
 
-async def test_generate_loot_happy_path(client: AsyncClient):
+async def test_generate_loot_happy_path(client: AsyncClient, auth_headers):
     """Valid campaign returns 200 with a GeneratedLoot in the data envelope."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     with patch(
         "app.routers.generators.generate_loot", new_callable=AsyncMock
     ) as mock_gen:
@@ -121,6 +123,7 @@ async def test_generate_loot_happy_path(client: AsyncClient):
         resp = await client.post(
             LOOT_URL.format(campaign_id=cid),
             json={"context": "dragon hoard"},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 200
@@ -136,29 +139,32 @@ async def test_generate_loot_happy_path(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_generate_encounter_campaign_not_found(client: AsyncClient):
+async def test_generate_encounter_campaign_not_found(client: AsyncClient, auth_headers):
     """Non-existent campaign_id returns 404 for the encounter generator."""
     resp = await client.post(
         ENCOUNTER_URL.format(campaign_id=NULL_UUID),
         json={"difficulty": "hard"},
+        headers=auth_headers,
     )
     assert resp.status_code == 404
 
 
-async def test_generate_npc_campaign_not_found(client: AsyncClient):
+async def test_generate_npc_campaign_not_found(client: AsyncClient, auth_headers):
     """Non-existent campaign_id returns 404 for the NPC generator."""
     resp = await client.post(
         NPC_URL.format(campaign_id=NULL_UUID),
         json={"role": "wizard"},
+        headers=auth_headers,
     )
     assert resp.status_code == 404
 
 
-async def test_generate_loot_campaign_not_found(client: AsyncClient):
+async def test_generate_loot_campaign_not_found(client: AsyncClient, auth_headers):
     """Non-existent campaign_id returns 404 for the loot generator."""
     resp = await client.post(
         LOOT_URL.format(campaign_id=NULL_UUID),
         json={"context": "treasure chest"},
+        headers=auth_headers,
     )
     assert resp.status_code == 404
 
@@ -168,9 +174,9 @@ async def test_generate_loot_campaign_not_found(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_generate_encounter_ai_failure(client: AsyncClient):
+async def test_generate_encounter_ai_failure(client: AsyncClient, auth_headers):
     """A RuntimeError from the generator service propagates as 503."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     with patch(
         "app.routers.generators.generate_encounter", new_callable=AsyncMock
     ) as mock_gen:
@@ -178,15 +184,16 @@ async def test_generate_encounter_ai_failure(client: AsyncClient):
         resp = await client.post(
             ENCOUNTER_URL.format(campaign_id=cid),
             json={"difficulty": "easy"},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 503
     assert resp.json()["detail"] == "AI generation failed"
 
 
-async def test_generate_npc_ai_failure(client: AsyncClient):
+async def test_generate_npc_ai_failure(client: AsyncClient, auth_headers):
     """A RuntimeError from the NPC generator propagates as 503."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     with patch(
         "app.routers.generators.generate_npc", new_callable=AsyncMock
     ) as mock_gen:
@@ -194,15 +201,16 @@ async def test_generate_npc_ai_failure(client: AsyncClient):
         resp = await client.post(
             NPC_URL.format(campaign_id=cid),
             json={"role": "innkeeper"},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 503
     assert resp.json()["detail"] == "AI generation failed"
 
 
-async def test_generate_loot_ai_failure(client: AsyncClient):
+async def test_generate_loot_ai_failure(client: AsyncClient, auth_headers):
     """A RuntimeError from the loot generator propagates as 503."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     with patch(
         "app.routers.generators.generate_loot", new_callable=AsyncMock
     ) as mock_gen:
@@ -210,6 +218,7 @@ async def test_generate_loot_ai_failure(client: AsyncClient):
         resp = await client.post(
             LOOT_URL.format(campaign_id=cid),
             json={"context": "dungeon chest"},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 503
@@ -221,9 +230,9 @@ async def test_generate_loot_ai_failure(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_generate_encounter_response_envelope(client: AsyncClient):
+async def test_generate_encounter_response_envelope(client: AsyncClient, auth_headers):
     """The encounter response always contains data/error/meta keys; error is None on success."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     with patch(
         "app.routers.generators.generate_encounter", new_callable=AsyncMock
     ) as mock_gen:
@@ -231,6 +240,7 @@ async def test_generate_encounter_response_envelope(client: AsyncClient):
         resp = await client.post(
             ENCOUNTER_URL.format(campaign_id=cid),
             json={"difficulty": "deadly"},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 200
