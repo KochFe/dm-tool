@@ -41,5 +41,8 @@ htmlcov/
 .coverage
 coverage.xml
 
+# Documentation (local only, not tracked)
+docs/
+
 # Docker
 docker-compose.override.yml
