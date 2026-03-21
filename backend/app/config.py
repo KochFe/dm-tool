@@ -11,6 +11,12 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
+    # Auth / JWT
+    SECRET_KEY: str = "CHANGE-ME-IN-PRODUCTION"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 days
+
     model_config = {"env_file": ".env"}
 
     @model_validator(mode="after")
@@ -25,6 +31,8 @@ class Settings(BaseSettings):
                 "DATABASE_URL contains the default development password. "
                 "Set a strong password in your .env file before deploying to production."
             )
+        if self.SECRET_KEY == "CHANGE-ME-IN-PRODUCTION":
+            logging.warning("SECRET_KEY is the default value. Set a secure key in production.")
         return self
 
 
