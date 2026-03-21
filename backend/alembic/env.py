@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.config import settings
 from app.database import Base
-from app.models import Campaign, PlayerCharacter, Location  # noqa: F401
+from app.models import Campaign, PlayerCharacter, Location, User  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL_SYNC)
