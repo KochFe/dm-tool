@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 logger = logging.getLogger(__name__)
 
 from app.database import async_session
-from app.dependencies import get_db
+from app.dependencies import get_current_user, get_db
+from app.models.user import User
 from app.models.location import Location
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.schemas.common import APIResponse
@@ -25,6 +26,7 @@ async def chat(
     campaign_id: uuid.UUID,
     request: ChatRequest,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ) -> APIResponse[ChatResponse]:
     """Send a chat message to the Lore Oracle agent scoped to a campaign.
 

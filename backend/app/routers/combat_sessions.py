@@ -3,7 +3,8 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_db
+from app.dependencies import get_current_user, get_db
+from app.models.user import User
 from app.schemas.combat_session import (
     AddCombatantRequest,
     CombatSessionCreate,
@@ -26,6 +27,7 @@ async def create_combat_session(
     campaign_id: uuid.UUID,
     data: CombatSessionCreate,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Create a new combat session for a campaign.
 
@@ -43,6 +45,7 @@ async def create_combat_session(
 async def list_combat_sessions(
     campaign_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """List all combat sessions for a campaign, newest first.
 
@@ -64,6 +67,7 @@ async def list_combat_sessions(
 async def get_combat_session(
     session_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Retrieve a single combat session by ID.
 
@@ -83,6 +87,7 @@ async def update_combat_session(
     session_id: uuid.UUID,
     data: CombatSessionUpdate,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Partially update a combat session's name or status.
 
@@ -100,6 +105,7 @@ async def update_combat_session(
 async def delete_combat_session(
     session_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Delete a combat session by ID.
 
@@ -121,6 +127,7 @@ async def add_combatant(
     session_id: uuid.UUID,
     data: AddCombatantRequest,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Append a combatant to an existing combat session.
 
@@ -143,6 +150,7 @@ async def update_combatant(
     index: int,
     data: UpdateCombatantRequest,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Partially update a combatant at the given list index.
 
@@ -165,6 +173,7 @@ async def remove_combatant(
     session_id: uuid.UUID,
     index: int,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Remove the combatant at the given list index.
 
@@ -186,6 +195,7 @@ async def remove_combatant(
 async def advance_turn(
     session_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Advance the initiative tracker to the next combatant's turn.
 

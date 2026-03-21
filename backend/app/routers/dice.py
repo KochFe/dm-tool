@@ -1,5 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.dependencies import get_current_user
+from app.models.user import User
 from app.schemas.common import APIResponse
 from app.schemas.dice import DiceRollRequest, DiceRollResponse
 from app.services import dice_service
@@ -8,7 +10,10 @@ router = APIRouter()
 
 
 @router.post("/dice/roll", response_model=APIResponse[DiceRollResponse], status_code=200)
-async def roll_dice(data: DiceRollRequest) -> APIResponse[DiceRollResponse]:
+async def roll_dice(
+    data: DiceRollRequest,
+    _current_user: User = Depends(get_current_user),
+) -> APIResponse[DiceRollResponse]:
     """Roll dice using standard D&D notation.
 
     Accepts notation such as '2d6+3', '1d20', or '4d6-1'.

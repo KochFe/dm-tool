@@ -3,7 +3,8 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_db
+from app.dependencies import get_current_user, get_db
+from app.models.user import User
 from app.schemas.npc import NpcCreate, NpcUpdate, NpcResponse
 from app.schemas.common import APIResponse
 from app.services import campaign_service, npc_service
@@ -20,6 +21,7 @@ async def create_npc(
     campaign_id: uuid.UUID,
     data: NpcCreate,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Create a new NPC scoped to a campaign."""
     campaign = await campaign_service.get_campaign(db, campaign_id)
@@ -37,6 +39,7 @@ async def list_npcs(
     campaign_id: uuid.UUID,
     location_id: uuid.UUID | None = None,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """List all NPCs in a campaign, optionally filtered by location."""
     campaign = await campaign_service.get_campaign(db, campaign_id)
@@ -47,7 +50,11 @@ async def list_npcs(
 
 
 @router.get("/npcs/{npc_id}", response_model=APIResponse[NpcResponse])
-async def get_npc(npc_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def get_npc(
+    npc_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+):
     """Retrieve a single NPC by ID."""
     npc = await npc_service.get_npc(db, npc_id)
     if not npc:
@@ -60,6 +67,7 @@ async def update_npc(
     npc_id: uuid.UUID,
     data: NpcUpdate,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Partially update an NPC. Only provided fields are changed."""
     npc = await npc_service.get_npc(db, npc_id)
@@ -70,7 +78,11 @@ async def update_npc(
 
 
 @router.delete("/npcs/{npc_id}", status_code=204)
-async def delete_npc(npc_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def delete_npc(
+    npc_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+):
     """Delete an NPC by ID."""
     npc = await npc_service.get_npc(db, npc_id)
     if not npc:
