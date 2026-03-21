@@ -75,3 +75,13 @@ docker compose exec backend pytest
 
 All 140 tests run against SQLite in-memory — no running database required for testing.
 
+## Documentation
+
+Detailed project documentation lives in `docs/` (local only, not tracked in git):
+
+- `docs/ARCHITECTURE.md` — API conventions, DB patterns, LangGraph agent, generators
+- `docs/ROADMAP.md` — Development phases, current objectives, feature requirements
+- `docs/CODEBASE.md` — File tree with module annotations
+- `docs/INFRASTRUCTURE.md` — Docker services, CI/CD pipeline, VPS, production config
+- `docs/DECISIONS.md` — Key architectural decisions with rationale
+
