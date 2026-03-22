@@ -1,13 +1,45 @@
-import type { APIResponse } from "@/types";
+import type { APIResponse, TokenResponse, AuthUser } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+
+// Token storage
+function getAccessToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("access_token");
+}
+
+function getRefreshToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("refresh_token");
+}
+
+export function setTokens(access: string, refresh: string): void {
+  localStorage.setItem("access_token", access);
+  localStorage.setItem("refresh_token", refresh);
+  // Set a cookie flag so Next.js middleware can detect auth state server-side
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `has_token=1; path=/; SameSite=Lax${secure}`;
+}
+
+export function clearTokens(): void {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  document.cookie = "has_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+}
 
 async function request<T>(
   path: string,
   options?: RequestInit
 ): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  const token = getAccessToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...options?.headers },
+    headers: { ...headers, ...options?.headers },
     ...options,
   });
 
@@ -207,4 +239,37 @@ export const api = {
       method: "POST",
       body: JSON.stringify(options ?? {}),
     }),
+
+  // Auth
+  async login(email: string, password: string): Promise<TokenResponse> {
+    const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const json = await res.json();
+    if (!res.ok || json.error) {
+      throw new Error(json.error || json.detail || "Login failed");
+    }
+    return json.data;
+  },
+
+  async refreshToken(): Promise<TokenResponse> {
+    const refresh = getRefreshToken();
+    if (!refresh) throw new Error("No refresh token");
+    const res = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refresh }),
+    });
+    const json = await res.json();
+    if (!res.ok || json.error) {
+      throw new Error(json.error || json.detail || "Token refresh failed");
+    }
+    return json.data;
+  },
+
+  async getMe(): Promise<AuthUser> {
+    return request<AuthUser>("/api/v1/auth/me");
+  },
 };
