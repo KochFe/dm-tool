@@ -2,7 +2,7 @@
 
 A comprehensive digital assistant for Dungeons & Dragons Dungeon Masters. The goal is to significantly reduce cognitive load during a campaign by combining deterministic tools (initiative tracking, dice engine, state management) with context-aware AI generation (NPC creation, encounter scaling, dialog suggestions).
 
-**Live at:** [https://dm.kochfe.de](https://dm.kochfe.de) (basic auth protected)
+**Live at:** [https://dm.kochfe.de](https://dm.kochfe.de)
 
 ## Status
 
@@ -14,7 +14,8 @@ A comprehensive digital assistant for Dungeons & Dragons Dungeon Masters. The go
 | 4 | AI Base Integration (LLM + LangGraph) | Complete |
 | 5 | LangGraph Context & Tools | Complete |
 | 6 | Deployment & CI/CD | Complete |
-| 7 | App-Level Authentication | Next |
+| 7 | App-Level Authentication | Complete |
+| 8 | Multi-Tenancy | Complete |
 
 ## Quick Start (Development)
 
@@ -47,7 +48,7 @@ The backend will automatically run database migrations on startup.
 The app is deployed on a Hetzner VPS with automatic CI/CD:
 
 - **URL:** `https://dm.kochfe.de` (Caddy reverse proxy, auto-HTTPS via Let's Encrypt)
-- **Auth:** HTTP basic auth (replaced by app-level auth in Phase 7)
+- **Auth:** JWT-based app-level authentication with per-user data isolation
 - **CI/CD:** Push to `main` → GitHub Actions CI (tests + build) → auto-deploy to VPS
 - **Stack:** `docker-compose.prod.yml` with Caddy, FastAPI (2 workers), Next.js (standalone), PostgreSQL
 
@@ -73,7 +74,7 @@ The app is deployed on a Hetzner VPS with automatic CI/CD:
 docker compose exec backend pytest
 ```
 
-All 140 tests run against SQLite in-memory — no running database required for testing.
+All 165 tests run against SQLite in-memory — no running database required for testing.
 
 ## Documentation
 
