@@ -21,9 +21,9 @@ async def create_location(
     campaign_id: uuid.UUID,
     data: LocationCreate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    campaign = await campaign_service.get_campaign(db, campaign_id)
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     location = await location_service.create_location(db, campaign_id, data)
@@ -37,9 +37,9 @@ async def create_location(
 async def list_locations(
     campaign_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    campaign = await campaign_service.get_campaign(db, campaign_id)
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     locations = await location_service.get_locations(db, campaign_id)
@@ -50,9 +50,9 @@ async def list_locations(
 async def get_location(
     location_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    location = await location_service.get_location(db, location_id)
+    location = await location_service.get_location(db, location_id, current_user.id)
     if not location:
         raise HTTPException(status_code=404, detail="Location not found")
     return APIResponse(data=LocationResponse.model_validate(location))
@@ -65,9 +65,9 @@ async def update_location(
     location_id: uuid.UUID,
     data: LocationUpdate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    location = await location_service.get_location(db, location_id)
+    location = await location_service.get_location(db, location_id, current_user.id)
     if not location:
         raise HTTPException(status_code=404, detail="Location not found")
     updated = await location_service.update_location(db, location, data)
@@ -78,9 +78,9 @@ async def update_location(
 async def delete_location(
     location_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    location = await location_service.get_location(db, location_id)
+    location = await location_service.get_location(db, location_id, current_user.id)
     if not location:
         raise HTTPException(status_code=404, detail="Location not found")
     await location_service.delete_location(db, location)

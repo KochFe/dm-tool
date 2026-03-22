@@ -21,10 +21,10 @@ async def create_quest(
     campaign_id: uuid.UUID,
     data: QuestCreate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Create a new quest scoped to a campaign."""
-    campaign = await campaign_service.get_campaign(db, campaign_id)
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     quest = await quest_service.create_quest(db, campaign_id, data)
@@ -39,10 +39,10 @@ async def list_quests(
     campaign_id: uuid.UUID,
     location_id: uuid.UUID | None = None,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """List all quests for a campaign, optionally filtered by location."""
-    campaign = await campaign_service.get_campaign(db, campaign_id)
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     quests = await quest_service.get_quests(db, campaign_id, location_id=location_id)
@@ -53,10 +53,10 @@ async def list_quests(
 async def get_quest(
     quest_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Retrieve a single quest by ID."""
-    quest = await quest_service.get_quest(db, quest_id)
+    quest = await quest_service.get_quest(db, quest_id, current_user.id)
     if not quest:
         raise HTTPException(status_code=404, detail="Quest not found")
     return APIResponse(data=QuestResponse.model_validate(quest))
@@ -67,10 +67,10 @@ async def update_quest(
     quest_id: uuid.UUID,
     data: QuestUpdate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Partially update a quest. Only provided fields are modified."""
-    quest = await quest_service.get_quest(db, quest_id)
+    quest = await quest_service.get_quest(db, quest_id, current_user.id)
     if not quest:
         raise HTTPException(status_code=404, detail="Quest not found")
     updated = await quest_service.update_quest(db, quest, data)
@@ -81,10 +81,10 @@ async def update_quest(
 async def delete_quest(
     quest_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Delete a quest by ID."""
-    quest = await quest_service.get_quest(db, quest_id)
+    quest = await quest_service.get_quest(db, quest_id, current_user.id)
     if not quest:
         raise HTTPException(status_code=404, detail="Quest not found")
     await quest_service.delete_quest(db, quest)

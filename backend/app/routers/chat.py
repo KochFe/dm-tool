@@ -26,7 +26,7 @@ async def chat(
     campaign_id: uuid.UUID,
     request: ChatRequest,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> APIResponse[ChatResponse]:
     """Send a chat message to the Lore Oracle agent scoped to a campaign.
 
@@ -37,7 +37,7 @@ async def chat(
     Raises HTTP 404 if the campaign is not found.
     Raises HTTP 503 if the AI service is unavailable or misconfigured.
     """
-    campaign = await campaign_service.get_campaign(db, campaign_id)
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
 

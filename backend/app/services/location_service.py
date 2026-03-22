@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.campaign import Campaign
 from app.models.location import Location
 from app.schemas.location import LocationCreate, LocationUpdate
 
@@ -26,8 +27,17 @@ async def get_locations(db: AsyncSession, campaign_id: uuid.UUID) -> list[Locati
     return list(result.scalars().all())
 
 
-async def get_location(db: AsyncSession, location_id: uuid.UUID) -> Location | None:
-    return await db.get(Location, location_id)
+async def get_location(
+    db: AsyncSession, location_id: uuid.UUID, user_id: uuid.UUID | None = None
+) -> Location | None:
+    location = await db.get(Location, location_id)
+    if location is None:
+        return None
+    if user_id is not None:
+        campaign = await db.get(Campaign, location.campaign_id)
+        if campaign is None or campaign.user_id != user_id:
+            return None
+    return location
 
 
 async def update_location(

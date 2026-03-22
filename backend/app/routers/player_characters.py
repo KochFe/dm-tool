@@ -25,9 +25,9 @@ async def create_character(
     campaign_id: uuid.UUID,
     data: PlayerCharacterCreate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    campaign = await campaign_service.get_campaign(db, campaign_id)
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     pc = await player_character_service.create_player_character(db, campaign_id, data)
@@ -41,9 +41,9 @@ async def create_character(
 async def list_characters(
     campaign_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    campaign = await campaign_service.get_campaign(db, campaign_id)
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     pcs = await player_character_service.get_player_characters(db, campaign_id)
@@ -57,9 +57,9 @@ async def list_characters(
 async def get_character(
     character_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    pc = await player_character_service.get_player_character(db, character_id)
+    pc = await player_character_service.get_player_character(db, character_id, current_user.id)
     if not pc:
         raise HTTPException(status_code=404, detail="Character not found")
     return APIResponse(data=PlayerCharacterResponse.model_validate(pc))
@@ -73,9 +73,9 @@ async def update_character(
     character_id: uuid.UUID,
     data: PlayerCharacterUpdate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    pc = await player_character_service.get_player_character(db, character_id)
+    pc = await player_character_service.get_player_character(db, character_id, current_user.id)
     if not pc:
         raise HTTPException(status_code=404, detail="Character not found")
     updated = await player_character_service.update_player_character(db, pc, data)
@@ -86,9 +86,9 @@ async def update_character(
 async def delete_character(
     character_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    pc = await player_character_service.get_player_character(db, character_id)
+    pc = await player_character_service.get_player_character(db, character_id, current_user.id)
     if not pc:
         raise HTTPException(status_code=404, detail="Character not found")
     await player_character_service.delete_player_character(db, pc)

@@ -31,6 +31,7 @@ router = APIRouter()
 async def _build_campaign_context(
     campaign_id: uuid.UUID,
     db: AsyncSession,
+    user_id: uuid.UUID,
     location_id: uuid.UUID | None = None,
 ) -> tuple[object, dict]:
     """Fetch the campaign and resolve location context into a context dict.
@@ -38,6 +39,7 @@ async def _build_campaign_context(
     Args:
         campaign_id: The campaign to look up.
         db: Active database session.
+        user_id: The authenticated user — used to verify campaign ownership.
         location_id: Override location ID. Falls back to the campaign's
             current_location_id when not provided.
 
@@ -46,9 +48,9 @@ async def _build_campaign_context(
         party_level, location_name, and biome.
 
     Raises:
-        HTTPException 404: If the campaign does not exist.
+        HTTPException 404: If the campaign does not exist or is not owned by user.
     """
-    campaign = await campaign_service.get_campaign(db, campaign_id)
+    campaign = await campaign_service.get_campaign(db, campaign_id, user_id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
 
@@ -78,7 +80,7 @@ async def generate_encounter_endpoint(
     campaign_id: uuid.UUID,
     request: GenerateEncounterRequest,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> APIResponse[GeneratedEncounter]:
     """Generate a D&D 5e encounter scaled to the campaign's party level and location.
 
@@ -88,7 +90,7 @@ async def generate_encounter_endpoint(
     Raises HTTP 404 if the campaign is not found.
     Raises HTTP 503 if the AI service is unavailable or misconfigured.
     """
-    _, context = await _build_campaign_context(campaign_id, db)
+    _, context = await _build_campaign_context(campaign_id, db, current_user.id)
 
     try:
         result = await generate_encounter(context, difficulty=request.difficulty)
@@ -107,7 +109,7 @@ async def generate_npc_endpoint(
     campaign_id: uuid.UUID,
     request: GenerateNpcRequest,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> APIResponse[GeneratedNpc]:
     """Generate a D&D 5e NPC grounded in the campaign's location and party level.
 
@@ -118,7 +120,7 @@ async def generate_npc_endpoint(
     Raises HTTP 503 if the AI service is unavailable or misconfigured.
     """
     _, context = await _build_campaign_context(
-        campaign_id, db, location_id=request.location_id
+        campaign_id, db, current_user.id, location_id=request.location_id
     )
 
     try:
@@ -138,7 +140,7 @@ async def generate_loot_endpoint(
     campaign_id: uuid.UUID,
     request: GenerateLootRequest,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> APIResponse[GeneratedLoot]:
     """Generate a D&D 5e loot collection scaled to the campaign's party level and location.
 
@@ -148,7 +150,7 @@ async def generate_loot_endpoint(
     Raises HTTP 404 if the campaign is not found.
     Raises HTTP 503 if the AI service is unavailable or misconfigured.
     """
-    _, context = await _build_campaign_context(campaign_id, db)
+    _, context = await _build_campaign_context(campaign_id, db, current_user.id)
 
     try:
         result = await generate_loot(context, context=request.context)
