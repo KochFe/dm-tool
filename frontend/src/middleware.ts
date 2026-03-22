@@ -17,7 +17,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  // Prevent Next.js from caching auth-dependent responses —
+  // without this, a cached redirect persists even after login
+  const response = NextResponse.next();
+  response.headers.set("x-middleware-cache", "no-cache");
+  return response;
 }
 
 export const config = {
