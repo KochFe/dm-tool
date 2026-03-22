@@ -75,3 +75,24 @@ def auth_headers(test_user):
     """Return Authorization headers with a valid access token."""
     token = create_access_token(test_user.id)
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+async def second_user(setup_db):
+    """Create a second test user for cross-user isolation tests."""
+    async with async_session_test() as db:
+        user = await create_user(
+            db,
+            email="otheruser@example.com",
+            password="otherpassword123",
+            display_name="Other User",
+            role="dm",
+        )
+        return user
+
+
+@pytest.fixture
+def auth_headers_b(second_user):
+    """Return Authorization headers for the second test user."""
+    token = create_access_token(second_user.id)
+    return {"Authorization": f"Bearer {token}"}
