@@ -75,9 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/campaigns");
   };
 
-  // Block rendering of protected pages until auth is resolved
+  // Block rendering of protected pages while loading OR if not authenticated
   const isPublic = PUBLIC_PATHS.includes(pathname);
-  const showChildren = isPublic || !loading;
+  const showChildren = isPublic || (!loading && !!user);
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout }}>
