@@ -11,8 +11,8 @@ NULL_UUID = "00000000-0000-0000-0000-000000000000"
 CHAT_URL = "/api/v1/campaigns/{campaign_id}/chat"
 
 
-async def _create_campaign(client: AsyncClient) -> str:
-    resp = await client.post("/api/v1/campaigns", json={"name": "Chat Test Campaign"})
+async def _create_campaign(client: AsyncClient, auth_headers: dict) -> str:
+    resp = await client.post("/api/v1/campaigns", json={"name": "Chat Test Campaign"}, headers=auth_headers)
     assert resp.status_code == 201
     return resp.json()["data"]["id"]
 
@@ -22,11 +22,11 @@ async def _create_campaign(client: AsyncClient) -> str:
 # ---------------------------------------------------------------------------
 
 
-async def test_chat_happy_path(client: AsyncClient):
+async def test_chat_happy_path(client: AsyncClient, auth_headers):
     """Valid campaign + valid user message returns 200 with assistant reply."""
     from app.schemas.chat import ChatMessage, ChatResponse
 
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     mock_response = ChatResponse(
         message=ChatMessage(role="assistant", content="The ancient dragon sleeps beneath the mountain.")
     )
@@ -37,6 +37,7 @@ async def test_chat_happy_path(client: AsyncClient):
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={"messages": [{"role": "user", "content": "Where is the dragon?"}]},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 200
@@ -51,11 +52,12 @@ async def test_chat_happy_path(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_chat_campaign_not_found(client: AsyncClient):
+async def test_chat_campaign_not_found(client: AsyncClient, auth_headers):
     """Requesting chat for a non-existent campaign returns 404."""
     resp = await client.post(
         CHAT_URL.format(campaign_id=NULL_UUID),
         json={"messages": [{"role": "user", "content": "Hello?"}]},
+        headers=auth_headers,
     )
     assert resp.status_code == 404
 
@@ -65,22 +67,24 @@ async def test_chat_campaign_not_found(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_chat_empty_messages(client: AsyncClient):
+async def test_chat_empty_messages(client: AsyncClient, auth_headers):
     """An empty messages list is rejected with 422."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     resp = await client.post(
         CHAT_URL.format(campaign_id=cid),
         json={"messages": []},
+        headers=auth_headers,
     )
     assert resp.status_code == 422
 
 
-async def test_chat_invalid_role(client: AsyncClient):
+async def test_chat_invalid_role(client: AsyncClient, auth_headers):
     """A message with role 'system' is rejected with 422."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     resp = await client.post(
         CHAT_URL.format(campaign_id=cid),
         json={"messages": [{"role": "system", "content": "You are a dragon."}]},
+        headers=auth_headers,
     )
     assert resp.status_code == 422
 
@@ -90,9 +94,9 @@ async def test_chat_invalid_role(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_chat_missing_api_key(client: AsyncClient):
+async def test_chat_missing_api_key(client: AsyncClient, auth_headers):
     """When process_chat raises a GROQ_API_KEY RuntimeError, the endpoint returns 503."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     with patch(
         "app.routers.chat.process_chat", new_callable=AsyncMock
     ) as mock_oracle:
@@ -103,15 +107,16 @@ async def test_chat_missing_api_key(client: AsyncClient):
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={"messages": [{"role": "user", "content": "Tell me a secret."}]},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 503
     assert "not configured" in resp.json()["detail"].lower()
 
 
-async def test_chat_ai_service_error(client: AsyncClient):
+async def test_chat_ai_service_error(client: AsyncClient, auth_headers):
     """When process_chat raises a generic RuntimeError, the endpoint returns 503 with the message."""
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     with patch(
         "app.routers.chat.process_chat", new_callable=AsyncMock
     ) as mock_oracle:
@@ -119,6 +124,7 @@ async def test_chat_ai_service_error(client: AsyncClient):
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={"messages": [{"role": "user", "content": "What lurks in the dark?"}]},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 503
@@ -130,11 +136,11 @@ async def test_chat_ai_service_error(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_chat_response_envelope(client: AsyncClient):
+async def test_chat_response_envelope(client: AsyncClient, auth_headers):
     """The response always has the data/error/meta envelope with correct message fields."""
     from app.schemas.chat import ChatMessage, ChatResponse
 
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     mock_response = ChatResponse(
         message=ChatMessage(role="assistant", content="Roll a d20 for perception.")
     )
@@ -149,6 +155,7 @@ async def test_chat_response_envelope(client: AsyncClient):
                     {"role": "user", "content": "Do I notice anything unusual?"}
                 ]
             },
+            headers=auth_headers,
         )
 
     assert resp.status_code == 200
@@ -175,16 +182,17 @@ async def test_chat_response_envelope(client: AsyncClient):
 # ---------------------------------------------------------------------------
 
 
-async def test_chat_context_includes_campaign_data(client: AsyncClient):
+async def test_chat_context_includes_campaign_data(client: AsyncClient, auth_headers):
     """campaign_context passed to process_chat includes location and party_level when set."""
     from app.schemas.chat import ChatMessage, ChatResponse
 
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
 
     # Create a location and attach it to the campaign
     loc_resp = await client.post(
         f"/api/v1/campaigns/{cid}/locations",
         json={"name": "Waterdeep", "biome": "urban"},
+        headers=auth_headers,
     )
     assert loc_resp.status_code == 201
     loc_id = loc_resp.json()["data"]["id"]
@@ -192,6 +200,7 @@ async def test_chat_context_includes_campaign_data(client: AsyncClient):
     patch_resp = await client.patch(
         f"/api/v1/campaigns/{cid}",
         json={"current_location_id": loc_id, "party_level": 7},
+        headers=auth_headers,
     )
     assert patch_resp.status_code == 200
 
@@ -201,6 +210,7 @@ async def test_chat_context_includes_campaign_data(client: AsyncClient):
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={"messages": [{"role": "user", "content": "Where are we?"}]},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 200
@@ -212,11 +222,11 @@ async def test_chat_context_includes_campaign_data(client: AsyncClient):
     assert campaign_context["party_level"] == 7
 
 
-async def test_chat_context_no_location(client: AsyncClient):
+async def test_chat_context_no_location(client: AsyncClient, auth_headers):
     """campaign_context has None for location fields when campaign has no current location."""
     from app.schemas.chat import ChatMessage, ChatResponse
 
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
     # Do not set current_location_id — it defaults to None
 
     mock_response = ChatResponse(message=ChatMessage(role="assistant", content="Anywhere!"))
@@ -225,6 +235,7 @@ async def test_chat_context_no_location(client: AsyncClient):
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={"messages": [{"role": "user", "content": "Where am I?"}]},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 200
@@ -234,11 +245,11 @@ async def test_chat_context_no_location(client: AsyncClient):
     assert campaign_context["biome"] is None
 
 
-async def test_chat_campaign_id_is_uuid(client: AsyncClient):
+async def test_chat_campaign_id_is_uuid(client: AsyncClient, auth_headers):
     """The campaign_id argument forwarded to process_chat is a uuid.UUID, not a string."""
     from app.schemas.chat import ChatMessage, ChatResponse
 
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
 
     mock_response = ChatResponse(message=ChatMessage(role="assistant", content="Indeed."))
     with patch("app.routers.chat.process_chat", new_callable=AsyncMock) as mock_chat:
@@ -246,6 +257,7 @@ async def test_chat_campaign_id_is_uuid(client: AsyncClient):
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={"messages": [{"role": "user", "content": "Hello?"}]},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 200
@@ -256,12 +268,12 @@ async def test_chat_campaign_id_is_uuid(client: AsyncClient):
     )
 
 
-async def test_chat_passes_session_factory(client: AsyncClient):
+async def test_chat_passes_session_factory(client: AsyncClient, auth_headers):
     """The session_factory argument forwarded to process_chat is app.database.async_session."""
     from app.schemas.chat import ChatMessage, ChatResponse
     from app.database import async_session as expected_factory
 
-    cid = await _create_campaign(client)
+    cid = await _create_campaign(client, auth_headers)
 
     mock_response = ChatResponse(message=ChatMessage(role="assistant", content="Sure."))
     with patch("app.routers.chat.process_chat", new_callable=AsyncMock) as mock_chat:
@@ -269,6 +281,7 @@ async def test_chat_passes_session_factory(client: AsyncClient):
         resp = await client.post(
             CHAT_URL.format(campaign_id=cid),
             json={"messages": [{"role": "user", "content": "Test."}]},
+            headers=auth_headers,
         )
 
     assert resp.status_code == 200

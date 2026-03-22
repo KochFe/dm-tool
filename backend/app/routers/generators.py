@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
-from app.dependencies import get_db
+from app.dependencies import get_current_user, get_db
 from app.models.location import Location
+from app.models.user import User
 from app.schemas.common import APIResponse
 from app.schemas.generators import (
     GenerateEncounterRequest,
@@ -77,6 +78,7 @@ async def generate_encounter_endpoint(
     campaign_id: uuid.UUID,
     request: GenerateEncounterRequest,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ) -> APIResponse[GeneratedEncounter]:
     """Generate a D&D 5e encounter scaled to the campaign's party level and location.
 
@@ -105,6 +107,7 @@ async def generate_npc_endpoint(
     campaign_id: uuid.UUID,
     request: GenerateNpcRequest,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ) -> APIResponse[GeneratedNpc]:
     """Generate a D&D 5e NPC grounded in the campaign's location and party level.
 
@@ -135,6 +138,7 @@ async def generate_loot_endpoint(
     campaign_id: uuid.UUID,
     request: GenerateLootRequest,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ) -> APIResponse[GeneratedLoot]:
     """Generate a D&D 5e loot collection scaled to the campaign's party level and location.
 

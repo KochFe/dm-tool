@@ -3,7 +3,8 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_db
+from app.dependencies import get_current_user, get_db
+from app.models.user import User
 from app.schemas.quest import QuestCreate, QuestUpdate, QuestResponse
 from app.schemas.common import APIResponse
 from app.services import campaign_service, quest_service
@@ -20,6 +21,7 @@ async def create_quest(
     campaign_id: uuid.UUID,
     data: QuestCreate,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Create a new quest scoped to a campaign."""
     campaign = await campaign_service.get_campaign(db, campaign_id)
@@ -37,6 +39,7 @@ async def list_quests(
     campaign_id: uuid.UUID,
     location_id: uuid.UUID | None = None,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """List all quests for a campaign, optionally filtered by location."""
     campaign = await campaign_service.get_campaign(db, campaign_id)
@@ -47,7 +50,11 @@ async def list_quests(
 
 
 @router.get("/quests/{quest_id}", response_model=APIResponse[QuestResponse])
-async def get_quest(quest_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def get_quest(
+    quest_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+):
     """Retrieve a single quest by ID."""
     quest = await quest_service.get_quest(db, quest_id)
     if not quest:
@@ -60,6 +67,7 @@ async def update_quest(
     quest_id: uuid.UUID,
     data: QuestUpdate,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     """Partially update a quest. Only provided fields are modified."""
     quest = await quest_service.get_quest(db, quest_id)
@@ -70,7 +78,11 @@ async def update_quest(
 
 
 @router.delete("/quests/{quest_id}", status_code=204)
-async def delete_quest(quest_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def delete_quest(
+    quest_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+):
     """Delete a quest by ID."""
     quest = await quest_service.get_quest(db, quest_id)
     if not quest:

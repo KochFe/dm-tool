@@ -3,7 +3,8 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_db
+from app.dependencies import get_current_user, get_db
+from app.models.user import User
 from app.schemas.player_character import (
     PlayerCharacterCreate,
     PlayerCharacterUpdate,
@@ -24,6 +25,7 @@ async def create_character(
     campaign_id: uuid.UUID,
     data: PlayerCharacterCreate,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     campaign = await campaign_service.get_campaign(db, campaign_id)
     if not campaign:
@@ -37,7 +39,9 @@ async def create_character(
     response_model=APIResponse[list[PlayerCharacterResponse]],
 )
 async def list_characters(
-    campaign_id: uuid.UUID, db: AsyncSession = Depends(get_db)
+    campaign_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     campaign = await campaign_service.get_campaign(db, campaign_id)
     if not campaign:
@@ -50,7 +54,11 @@ async def list_characters(
     "/characters/{character_id}",
     response_model=APIResponse[PlayerCharacterResponse],
 )
-async def get_character(character_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def get_character(
+    character_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+):
     pc = await player_character_service.get_player_character(db, character_id)
     if not pc:
         raise HTTPException(status_code=404, detail="Character not found")
@@ -65,6 +73,7 @@ async def update_character(
     character_id: uuid.UUID,
     data: PlayerCharacterUpdate,
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     pc = await player_character_service.get_player_character(db, character_id)
     if not pc:
@@ -75,7 +84,9 @@ async def update_character(
 
 @router.delete("/characters/{character_id}", status_code=204)
 async def delete_character(
-    character_id: uuid.UUID, db: AsyncSession = Depends(get_db)
+    character_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     pc = await player_character_service.get_player_character(db, character_id)
     if not pc:
