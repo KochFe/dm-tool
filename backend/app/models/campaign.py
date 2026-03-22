@@ -13,6 +13,9 @@ class Campaign(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid, primary_key=True, default=uuid.uuid4
     )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     name: Mapped[str] = mapped_column(Text, nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     current_location_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -48,6 +51,7 @@ class Campaign(Base):
     quests: Mapped[list["Quest"]] = relationship(
         back_populates="campaign", cascade="all, delete-orphan"
     )
+    owner: Mapped["User"] = relationship(lazy="select")
 
     __table_args__ = (
         CheckConstraint("party_level >= 1 AND party_level <= 20", name="ck_party_level"),
