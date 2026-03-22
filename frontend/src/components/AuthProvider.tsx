@@ -70,9 +70,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     const tokens = await api.login(email, password);
     setTokens(tokens.access_token, tokens.refresh_token);
-    const me = await api.getMe();
-    setUser(me);
-    router.push("/campaigns");
+    // Hard navigation clears the client-side Router Cache, which may
+    // hold stale redirects from before the user was authenticated
+    window.location.href = "/campaigns";
   };
 
   // Block rendering of protected pages while loading OR if not authenticated
