@@ -34,9 +34,22 @@ async def create_quest(
     return quest
 
 
-async def get_quest(db: AsyncSession, quest_id: uuid.UUID) -> Quest | None:
-    """Retrieve a single quest by ID."""
-    return await db.get(Quest, quest_id)
+async def get_quest(
+    db: AsyncSession, quest_id: uuid.UUID, user_id: uuid.UUID | None = None
+) -> Quest | None:
+    """Retrieve a single quest by ID.
+
+    If user_id is provided, also verifies the quest belongs to a campaign owned
+    by that user. Returns None if ownership check fails.
+    """
+    quest = await db.get(Quest, quest_id)
+    if quest is None:
+        return None
+    if user_id is not None:
+        campaign = await db.get(Campaign, quest.campaign_id)
+        if campaign is None or campaign.user_id != user_id:
+            return None
+    return quest
 
 
 async def get_quests(

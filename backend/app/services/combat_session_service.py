@@ -44,10 +44,21 @@ async def create_combat_session(
 
 
 async def get_combat_session(
-    db: AsyncSession, session_id: uuid.UUID
+    db: AsyncSession, session_id: uuid.UUID, user_id: uuid.UUID | None = None
 ) -> CombatSession | None:
-    """Retrieve a single combat session by ID."""
-    return await db.get(CombatSession, session_id)
+    """Retrieve a single combat session by ID.
+
+    If user_id is provided, also verifies the session belongs to a campaign
+    owned by that user. Returns None if ownership check fails.
+    """
+    session = await db.get(CombatSession, session_id)
+    if session is None:
+        return None
+    if user_id is not None:
+        campaign = await db.get(Campaign, session.campaign_id)
+        if campaign is None or campaign.user_id != user_id:
+            return None
+    return session
 
 
 async def get_combat_sessions(

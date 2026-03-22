@@ -13,6 +13,8 @@ from app.models.location import Location
 from app.models.player_character import PlayerCharacter
 from app.models.npc import Npc
 from app.models.quest import Quest
+from app.models.user import User
+from app.services.auth_service import hash_password
 from app.tests.conftest import async_session_test
 
 pytestmark = pytest.mark.asyncio
@@ -22,7 +24,11 @@ pytestmark = pytest.mark.asyncio
 async def seeded_campaign():
     """Create a campaign with locations, PCs, NPCs, and quests."""
     async with async_session_test() as session:
-        campaign = Campaign(name="Test Campaign", party_level=5)
+        user = User(email="tools@test.com", hashed_password=hash_password("x"), display_name="Tools")
+        session.add(user)
+        await session.flush()
+
+        campaign = Campaign(name="Test Campaign", party_level=5, user_id=user.id)
         session.add(campaign)
         await session.flush()
 
@@ -89,7 +95,11 @@ async def seeded_campaign():
 async def empty_campaign():
     """Create a campaign with no PCs, NPCs, quests, or current location."""
     async with async_session_test() as session:
-        campaign = Campaign(name="Empty Campaign", party_level=1)
+        user = User(email="empty@test.com", hashed_password=hash_password("x"), display_name="Empty")
+        session.add(user)
+        await session.flush()
+
+        campaign = Campaign(name="Empty Campaign", party_level=1, user_id=user.id)
         session.add(campaign)
         await session.commit()
         return campaign.id

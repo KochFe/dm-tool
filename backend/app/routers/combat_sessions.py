@@ -27,13 +27,16 @@ async def create_combat_session(
     campaign_id: uuid.UUID,
     data: CombatSessionCreate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Create a new combat session for a campaign.
 
     Combatants are sorted by initiative descending on creation.
-    Returns 404 if the campaign does not exist.
+    Returns 404 if the campaign does not exist or is not owned by the current user.
     """
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
     session = await combat_session_service.create_combat_session(db, campaign_id, data)
     return APIResponse(data=CombatSessionResponse.model_validate(session))
 
@@ -45,13 +48,13 @@ async def create_combat_session(
 async def list_combat_sessions(
     campaign_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """List all combat sessions for a campaign, newest first.
 
-    Returns 404 if the campaign does not exist.
+    Returns 404 if the campaign does not exist or is not owned by the current user.
     """
-    campaign = await campaign_service.get_campaign(db, campaign_id)
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     sessions = await combat_session_service.get_combat_sessions(db, campaign_id)
@@ -67,13 +70,13 @@ async def list_combat_sessions(
 async def get_combat_session(
     session_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Retrieve a single combat session by ID.
 
     Returns 404 if the session does not exist.
     """
-    session = await combat_session_service.get_combat_session(db, session_id)
+    session = await combat_session_service.get_combat_session(db, session_id, current_user.id)
     if not session:
         raise HTTPException(status_code=404, detail="Combat session not found")
     return APIResponse(data=CombatSessionResponse.model_validate(session))
@@ -87,14 +90,14 @@ async def update_combat_session(
     session_id: uuid.UUID,
     data: CombatSessionUpdate,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Partially update a combat session's name or status.
 
     Only fields explicitly provided in the request body are updated.
     Returns 404 if the session does not exist.
     """
-    session = await combat_session_service.get_combat_session(db, session_id)
+    session = await combat_session_service.get_combat_session(db, session_id, current_user.id)
     if not session:
         raise HTTPException(status_code=404, detail="Combat session not found")
     updated = await combat_session_service.update_combat_session(db, session, data)
@@ -105,14 +108,14 @@ async def update_combat_session(
 async def delete_combat_session(
     session_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Delete a combat session by ID.
 
     Returns 204 No Content on success.
     Returns 404 if the session does not exist.
     """
-    session = await combat_session_service.get_combat_session(db, session_id)
+    session = await combat_session_service.get_combat_session(db, session_id, current_user.id)
     if not session:
         raise HTTPException(status_code=404, detail="Combat session not found")
     await combat_session_service.delete_combat_session(db, session)
@@ -127,14 +130,14 @@ async def add_combatant(
     session_id: uuid.UUID,
     data: AddCombatantRequest,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Append a combatant to an existing combat session.
 
     The combatant list is re-sorted by initiative descending after insertion.
     Returns 404 if the session does not exist.
     """
-    session = await combat_session_service.get_combat_session(db, session_id)
+    session = await combat_session_service.get_combat_session(db, session_id, current_user.id)
     if not session:
         raise HTTPException(status_code=404, detail="Combat session not found")
     updated = await combat_session_service.add_combatant(db, session, data)
@@ -150,7 +153,7 @@ async def update_combatant(
     index: int,
     data: UpdateCombatantRequest,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Partially update a combatant at the given list index.
 
@@ -158,7 +161,7 @@ async def update_combatant(
     Returns 404 if the session does not exist.
     Returns 400 if the index is out of range.
     """
-    session = await combat_session_service.get_combat_session(db, session_id)
+    session = await combat_session_service.get_combat_session(db, session_id, current_user.id)
     if not session:
         raise HTTPException(status_code=404, detail="Combat session not found")
     updated = await combat_session_service.update_combatant(db, session, index, data)
@@ -173,7 +176,7 @@ async def remove_combatant(
     session_id: uuid.UUID,
     index: int,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Remove the combatant at the given list index.
 
@@ -181,7 +184,7 @@ async def remove_combatant(
     Returns 404 if the session does not exist.
     Returns 400 if the index is out of range.
     """
-    session = await combat_session_service.get_combat_session(db, session_id)
+    session = await combat_session_service.get_combat_session(db, session_id, current_user.id)
     if not session:
         raise HTTPException(status_code=404, detail="Combat session not found")
     updated = await combat_session_service.remove_combatant(db, session, index)
@@ -195,7 +198,7 @@ async def remove_combatant(
 async def advance_turn(
     session_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Advance the initiative tracker to the next combatant's turn.
 
@@ -204,7 +207,7 @@ async def advance_turn(
     Returns 404 if the session does not exist.
     Returns 400 if the session is completed or has no combatants.
     """
-    session = await combat_session_service.get_combat_session(db, session_id)
+    session = await combat_session_service.get_combat_session(db, session_id, current_user.id)
     if not session:
         raise HTTPException(status_code=404, detail="Combat session not found")
     updated = await combat_session_service.advance_turn(db, session)

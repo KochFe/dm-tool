@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.campaign import Campaign
 from app.models.player_character import PlayerCharacter
 from app.schemas.player_character import PlayerCharacterCreate, PlayerCharacterUpdate
 
@@ -29,9 +30,16 @@ async def get_player_characters(
 
 
 async def get_player_character(
-    db: AsyncSession, pc_id: uuid.UUID
+    db: AsyncSession, pc_id: uuid.UUID, user_id: uuid.UUID | None = None
 ) -> PlayerCharacter | None:
-    return await db.get(PlayerCharacter, pc_id)
+    pc = await db.get(PlayerCharacter, pc_id)
+    if pc is None:
+        return None
+    if user_id is not None:
+        campaign = await db.get(Campaign, pc.campaign_id)
+        if campaign is None or campaign.user_id != user_id:
+            return None
+    return pc
 
 
 async def update_player_character(

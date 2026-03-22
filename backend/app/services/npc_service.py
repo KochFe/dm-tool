@@ -40,9 +40,22 @@ async def create_npc(
     return npc
 
 
-async def get_npc(db: AsyncSession, npc_id: uuid.UUID) -> Npc | None:
-    """Retrieve a single NPC by primary key. Returns None if not found."""
-    return await db.get(Npc, npc_id)
+async def get_npc(
+    db: AsyncSession, npc_id: uuid.UUID, user_id: uuid.UUID | None = None
+) -> Npc | None:
+    """Retrieve a single NPC by primary key. Returns None if not found.
+
+    If user_id is provided, also verifies the NPC belongs to a campaign owned
+    by that user. Returns None if ownership check fails.
+    """
+    npc = await db.get(Npc, npc_id)
+    if npc is None:
+        return None
+    if user_id is not None:
+        campaign = await db.get(Campaign, npc.campaign_id)
+        if campaign is None or campaign.user_id != user_id:
+            return None
+    return npc
 
 
 async def get_npcs(
