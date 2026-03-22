@@ -205,9 +205,12 @@ export const api = {
 
   // Chat / Lore Oracle
   sendChatMessage: async (campaignId: string, messages: import("@/types").ChatMessage[]): Promise<import("@/types").ChatMessage> => {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const token = getAccessToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
     const res = await fetch(`${API_BASE}/api/v1/campaigns/${campaignId}/chat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({ messages }),
     });
     const json = await res.json();
