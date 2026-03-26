@@ -29,20 +29,20 @@ async def fetch_ddb_character(character_id: int) -> dict:
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.get(f"{DDB_API_URL}/{character_id}")
 
-    if resp.status_code != 200:
-        raise DDBImportError("D&D Beyond API is unavailable. Please try again later.")
+        if resp.status_code != 200:
+            raise DDBImportError("D&D Beyond API is unavailable. Please try again later.")
 
-    body = resp.json()
-    if not body.get("success"):
-        msg = body.get("message", "")
-        if "not found" in msg.lower():
-            raise DDBImportError(
-                "Character not found. It may be private — ask the player to "
-                "set it to Public in D&D Beyond privacy settings."
-            )
-        raise DDBImportError(f"D&D Beyond API error: {msg}")
+        body = resp.json()
+        if not body.get("success"):
+            msg = body.get("message", "")
+            if "not found" in msg.lower():
+                raise DDBImportError(
+                    "Character not found. It may be private — ask the player to "
+                    "set it to Public in D&D Beyond privacy settings."
+                )
+            raise DDBImportError(f"D&D Beyond API error: {msg}")
 
-    return body["data"]
+        return body["data"]
 
 
 def calculate_ability_score(stat_id: int, data: dict) -> int:
@@ -326,7 +326,6 @@ def map_ddb_character(data: dict) -> tuple[dict, int, list[str], dict]:
         scores[stat_name] = max(1, min(score, 30))
 
     hp_max, hp_current = calculate_hp(data)
-    hp_max = max(1, hp_max)
 
     ac = calculate_ac(data)
     if ac < 0:
