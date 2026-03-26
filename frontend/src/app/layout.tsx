@@ -41,6 +41,7 @@ export default function RootLayout({
               </Link>
               <Link
                 href="/campaigns"
+                prefetch={false}
                 className="text-gray-300 hover:text-amber-400 transition-colors duration-150 text-sm font-medium"
               >
                 Campaigns

@@ -22,6 +22,7 @@ export default function LandingPage() {
       ) : user ? (
         <Link
           href="/campaigns"
+          prefetch={false}
           className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors"
         >
           Go to Campaigns
