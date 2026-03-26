@@ -89,6 +89,11 @@ export const api = {
     }),
   deleteCharacter: (id: string) =>
     request<void>(`/api/v1/characters/${id}`, { method: "DELETE" }),
+  importFromDDB: (campaignId: string, url: string) =>
+    request<import("@/types").DDBImportPreview>(
+      `/api/v1/campaigns/${campaignId}/characters/import/ddb`,
+      { method: "POST", body: JSON.stringify({ url }) }
+    ),
 
   // Locations
   getLocations: (campaignId: string) =>

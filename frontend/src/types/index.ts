@@ -31,6 +31,7 @@ export interface PlayerCharacter {
   saving_throw_proficiencies: string[];
   skill_proficiencies: string[];
   spell_slots: Record<string, number>;
+  ddb_id: number | null;
   inventory: unknown[];
   created_at: string;
   updated_at: string;
@@ -287,4 +288,35 @@ export interface AuthUser {
 
 export interface RefreshRequest {
   refresh_token: string;
+}
+
+// DDB Import
+export interface DDBImportPreview {
+  preview: {
+    name: string;
+    race: string;
+    character_class: string;
+    level: number;
+    hp_current: number;
+    hp_max: number;
+    armor_class: number;
+    passive_perception: number;
+    strength: number;
+    dexterity: number;
+    constitution: number;
+    intelligence: number;
+    wisdom: number;
+    charisma: number;
+    proficiency_bonus: number;
+    speed: number;
+    saving_throw_proficiencies: string[];
+    skill_proficiencies: string[];
+    spell_slots: Record<string, number>;
+    inventory: unknown[];
+    ddb_id: number | null;
+  };
+  ddb_id: number;
+  ddb_name: string;
+  warnings: string[];
+  unmapped_data: Record<string, unknown>;
 }

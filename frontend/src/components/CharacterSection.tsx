@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { hpColor, hpBarColor } from "@/lib/utils";
 import type { PlayerCharacter } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
+import DDBImportModal from "@/components/DDBImportModal";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -361,6 +362,7 @@ export default function CharacterSection({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [showImport, setShowImport] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -417,21 +419,29 @@ export default function CharacterSection({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-100">Characters</h2>
-        <button
-          onClick={() => {
-            if (showForm) {
-              cancelForm();
-            } else {
-              setShowForm(true);
-              setEditId(null);
-              setForm(EMPTY_CHAR);
-              setFormError(null);
-            }
-          }}
-          className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition-colors"
-        >
-          {showForm ? "Cancel" : "+ Add"}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowImport(true)}
+            className="text-sm bg-indigo-700/60 hover:bg-indigo-600 text-indigo-100 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            Import from D&D Beyond
+          </button>
+          <button
+            onClick={() => {
+              if (showForm) {
+                cancelForm();
+              } else {
+                setShowForm(true);
+                setEditId(null);
+                setForm(EMPTY_CHAR);
+                setFormError(null);
+              }
+            }}
+            className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            {showForm ? "Cancel" : "+ Add"}
+          </button>
+        </div>
       </div>
 
       {/* Create / Edit Form */}
@@ -766,6 +776,14 @@ export default function CharacterSection({
             );
           })}
         </div>
+      )}
+
+      {showImport && (
+        <DDBImportModal
+          campaignId={campaignId}
+          onImported={onUpdate}
+          onClose={() => setShowImport(false)}
+        />
       )}
     </div>
   );
