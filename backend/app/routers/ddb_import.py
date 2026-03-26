@@ -7,6 +7,7 @@ from app.dependencies import get_current_user, get_db
 from app.models.user import User
 from app.schemas.common import APIResponse
 from app.schemas.ddb_import import DDBImportRequest, DDBImportPreview
+from app.schemas.player_character import PlayerCharacterCreate
 from app.services import campaign_service
 from app.services.ddb_service import (
     DDBImportError,
@@ -38,8 +39,6 @@ async def import_ddb_character(
         character_dict, ddb_id, warnings, unmapped = map_ddb_character(raw)
     except DDBImportError as e:
         raise HTTPException(status_code=422, detail=str(e))
-
-    from app.schemas.player_character import PlayerCharacterCreate
 
     preview = PlayerCharacterCreate(**character_dict)
 
