@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, ForeignKey, Integer, JSON, Text, Uuid, func
+from sqlalchemy import BigInteger, CheckConstraint, ForeignKey, Integer, JSON, Text, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -44,6 +44,7 @@ class PlayerCharacter(Base):
     saving_throw_proficiencies: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     skill_proficiencies: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     spell_slots: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    ddb_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         nullable=False, server_default=func.now()
