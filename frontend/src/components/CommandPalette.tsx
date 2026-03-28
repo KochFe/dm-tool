@@ -102,9 +102,6 @@ export default function CommandPalette() {
                 Roll {inputValue.trim()}
               </CommandItem>
             )}
-            <CommandItem onSelect={() => navigate(`${base}/session`)}>
-              Go to Session
-            </CommandItem>
             <CommandItem onSelect={() => { setOpen(false); setShortcutsOpen(true); }}>
               Keyboard Shortcuts
             </CommandItem>
