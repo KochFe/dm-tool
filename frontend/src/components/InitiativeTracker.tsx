@@ -626,7 +626,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
             <h2 className="text-xl font-semibold text-gray-100">
               {activeSession.name ?? 'Combat'}
             </h2>
-            <p className="text-sm text-gray-400">
+            <p aria-live="polite" className="text-sm text-gray-400">
               Round {activeSession.round_number} &middot;{' '}
               {activeSession.combatants.length} combatant
               {activeSession.combatants.length !== 1 ? 's' : ''}
@@ -707,7 +707,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
 
         {/* Current turn label */}
         {activeSession.combatants.length > 0 && (
-          <p className="text-center text-xs text-gray-400 mt-2">
+          <p aria-live="polite" className="text-center text-xs text-gray-400 mt-2">
             Current: {activeSession.combatants[activeSession.current_turn_index]?.name ?? '—'}
             <span className="text-gray-600 ml-2">(Space to advance)</span>
           </p>
