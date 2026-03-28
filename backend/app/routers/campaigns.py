@@ -67,3 +67,24 @@ async def delete_campaign(
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     await campaign_service.delete_campaign(db, campaign)
+
+
+@router.post(
+    "/campaigns/{campaign_id}/activate",
+    response_model=APIResponse[CampaignResponse],
+)
+async def activate_campaign(
+    campaign_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Flip a draft campaign to active status."""
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    if campaign.status == "active":
+        raise HTTPException(status_code=400, detail="Campaign is already active")
+    campaign.status = "active"
+    await db.commit()
+    await db.refresh(campaign)
+    return APIResponse(data=CampaignResponse.model_validate(campaign))
