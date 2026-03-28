@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useCampaign } from "@/contexts/CampaignContext";
 import PartyPanel from "@/components/PartyPanel";
 import ExplorationView from "@/components/ExplorationView";
@@ -15,6 +15,7 @@ export default function SessionPage() {
   const { campaign, characters, currentLocation } = useCampaign();
   const [mode, setMode] = useState<SessionMode>("exploration");
   const [isChatOpen, setIsChatOpen] = useState(true);
+  const switchToExploration = useCallback(() => setMode("exploration"), []);
 
   const currentLocationName = currentLocation?.name ?? null;
 
@@ -55,7 +56,7 @@ export default function SessionPage() {
         </div>
 
         {/* Center: Main content */}
-        {mode === "exploration" ? <ExplorationView /> : <CombatView />}
+        {mode === "exploration" ? <ExplorationView /> : <CombatView onCombatEnd={switchToExploration} />}
 
         {/* Right: Chat Panel (inline panel mode) — hidden below lg */}
         {isChatOpen && (
