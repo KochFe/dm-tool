@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { hpColor } from '@/lib/utils';
@@ -35,6 +36,7 @@ interface InitiativeTrackerProps {
   campaignId: string;
   characters: PlayerCharacter[];
   refreshKey?: number;
+  onCombatEnd?: () => void;
 }
 
 interface StagedCombatant {
@@ -70,6 +72,7 @@ interface HpEditorProps {
 function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorProps) {
   const [delta, setDelta] = useState<number | ''>('');
   const [busy, setBusy] = useState(false);
+  const [flash, setFlash] = useState<'damage' | 'heal' | null>(null);
 
   const apply = async (sign: 1 | -1) => {
     const amount = typeof delta === 'number' ? delta : 0;
@@ -79,6 +82,8 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
     try {
       const updated = await api.updateCombatant(sessionId, index, { hp_current: next });
       onUpdate(updated);
+      setFlash(sign === -1 ? 'damage' : 'heal');
+      setTimeout(() => setFlash(null), 600);
       setDelta('');
     } catch (err) {
       onError(err instanceof Error ? err.message : 'Failed to update HP');
@@ -89,7 +94,13 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
 
   return (
     <div className="flex items-center gap-1.5">
-      <span className={`font-mono font-semibold ${hpColor(combatant.hp_current, combatant.hp_max)}`}>
+      <span
+        className={`font-mono font-semibold transition-colors duration-300 ${
+          flash === 'damage' ? 'text-red-400' :
+          flash === 'heal' ? 'text-green-400' :
+          hpColor(combatant.hp_current, combatant.hp_max)
+        }`}
+      >
         {combatant.hp_current}
         <span className="text-gray-500 font-normal">/{combatant.hp_max}</span>
       </span>
@@ -405,7 +416,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
 
 // ---- Main component ----
 
-export default function InitiativeTracker({ campaignId, characters, refreshKey = 0 }: InitiativeTrackerProps) {
+export default function InitiativeTracker({ campaignId, characters, refreshKey = 0, onCombatEnd }: InitiativeTrackerProps) {
   const [sessions, setSessions] = useState<CombatSession[]>([]);
   const [activeSession, setActiveSession] = useState<CombatSession | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -440,12 +451,12 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
 
   // ---- Handlers ----
 
-  const handleSessionUpdate = (updated: CombatSession) => {
+  const handleSessionUpdate = useCallback((updated: CombatSession) => {
     setActiveSession(updated);
     setSessions((prev) =>
       prev.map((s) => (s.id === updated.id ? updated : s))
     );
-  };
+  }, []);
 
   const handleCombatError = (msg: string) => {
     setError(msg);
@@ -528,7 +539,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   };
 
   // Next turn
-  const handleNextTurn = async () => {
+  const handleNextTurn = useCallback(async () => {
     if (!activeSession) return;
     setBusy(true);
     setError(null);
@@ -540,7 +551,24 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
     } finally {
       setBusy(false);
     }
-  };
+  }, [activeSession, handleSessionUpdate]);
+
+  // Space key shortcut: advance turn
+  useEffect(() => {
+    if (!activeSession) return;
+
+    const down = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON') return;
+      if (busy) return;
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        handleNextTurn();
+      }
+    };
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  }, [activeSession, busy, handleNextTurn]);
 
   // End combat
   const handleEndCombat = async () => {
@@ -552,6 +580,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
       setSessions((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
       setActiveSession(null);
       toast.success('Combat ended');
+      onCombatEnd?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to end combat');
     } finally {
@@ -596,7 +625,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
             <h2 className="text-xl font-semibold text-gray-100">
               {activeSession.name ?? 'Combat'}
             </h2>
-            <p className="text-sm text-gray-400">
+            <p aria-live="polite" className="text-sm text-gray-400">
               Round {activeSession.round_number} &middot;{' '}
               {activeSession.combatants.length} combatant
               {activeSession.combatants.length !== 1 ? 's' : ''}
@@ -641,18 +670,28 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
           {activeSession.combatants.length === 0 ? (
             <p className="text-gray-400 text-sm">No combatants.</p>
           ) : (
-            activeSession.combatants.map((combatant, i) => (
-              <div role="listitem" key={`${combatant.name}-${i}`}>
-                <CombatantRow
-                  combatant={combatant}
-                  index={i}
-                  isCurrent={i === activeSession.current_turn_index}
-                  sessionId={activeSession.id}
-                  onUpdate={handleSessionUpdate}
-                  onError={handleCombatError}
-                />
-              </div>
-            ))
+            <AnimatePresence>
+              {activeSession.combatants.map((combatant, i) => (
+                <motion.div
+                  role="listitem"
+                  key={`${combatant.name}-${i}`}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <CombatantRow
+                    combatant={combatant}
+                    index={i}
+                    isCurrent={i === activeSession.current_turn_index}
+                    sessionId={activeSession.id}
+                    onUpdate={handleSessionUpdate}
+                    onError={handleCombatError}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </div>
 
@@ -667,8 +706,9 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
 
         {/* Current turn label */}
         {activeSession.combatants.length > 0 && (
-          <p className="text-center text-xs text-gray-400 mt-2">
+          <p aria-live="polite" className="text-center text-xs text-gray-400 mt-2">
             Current: {activeSession.combatants[activeSession.current_turn_index]?.name ?? '—'}
+            <span className="text-gray-600 ml-2">(Space to advance)</span>
           </p>
         )}
       </div>
