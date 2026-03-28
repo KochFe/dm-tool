@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 import type { Campaign, CampaignIdea } from "@/types";
 import WizardTabBar from "./WizardTabBar";
 import BasicsTab from "./BasicsTab";
+import StoryTab from "./StoryTab";
 
 const TAB_NAMES = ["Basics", "Story & Phases", "Locations", "Characters"];
 const TOTAL_TABS = TAB_NAMES.length;
@@ -35,6 +36,18 @@ export default function CampaignWizard({
       toast.error(err instanceof Error ? err.message : "Failed to load ideas");
     }
   }, [campaign.id]);
+
+  const handleToggleIdea = useCallback(
+    async (id: string, isDone: boolean) => {
+      try {
+        await api.updateIdea(id, { is_done: isDone });
+        await reloadIdeas();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to update idea");
+      }
+    },
+    [reloadIdeas]
+  );
 
   useEffect(() => {
     reloadIdeas();
@@ -77,6 +90,15 @@ export default function CampaignWizard({
             onCampaignUpdate={onCampaignUpdate}
             ideas={ideas}
             reloadIdeas={reloadIdeas}
+          />
+        );
+      case 1:
+        return (
+          <StoryTab
+            campaign={campaign}
+            onCampaignUpdate={onCampaignUpdate}
+            ideas={ideas}
+            onToggleIdea={handleToggleIdea}
           />
         );
       default:
