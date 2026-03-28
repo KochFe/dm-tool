@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useCampaign } from "@/contexts/CampaignContext";
 import EntitySheet from "@/components/EntitySheet";
+import KeyboardShortcutsDialog from "@/components/KeyboardShortcutsDialog";
 import type { Npc, Location, Quest } from "@/types";
 import {
   CommandDialog,
@@ -29,6 +30,7 @@ export default function CommandPalette() {
 
   const [diceResult, setDiceResult] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
   const isDiceNotation = /^\d+d\d+([+-]\d+)?$/.test(inputValue.trim());
 
@@ -103,6 +105,9 @@ export default function CommandPalette() {
             <CommandItem onSelect={() => navigate(`${base}/session`)}>
               Go to Session
             </CommandItem>
+            <CommandItem onSelect={() => { setOpen(false); setShortcutsOpen(true); }}>
+              Keyboard Shortcuts
+            </CommandItem>
           </CommandGroup>
 
           {characters.length > 0 && (
@@ -170,6 +175,7 @@ export default function CommandPalette() {
       </CommandDialog>
 
       <EntitySheet entity={sheetEntity} onClose={() => setSheetEntity(null)} />
+      <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
     </>
   );
 }
