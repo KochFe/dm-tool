@@ -35,6 +35,7 @@ interface InitiativeTrackerProps {
   campaignId: string;
   characters: PlayerCharacter[];
   refreshKey?: number;
+  onCombatEnd?: () => void;
 }
 
 interface StagedCombatant {
@@ -405,7 +406,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
 
 // ---- Main component ----
 
-export default function InitiativeTracker({ campaignId, characters, refreshKey = 0 }: InitiativeTrackerProps) {
+export default function InitiativeTracker({ campaignId, characters, refreshKey = 0, onCombatEnd }: InitiativeTrackerProps) {
   const [sessions, setSessions] = useState<CombatSession[]>([]);
   const [activeSession, setActiveSession] = useState<CombatSession | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -570,6 +571,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
       setSessions((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
       setActiveSession(null);
       toast.success('Combat ended');
+      onCombatEnd?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to end combat');
     } finally {
