@@ -28,6 +28,9 @@ class Campaign(Base):
     )
     party_level: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(Text, nullable=False, server_default="active")
+    campaign_length: Mapped[str | None] = mapped_column(Text, nullable=True)
+    world_description: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         nullable=False, server_default=func.now()
     )
@@ -52,8 +55,19 @@ class Campaign(Base):
     quests: Mapped[list["Quest"]] = relationship(
         back_populates="campaign", cascade="all, delete-orphan"
     )
+    phases: Mapped[list["CampaignPhase"]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
+    ideas: Mapped[list["CampaignIdea"]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
     owner: Mapped["User"] = relationship(lazy="select")
 
     __table_args__ = (
         CheckConstraint("party_level >= 1 AND party_level <= 20", name="ck_party_level"),
+        CheckConstraint("status IN ('draft', 'active')", name="ck_campaign_status"),
+        CheckConstraint(
+            "campaign_length IS NULL OR campaign_length IN ('one_shot', 'short', 'medium', 'long')",
+            name="ck_campaign_length",
+        ),
     )

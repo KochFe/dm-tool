@@ -9,6 +9,9 @@ class CampaignCreate(BaseModel):
     description: str | None = None
     in_game_time: str = "Day 1, Morning"
     party_level: int = Field(default=1, ge=1, le=20)
+    status: str = "active"
+    campaign_length: str | None = None
+    world_description: str | None = None
 
 
 class CampaignUpdate(BaseModel):
@@ -18,6 +21,9 @@ class CampaignUpdate(BaseModel):
     in_game_time: str | None = None
     party_level: int | None = Field(default=None, ge=1, le=20)
     notes: str | None = None
+    status: str | None = None
+    campaign_length: str | None = None
+    world_description: str | None = None
 
 
 class CampaignResponse(BaseModel):
@@ -28,6 +34,9 @@ class CampaignResponse(BaseModel):
     in_game_time: str
     party_level: int
     notes: str | None
+    status: str
+    campaign_length: str | None
+    world_description: str | None
     created_at: datetime
     updated_at: datetime
 
