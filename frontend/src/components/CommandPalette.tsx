@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useCampaign } from "@/contexts/CampaignContext";
 import EntitySheet from "@/components/EntitySheet";
@@ -26,6 +27,20 @@ export default function CommandPalette() {
   const { campaign, characters, locations, npcs, quests } = useCampaign();
   const base = `/campaigns/${campaign.id}`;
 
+  const [diceResult, setDiceResult] = useState<string | null>(null);
+  const [inputValue, setInputValue] = useState("");
+
+  const isDiceNotation = /^\d+d\d+([+-]\d+)?$/.test(inputValue.trim());
+
+  const rollDice = async (notation: string) => {
+    try {
+      const result = await api.rollDice(notation);
+      setDiceResult(`${notation}: ${result.total} [${result.rolls.join(", ")}]`);
+    } catch {
+      setDiceResult(`Invalid dice notation: ${notation}`);
+    }
+  };
+
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -49,8 +64,11 @@ export default function CommandPalette() {
 
   return (
     <>
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search campaigns, NPCs, locations..." />
+      <CommandDialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setDiceResult(null); setInputValue(""); } }}>
+        <CommandInput
+          placeholder="Search campaigns, NPCs, locations... or type dice like 2d6+3"
+          onValueChange={setInputValue}
+        />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
 
@@ -68,6 +86,23 @@ export default function CommandPalette() {
                 {item.label}
               </CommandItem>
             ))}
+          </CommandGroup>
+
+          {diceResult && (
+            <div className="px-3 py-2 text-sm text-amber-400 border-b border-gray-800">
+              {diceResult}
+            </div>
+          )}
+
+          <CommandGroup heading="Actions">
+            {isDiceNotation && (
+              <CommandItem onSelect={() => rollDice(inputValue.trim())}>
+                Roll {inputValue.trim()}
+              </CommandItem>
+            )}
+            <CommandItem onSelect={() => navigate(`${base}/session`)}>
+              Go to Session
+            </CommandItem>
           </CommandGroup>
 
           {characters.length > 0 && (
