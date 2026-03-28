@@ -39,13 +39,17 @@ async def get_phase(
     db: AsyncSession,
     phase_id: uuid.UUID,
     user_id: uuid.UUID | None = None,
+    populate_existing: bool = False,
 ) -> CampaignPhase | None:
     """Get a single phase with relationships loaded. Verify ownership if user_id given."""
-    result = await db.execute(
+    stmt = (
         select(CampaignPhase)
         .where(CampaignPhase.id == phase_id)
         .options(selectinload(CampaignPhase.quests), selectinload(CampaignPhase.locations))
     )
+    if populate_existing:
+        stmt = stmt.execution_options(populate_existing=True)
+    result = await db.execute(stmt)
     phase = result.scalar_one_or_none()
     if phase is None:
         return None
@@ -100,7 +104,7 @@ async def set_phase_quests(
         )
     await db.commit()
 
-    refreshed = await get_phase(db, phase.id)
+    refreshed = await get_phase(db, phase.id, populate_existing=True)
     return refreshed  # type: ignore[return-value]
 
 
@@ -133,5 +137,5 @@ async def set_phase_locations(
         )
     await db.commit()
 
-    refreshed = await get_phase(db, phase.id)
+    refreshed = await get_phase(db, phase.id, populate_existing=True)
     return refreshed  # type: ignore[return-value]
