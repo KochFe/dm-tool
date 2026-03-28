@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { hpColor } from '@/lib/utils';
@@ -71,6 +72,7 @@ interface HpEditorProps {
 function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorProps) {
   const [delta, setDelta] = useState<number | ''>('');
   const [busy, setBusy] = useState(false);
+  const [flash, setFlash] = useState<'damage' | 'heal' | null>(null);
 
   const apply = async (sign: 1 | -1) => {
     const amount = typeof delta === 'number' ? delta : 0;
@@ -80,6 +82,8 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
     try {
       const updated = await api.updateCombatant(sessionId, index, { hp_current: next });
       onUpdate(updated);
+      setFlash(sign === -1 ? 'damage' : 'heal');
+      setTimeout(() => setFlash(null), 600);
       setDelta('');
     } catch (err) {
       onError(err instanceof Error ? err.message : 'Failed to update HP');
@@ -90,7 +94,13 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
 
   return (
     <div className="flex items-center gap-1.5">
-      <span className={`font-mono font-semibold ${hpColor(combatant.hp_current, combatant.hp_max)}`}>
+      <span
+        className={`font-mono font-semibold transition-colors duration-300 ${
+          flash === 'damage' ? 'text-red-400' :
+          flash === 'heal' ? 'text-green-400' :
+          hpColor(combatant.hp_current, combatant.hp_max)
+        }`}
+      >
         {combatant.hp_current}
         <span className="text-gray-500 font-normal">/{combatant.hp_max}</span>
       </span>
@@ -661,18 +671,28 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
           {activeSession.combatants.length === 0 ? (
             <p className="text-gray-400 text-sm">No combatants.</p>
           ) : (
-            activeSession.combatants.map((combatant, i) => (
-              <div role="listitem" key={`${combatant.name}-${i}`}>
-                <CombatantRow
-                  combatant={combatant}
-                  index={i}
-                  isCurrent={i === activeSession.current_turn_index}
-                  sessionId={activeSession.id}
-                  onUpdate={handleSessionUpdate}
-                  onError={handleCombatError}
-                />
-              </div>
-            ))
+            <AnimatePresence>
+              {activeSession.combatants.map((combatant, i) => (
+                <motion.div
+                  role="listitem"
+                  key={`${combatant.name}-${i}`}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <CombatantRow
+                    combatant={combatant}
+                    index={i}
+                    isCurrent={i === activeSession.current_turn_index}
+                    sessionId={activeSession.id}
+                    onUpdate={handleSessionUpdate}
+                    onError={handleCombatError}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </div>
 
