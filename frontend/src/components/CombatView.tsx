@@ -3,7 +3,11 @@
 import { useCampaign } from "@/contexts/CampaignContext";
 import InitiativeTracker from "@/components/InitiativeTracker";
 
-export default function CombatView() {
+interface CombatViewProps {
+  onCombatEnd?: () => void;
+}
+
+export default function CombatView({ onCombatEnd }: CombatViewProps) {
   const { campaign, characters } = useCampaign();
 
   return (
@@ -12,6 +16,7 @@ export default function CombatView() {
         <InitiativeTracker
           campaignId={campaign.id}
           characters={characters}
+          onCombatEnd={onCombatEnd}
         />
       </div>
     </div>
