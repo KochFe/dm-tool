@@ -6,6 +6,9 @@ export interface Campaign {
   in_game_time: string;
   party_level: number;
   notes: string | null;
+  status: "draft" | "active";
+  campaign_length: "one_shot" | "short" | "medium" | "long" | null;
+  world_description: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,6 +47,7 @@ export interface Location {
   name: string;
   description: string | null;
   biome: string;
+  parent_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -265,6 +269,59 @@ export interface GenerateNpcRequest {
 
 export interface GenerateLootRequest {
   context?: string;
+}
+
+// Campaign Phases
+export interface CampaignPhase {
+  id: string;
+  campaign_id: string;
+  title: string;
+  description: string | null;
+  sort_order: number;
+  quest_ids: string[];
+  location_ids: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PhaseCreate {
+  title: string;
+  description?: string;
+  sort_order?: number;
+}
+
+export interface PhaseUpdate {
+  title?: string;
+  description?: string;
+  sort_order?: number;
+}
+
+// Campaign Ideas
+export type IdeaTag = "story" | "location" | "character";
+
+export interface CampaignIdea {
+  id: string;
+  campaign_id: string;
+  text: string;
+  tag: IdeaTag;
+  is_done: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IdeaCreate {
+  text: string;
+  tag: IdeaTag;
+  is_done?: boolean;
+  sort_order?: number;
+}
+
+export interface IdeaUpdate {
+  text?: string;
+  tag?: IdeaTag;
+  is_done?: boolean;
+  sort_order?: number;
 }
 
 // Auth

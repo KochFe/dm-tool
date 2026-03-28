@@ -59,7 +59,7 @@ export const api = {
   // Campaigns
   getCampaigns: () => request<import("@/types").Campaign[]>("/api/v1/campaigns"),
   getCampaign: (id: string) => request<import("@/types").Campaign>(`/api/v1/campaigns/${id}`),
-  createCampaign: (data: { name: string; description?: string }) =>
+  createCampaign: (data: { name: string; description?: string; status?: string }) =>
     request<import("@/types").Campaign>("/api/v1/campaigns", {
       method: "POST",
       body: JSON.stringify(data),
@@ -207,6 +207,54 @@ export const api = {
     }),
   deleteQuest: (questId: string) =>
     request<void>(`/api/v1/quests/${questId}`, { method: "DELETE" }),
+
+  // Phases
+  getPhases: (campaignId: string) =>
+    request<import("@/types").CampaignPhase[]>(`/api/v1/campaigns/${campaignId}/phases`),
+  createPhase: (campaignId: string, data: import("@/types").PhaseCreate) =>
+    request<import("@/types").CampaignPhase>(`/api/v1/campaigns/${campaignId}/phases`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updatePhase: (phaseId: string, data: import("@/types").PhaseUpdate) =>
+    request<import("@/types").CampaignPhase>(`/api/v1/phases/${phaseId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deletePhase: (phaseId: string) =>
+    request<void>(`/api/v1/phases/${phaseId}`, { method: "DELETE" }),
+  setPhaseQuests: (phaseId: string, ids: string[]) =>
+    request<import("@/types").CampaignPhase>(`/api/v1/phases/${phaseId}/quests`, {
+      method: "PUT",
+      body: JSON.stringify({ ids }),
+    }),
+  setPhaseLocations: (phaseId: string, ids: string[]) =>
+    request<import("@/types").CampaignPhase>(`/api/v1/phases/${phaseId}/locations`, {
+      method: "PUT",
+      body: JSON.stringify({ ids }),
+    }),
+
+  // Ideas
+  getIdeas: (campaignId: string) =>
+    request<import("@/types").CampaignIdea[]>(`/api/v1/campaigns/${campaignId}/ideas`),
+  createIdea: (campaignId: string, data: import("@/types").IdeaCreate) =>
+    request<import("@/types").CampaignIdea>(`/api/v1/campaigns/${campaignId}/ideas`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateIdea: (ideaId: string, data: import("@/types").IdeaUpdate) =>
+    request<import("@/types").CampaignIdea>(`/api/v1/ideas/${ideaId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteIdea: (ideaId: string) =>
+    request<void>(`/api/v1/ideas/${ideaId}`, { method: "DELETE" }),
+
+  // Campaign Activate
+  activateCampaign: (campaignId: string) =>
+    request<import("@/types").Campaign>(`/api/v1/campaigns/${campaignId}/activate`, {
+      method: "POST",
+    }),
 
   // Chat / Lore Oracle
   sendChatMessage: async (campaignId: string, messages: import("@/types").ChatMessage[]): Promise<import("@/types").ChatMessage> => {
