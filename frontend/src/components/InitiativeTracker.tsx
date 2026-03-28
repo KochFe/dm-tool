@@ -542,6 +542,24 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
     }
   };
 
+  // Space key shortcut: advance turn
+  useEffect(() => {
+    if (!activeSession) return;
+
+    const down = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON') return;
+      if (busy) return;
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        handleNextTurn();
+      }
+    };
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSession, busy]);
+
   // End combat
   const handleEndCombat = async () => {
     if (!activeSession) return;
@@ -669,6 +687,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         {activeSession.combatants.length > 0 && (
           <p className="text-center text-xs text-gray-400 mt-2">
             Current: {activeSession.combatants[activeSession.current_turn_index]?.name ?? '—'}
+            <span className="text-gray-600 ml-2">(Space to advance)</span>
           </p>
         )}
       </div>
