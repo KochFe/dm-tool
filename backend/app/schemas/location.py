@@ -8,17 +8,20 @@ class LocationCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     description: str | None = None
     biome: str = Field(default="urban", min_length=1, max_length=100)
+    parent_id: uuid.UUID | None = None
 
 
 class LocationUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=200)
     description: str | None = None
     biome: str | None = Field(default=None, min_length=1, max_length=100)
+    parent_id: uuid.UUID | None = None
 
 
 class LocationResponse(BaseModel):
     id: uuid.UUID
     campaign_id: uuid.UUID
+    parent_id: uuid.UUID | None
     name: str
     description: str | None
     biome: str
