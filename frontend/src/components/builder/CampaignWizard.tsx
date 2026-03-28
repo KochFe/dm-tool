@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import type { Campaign } from "@/types";
+import type { Campaign, CampaignIdea } from "@/types";
 import WizardTabBar from "./WizardTabBar";
+import BasicsTab from "./BasicsTab";
 
 const TAB_NAMES = ["Basics", "Story & Phases", "Locations", "Characters"];
 const TOTAL_TABS = TAB_NAMES.length;
@@ -23,7 +24,21 @@ export default function CampaignWizard({
   const [activeTab, setActiveTab] = useState(0);
   const [completedTabs, setCompletedTabs] = useState<Set<number>>(new Set());
   const [finishing, setFinishing] = useState(false);
+  const [ideas, setIdeas] = useState<CampaignIdea[]>([]);
   const router = useRouter();
+
+  const reloadIdeas = useCallback(async () => {
+    try {
+      const loaded = await api.getIdeas(campaign.id);
+      setIdeas(loaded);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to load ideas");
+    }
+  }, [campaign.id]);
+
+  useEffect(() => {
+    reloadIdeas();
+  }, [reloadIdeas]);
 
   const goNext = () => {
     setCompletedTabs((prev) => new Set(prev).add(activeTab));
@@ -52,6 +67,24 @@ export default function CampaignWizard({
   const isFirstTab = activeTab === 0;
   const prevTabName = isFirstTab ? null : TAB_NAMES[activeTab - 1];
   const nextTabName = isLastTab ? null : TAB_NAMES[activeTab + 1];
+
+  function renderTabContent() {
+    switch (activeTab) {
+      case 0:
+        return (
+          <BasicsTab
+            campaign={campaign}
+            onCampaignUpdate={onCampaignUpdate}
+            ideas={ideas}
+            reloadIdeas={reloadIdeas}
+          />
+        );
+      default:
+        return (
+          <p className="text-gray-400">Tab {activeTab + 1} placeholder</p>
+        );
+    }
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -82,7 +115,7 @@ export default function CampaignWizard({
 
       {/* Tab content */}
       <div className="flex-1 px-4 py-6 overflow-y-auto">
-        <p className="text-gray-400">Tab {activeTab + 1} placeholder</p>
+        {renderTabContent()}
       </div>
 
       {/* Bottom navigation bar */}
@@ -104,7 +137,7 @@ export default function CampaignWizard({
               disabled={finishing}
               className="bg-green-700 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-5 py-2 rounded-lg transition-colors duration-150"
             >
-              {finishing ? "Activating..." : "&#10003; Finish Campaign"}
+              {finishing ? "Activating..." : "\u2713 Finish Campaign"}
             </button>
           ) : (
             nextTabName && (
