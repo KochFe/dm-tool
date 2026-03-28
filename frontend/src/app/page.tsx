@@ -7,6 +7,7 @@ export default function LandingPage() {
   const { user, loading } = useAuth();
 
   return (
+    <div className="mx-auto max-w-7xl px-4 py-6">
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
       <h1 className="text-5xl font-bold text-amber-400 mb-4">DM Co-Pilot</h1>
       <p className="text-xl text-gray-300 mb-2">
@@ -35,6 +36,7 @@ export default function LandingPage() {
           Sign In
         </Link>
       )}
+    </div>
     </div>
   );
 }

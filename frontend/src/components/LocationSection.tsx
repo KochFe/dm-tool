@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { Location } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
@@ -37,15 +39,22 @@ export default function LocationSection({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editId) {
-      await api.updateLocation(editId, form);
-    } else {
-      await api.createLocation(campaignId, form);
+    try {
+      if (editId) {
+        await api.updateLocation(editId, form);
+        toast.success("Location updated");
+      } else {
+        await api.createLocation(campaignId, form);
+        toast.success("Location created");
+      }
+      setForm(EMPTY_LOC);
+      setShowForm(false);
+      setEditId(null);
+      onUpdate();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An error occurred";
+      toast.error(message.startsWith("[object") ? "Validation error — check all fields." : message);
     }
-    setForm(EMPTY_LOC);
-    setShowForm(false);
-    setEditId(null);
-    onUpdate();
   };
 
   const startEdit = (loc: Location) => {
@@ -59,13 +68,25 @@ export default function LocationSection({
   };
 
   const handleDelete = async (id: string) => {
-    await api.deleteLocation(id);
-    onUpdate();
+    try {
+      await api.deleteLocation(id);
+      toast.success("Location deleted");
+      onUpdate();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An error occurred";
+      toast.error(`Failed to delete location: ${message}`);
+    }
   };
 
   const handleSetCurrent = async (locationId: string) => {
-    await api.updateCampaign(campaignId, { current_location_id: locationId });
-    onUpdate();
+    try {
+      await api.updateCampaign(campaignId, { current_location_id: locationId });
+      toast.success("Current location updated");
+      onUpdate();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An error occurred";
+      toast.error(`Failed to set current location: ${message}`);
+    }
   };
 
   return (
@@ -129,11 +150,16 @@ export default function LocationSection({
         <p className="text-gray-400 text-sm">No locations yet.</p>
       ) : (
         <div className="space-y-2">
+          <AnimatePresence>
           {locations.map((loc) => {
             const isCurrent = loc.id === currentLocationId;
             return (
-              <div
+              <motion.div
                 key={loc.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.15 }}
                 className={`bg-gray-800/50 border rounded-xl p-4 flex items-start justify-between gap-3 ${
                   isCurrent
                     ? "border-amber-500/50 ring-1 ring-amber-500/20"
@@ -178,9 +204,10 @@ export default function LocationSection({
                     className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
                   />
                 </div>
-              </div>
+              </motion.div>
             );
           })}
+          </AnimatePresence>
         </div>
       )}
     </div>

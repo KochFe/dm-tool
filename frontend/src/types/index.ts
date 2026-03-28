@@ -5,6 +5,7 @@ export interface Campaign {
   current_location_id: string | null;
   in_game_time: string;
   party_level: number;
+  notes: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -76,6 +77,7 @@ export interface Combatant {
   armor_class: number;
   type: "pc" | "monster";
   player_character_id: string | null;
+  conditions: string[];
 }
 
 export interface CombatSession {
@@ -116,6 +118,7 @@ export interface UpdateCombatantRequest {
   hp_current?: number;
   hp_max?: number;
   armor_class?: number;
+  conditions?: string[];
 }
 
 // NPC

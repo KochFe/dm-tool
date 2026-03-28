@@ -25,6 +25,7 @@ export default function LoginPage() {
   };
 
   return (
+    <div className="mx-auto max-w-7xl px-4 py-6">
     <div className="flex items-center justify-center min-h-[80vh]">
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-bold text-amber-400 text-center mb-8">
@@ -88,6 +89,7 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+    </div>
     </div>
   );
 }

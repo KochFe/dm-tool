@@ -17,6 +17,7 @@ class CampaignUpdate(BaseModel):
     current_location_id: uuid.UUID | None = None
     in_game_time: str | None = None
     party_level: int | None = Field(default=None, ge=1, le=20)
+    notes: str | None = None
 
 
 class CampaignResponse(BaseModel):
@@ -26,6 +27,7 @@ class CampaignResponse(BaseModel):
     current_location_id: uuid.UUID | None
     in_game_time: str
     party_level: int
+    notes: str | None
     created_at: datetime
     updated_at: datetime
 

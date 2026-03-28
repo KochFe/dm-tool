@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { hpColor } from '@/lib/utils';
+import { CardListSkeleton } from '@/components/skeletons/CardSkeleton';
 import type {
   CombatSession,
   Combatant,
@@ -10,6 +12,24 @@ import type {
   AddCombatantRequest,
 } from '@/types';
 import ConfirmButton from '@/components/ConfirmButton';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+const CONDITIONS = [
+  { name: 'Blinded', color: 'bg-gray-600 text-gray-200' },
+  { name: 'Charmed', color: 'bg-pink-800 text-pink-200' },
+  { name: 'Deafened', color: 'bg-gray-600 text-gray-200' },
+  { name: 'Frightened', color: 'bg-purple-800 text-purple-200' },
+  { name: 'Grappled', color: 'bg-yellow-800 text-yellow-200' },
+  { name: 'Incapacitated', color: 'bg-gray-700 text-gray-300' },
+  { name: 'Invisible', color: 'bg-blue-800 text-blue-200' },
+  { name: 'Paralyzed', color: 'bg-red-900 text-red-200' },
+  { name: 'Petrified', color: 'bg-stone-700 text-stone-200' },
+  { name: 'Poisoned', color: 'bg-green-800 text-green-200' },
+  { name: 'Prone', color: 'bg-amber-800 text-amber-200' },
+  { name: 'Restrained', color: 'bg-orange-800 text-orange-200' },
+  { name: 'Stunned', color: 'bg-yellow-700 text-yellow-100' },
+  { name: 'Unconscious', color: 'bg-red-900 text-red-100' },
+] as const;
 
 interface InitiativeTrackerProps {
   campaignId: string;
@@ -146,7 +166,7 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
         <div className="font-mono font-semibold text-sm text-gray-100">{combatant.initiative}</div>
       </div>
 
-      {/* Name + type badge */}
+      {/* Name + type badge + conditions */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className={`font-medium truncate ${isCurrent ? 'text-blue-200' : 'text-gray-100'}`}>
@@ -157,7 +177,59 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
           ) : (
             <span className="shrink-0 text-xs bg-red-700 text-white px-1.5 py-0.5 rounded">Monster</span>
           )}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="shrink-0 text-xs text-gray-500 hover:text-amber-400 transition-colors" title="Toggle conditions">
+                +Cond
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-2 bg-gray-900 border-gray-700" align="start">
+              <div className="space-y-0.5">
+                {CONDITIONS.map((c) => {
+                  const active = (combatant.conditions ?? []).includes(c.name);
+                  return (
+                    <button
+                      key={c.name}
+                      onClick={async () => {
+                        const current = combatant.conditions ?? [];
+                        const next = active
+                          ? current.filter((x) => x !== c.name)
+                          : [...current, c.name];
+                        try {
+                          const updated = await api.updateCombatant(sessionId, index, { conditions: next });
+                          onUpdate(updated);
+                        } catch (err) {
+                          onError(err instanceof Error ? err.message : 'Failed to update conditions');
+                        }
+                      }}
+                      className={`w-full text-left text-xs px-2 py-1 rounded transition-colors ${
+                        active ? `${c.color} font-medium` : 'text-gray-400 hover:bg-gray-800'
+                      }`}
+                    >
+                      {active ? '✓ ' : ''}{c.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
+        {/* Active condition badges */}
+        {(combatant.conditions ?? []).length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1">
+            {(combatant.conditions ?? []).map((cond) => {
+              const info = CONDITIONS.find((c) => c.name === cond);
+              return (
+                <span
+                  key={cond}
+                  className={`text-xs px-1.5 py-0.5 rounded-full ${info?.color ?? 'bg-gray-700 text-gray-300'}`}
+                >
+                  {cond}
+                </span>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* HP editor */}
@@ -411,6 +483,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         armor_class: s.armor_class as number,
         type: s.type,
         player_character_id: s.player_character_id,
+        conditions: [] as string[],
       }));
       const session = await api.createCombatSession(campaignId, {
         name: sessionName.trim() || undefined,
@@ -421,6 +494,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
       setIsCreating(false);
       setSessionName('');
       setStaged([]);
+      toast.success('Combat started');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start combat');
     } finally {
@@ -477,6 +551,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
       const updated = await api.updateCombatSession(activeSession.id, { status: 'completed' });
       setSessions((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
       setActiveSession(null);
+      toast.success('Combat ended');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to end combat');
     } finally {
@@ -500,7 +575,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
 
   if (loading) {
     return (
-      <div className="text-gray-400 text-sm py-4">Loading combat sessions...</div>
+      <CardListSkeleton count={2} />
     );
   }
 
@@ -562,20 +637,21 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         )}
 
         {/* Combatant list */}
-        <div className="space-y-1.5 mb-4">
+        <div role="list" className="space-y-1.5 mb-4">
           {activeSession.combatants.length === 0 ? (
             <p className="text-gray-400 text-sm">No combatants.</p>
           ) : (
             activeSession.combatants.map((combatant, i) => (
-              <CombatantRow
-                key={`${combatant.name}-${i}`}
-                combatant={combatant}
-                index={i}
-                isCurrent={i === activeSession.current_turn_index}
-                sessionId={activeSession.id}
-                onUpdate={handleSessionUpdate}
-                onError={handleCombatError}
-              />
+              <div role="listitem" key={`${combatant.name}-${i}`}>
+                <CombatantRow
+                  combatant={combatant}
+                  index={i}
+                  isCurrent={i === activeSession.current_turn_index}
+                  sessionId={activeSession.id}
+                  onUpdate={handleSessionUpdate}
+                  onError={handleCombatError}
+                />
+              </div>
             ))
           )}
         </div>

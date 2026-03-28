@@ -15,6 +15,7 @@ class CombatantData(BaseModel):
     player_character_id: uuid.UUID | None = Field(
         default=None, description="Linked player character ID, if type is 'pc'"
     )
+    conditions: list[str] = Field(default_factory=list, description="Active conditions (e.g. Poisoned, Stunned)")
 
 
 class CombatSessionCreate(BaseModel):
@@ -49,6 +50,7 @@ class UpdateCombatantRequest(BaseModel):
     hp_current: int | None = Field(default=None, description="New current hit points")
     hp_max: int | None = Field(default=None, description="New maximum hit points")
     armor_class: int | None = Field(default=None, description="New armor class")
+    conditions: list[str] | None = Field(default=None, description="Updated conditions list")
 
 
 class CombatSessionResponse(BaseModel):

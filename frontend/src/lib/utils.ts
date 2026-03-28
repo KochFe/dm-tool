@@ -1,3 +1,10 @@
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
 export function hpColor(current: number, max: number): string {
   if (max <= 0) return 'text-gray-400';
   const pct = current / max;

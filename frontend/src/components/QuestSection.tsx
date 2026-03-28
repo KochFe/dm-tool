@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { Quest, QuestCreate, QuestStatus, Location } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
+import { CardListSkeleton } from "@/components/skeletons/CardSkeleton";
 
 const STATUS_LABELS: Record<QuestStatus, string> = {
   not_started: "Not Started",
@@ -88,8 +91,10 @@ export default function QuestSection({
     try {
       if (editId) {
         await api.updateQuest(editId, payload);
+        toast.success("Quest updated");
       } else {
         await api.createQuest(campaignId, payload);
+        toast.success("Quest created");
       }
       setForm(EMPTY_FORM);
       setShowForm(false);
@@ -119,9 +124,11 @@ export default function QuestSection({
     setDeleteError(null);
     try {
       await api.deleteQuest(id);
+      toast.success("Quest deleted");
       await loadQuests();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Delete failed.";
+      toast.error(`Failed to delete quest: ${msg}`);
       setDeleteError(msg);
     }
   };
@@ -262,7 +269,7 @@ export default function QuestSection({
       )}
 
       {loading ? (
-        <p className="text-gray-400 text-sm">Loading quests…</p>
+        <CardListSkeleton count={3} />
       ) : error ? (
         <p className="text-sm text-red-400 bg-red-900/20 border border-red-800 rounded px-3 py-2">
           {error}
@@ -271,14 +278,19 @@ export default function QuestSection({
         <p className="text-gray-400 text-sm">No quests yet.</p>
       ) : (
         <div className="space-y-2">
+          <AnimatePresence>
           {quests.map((quest) => {
             const locationName = quest.location_id
               ? locations.find((l) => l.id === quest.location_id)?.name
               : null;
 
             return (
-              <div
+              <motion.div
                 key={quest.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.15 }}
                 className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4"
               >
                 <div className="flex items-start justify-between gap-3">
@@ -338,9 +350,10 @@ export default function QuestSection({
                     />
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
+          </AnimatePresence>
         </div>
       )}
     </div>

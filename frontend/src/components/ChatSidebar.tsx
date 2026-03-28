@@ -10,6 +10,7 @@ interface ChatSidebarProps {
   onClose: () => void;
   currentLocationName?: string | null;
   partyLevel?: number;
+  mode?: "overlay" | "panel";
 }
 
 const SparklesIcon = ({ className }: { className?: string }) => (
@@ -49,7 +50,7 @@ const SendIcon = () => (
   </svg>
 );
 
-export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocationName, partyLevel: _partyLevel }: ChatSidebarProps) {
+export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocationName, partyLevel: _partyLevel, mode = "overlay" }: ChatSidebarProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -86,8 +87,9 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
     }
   }, [isOpen]);
 
-  // Escape key closes sidebar
+  // Escape key closes sidebar (overlay mode only)
   useEffect(() => {
+    if (mode === "panel") return; // Don't register escape in panel mode
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         onClose();
@@ -95,7 +97,7 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, mode]);
 
   const handleSubmit = async () => {
     const trimmed = input.trim();
@@ -143,13 +145,16 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
     textareaRef.current?.focus();
   };
 
+  const panelMode = mode === "panel";
+  const asideClass = panelMode
+    ? "flex flex-col h-full bg-gray-900"
+    : `fixed top-[57px] right-0 bottom-0 z-30 w-[380px] bg-gray-900 border-l border-gray-700/50 flex flex-col transform transition-transform duration-200 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`;
+
   return (
     <aside
       role="complementary"
       aria-label="Lore Oracle chat"
-      className={`fixed top-[57px] right-0 bottom-0 z-30 w-[380px] bg-gray-900 border-l border-gray-700/50 flex flex-col transform transition-transform duration-200 ease-in-out ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}
+      className={asideClass}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700/50 shrink-0">
@@ -162,13 +167,15 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
             </p>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          aria-label="Close chat sidebar"
-          className="text-gray-500 hover:text-gray-300 hover:bg-gray-800 p-1.5 rounded-lg transition-colors duration-150"
-        >
-          <XIcon />
-        </button>
+        {!panelMode && (
+          <button
+            onClick={onClose}
+            aria-label="Close chat sidebar"
+            className="text-gray-500 hover:text-gray-300 hover:bg-gray-800 p-1.5 rounded-lg transition-colors duration-150"
+          >
+            <XIcon />
+          </button>
+        )}
       </div>
 
       {/* Message list */}

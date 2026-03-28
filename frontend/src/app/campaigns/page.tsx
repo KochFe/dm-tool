@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { Campaign } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
@@ -29,14 +30,26 @@ export default function CampaignsPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    await api.createCampaign({ name: name.trim() });
-    setName("");
-    load();
+    try {
+      await api.createCampaign({ name: name.trim() });
+      toast.success("Campaign created");
+      setName("");
+      load();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An error occurred";
+      toast.error(`Failed to create campaign: ${message}`);
+    }
   };
 
   const handleDelete = async (id: string) => {
-    await api.deleteCampaign(id);
-    load();
+    try {
+      await api.deleteCampaign(id);
+      toast.success("Campaign deleted");
+      load();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An error occurred";
+      toast.error(`Failed to delete campaign: ${message}`);
+    }
   };
 
   if (loading) {
@@ -46,7 +59,7 @@ export default function CampaignsPage() {
   }
 
   return (
-    <div>
+    <div className="mx-auto max-w-7xl px-4 py-6">
       <h1 className="text-2xl font-bold text-gray-100 mb-6">Campaigns</h1>
 
       <form onSubmit={handleCreate} className="flex gap-2 mb-8">
