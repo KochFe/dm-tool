@@ -451,12 +451,12 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
 
   // ---- Handlers ----
 
-  const handleSessionUpdate = (updated: CombatSession) => {
+  const handleSessionUpdate = useCallback((updated: CombatSession) => {
     setActiveSession(updated);
     setSessions((prev) =>
       prev.map((s) => (s.id === updated.id ? updated : s))
     );
-  };
+  }, []);
 
   const handleCombatError = (msg: string) => {
     setError(msg);
@@ -539,7 +539,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   };
 
   // Next turn
-  const handleNextTurn = async () => {
+  const handleNextTurn = useCallback(async () => {
     if (!activeSession) return;
     setBusy(true);
     setError(null);
@@ -551,7 +551,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
     } finally {
       setBusy(false);
     }
-  };
+  }, [activeSession, handleSessionUpdate]);
 
   // Space key shortcut: advance turn
   useEffect(() => {
@@ -568,8 +568,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
     };
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeSession, busy]);
+  }, [activeSession, busy, handleNextTurn]);
 
   // End combat
   const handleEndCombat = async () => {
