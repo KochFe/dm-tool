@@ -4,6 +4,7 @@ import Link from "next/link";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import { NavUser } from "@/components/NavUser";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-950 text-gray-100 min-h-screen`}
       >
         <AuthProvider>
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-amber-600 focus:text-gray-950 focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-semibold"
+          >
+            Skip to content
+          </a>
           <nav className="border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
             <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-6">
               <Link
@@ -51,7 +58,8 @@ export default function RootLayout({
               </div>
             </div>
           </nav>
-          <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
+          <main id="main-content" className="flex-1">{children}</main>
+          <Toaster position="bottom-right" theme="dark" richColors />
         </AuthProvider>
       </body>
     </html>

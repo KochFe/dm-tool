@@ -27,6 +27,7 @@ class Campaign(Base):
         Text, nullable=False, server_default="Day 1, Morning"
     )
     party_level: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         nullable=False, server_default=func.now()
     )

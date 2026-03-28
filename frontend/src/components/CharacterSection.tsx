@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { hpColor, hpBarColor } from "@/lib/utils";
 import type { PlayerCharacter } from "@/types";
@@ -370,8 +372,10 @@ export default function CharacterSection({
     try {
       if (editId) {
         await api.updateCharacter(editId, formToPayload(form));
+        toast.success("Character updated");
       } else {
         await api.createCharacter(campaignId, formToPayload(form));
+        toast.success("Character created");
       }
       setForm(EMPTY_CHAR);
       setShowForm(false);
@@ -398,11 +402,11 @@ export default function CharacterSection({
   const handleDelete = async (id: string, name: string) => {
     try {
       await api.deleteCharacter(id);
+      toast.success("Character deleted");
       onUpdate();
     } catch (err) {
       const message = err instanceof Error ? err.message : "An error occurred";
-      // Surface delete errors as a window alert since there's no form banner available
-      alert(`Failed to delete ${name}: ${message}`);
+      toast.error(`Failed to delete ${name}: ${message}`);
     }
   };
 
@@ -647,14 +651,19 @@ export default function CharacterSection({
         <p className="text-gray-400 text-sm">No characters yet.</p>
       ) : (
         <div className="space-y-2">
+          <AnimatePresence>
           {characters.map((pc) => {
             const isExpanded = expandedCardId === pc.id;
             const hasSpellSlots =
               pc.spell_slots && Object.keys(pc.spell_slots).length > 0;
 
             return (
-              <div
+              <motion.div
                 key={pc.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.15 }}
                 className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4"
               >
                 {/* Card header row */}
@@ -772,9 +781,10 @@ export default function CharacterSection({
                     )}
                   </div>
                 )}
-              </div>
+              </motion.div>
             );
           })}
+          </AnimatePresence>
         </div>
       )}
 

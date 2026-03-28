@@ -575,6 +575,7 @@ export default function GeneratorResultModal({
         armor_class: c.armor_class === '' ? 0 : c.armor_class,
         type: c.type,
         player_character_id: c.player_character_id ?? null,
+        conditions: [] as string[],
       }));
       await api.createCombatSession(campaignId, {
         name: sessionName,

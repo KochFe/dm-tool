@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { Npc, NpcCreate, Location } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
+import { CardListSkeleton } from "@/components/skeletons/CardSkeleton";
 
 const EMPTY_FORM = {
   name: "",
@@ -144,8 +147,10 @@ export default function NPCSection({
     try {
       if (editId) {
         await api.updateNpc(editId, payload);
+        toast.success("NPC updated");
       } else {
         await api.createNpc(campaignId, payload);
+        toast.success("NPC created");
       }
       cancelForm();
       await loadNpcs();
@@ -160,9 +165,11 @@ export default function NPCSection({
   const handleDelete = async (npc: Npc) => {
     try {
       await api.deleteNpc(npc.id);
+      toast.success("NPC deleted");
       await loadNpcs();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Delete failed";
+      toast.error(`Failed to delete ${npc.name}: ${msg}`);
       setFetchError(msg);
     }
   };
@@ -326,16 +333,21 @@ export default function NPCSection({
 
       {/* List */}
       {loading ? (
-        <p className="text-gray-400 text-sm">Loading NPCs…</p>
+        <CardListSkeleton count={3} />
       ) : npcs.length === 0 ? (
         <p className="text-gray-400 text-sm">No NPCs yet.</p>
       ) : (
         <div className="space-y-2">
+          <AnimatePresence>
           {npcs.map((npc) => {
             const loc = locationName(npc.location_id);
             return (
-              <div
+              <motion.div
                 key={npc.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.15 }}
                 className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4"
               >
                 <div className="flex items-start justify-between gap-3">
@@ -395,9 +407,10 @@ export default function NPCSection({
                     />
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
+          </AnimatePresence>
         </div>
       )}
     </div>
