@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import type { Quest, QuestCreate, QuestStatus, Location } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
 import { CardListSkeleton } from "@/components/skeletons/CardSkeleton";
+import LocationHoverCard from "@/components/LocationHoverCard";
 
 const STATUS_LABELS: Record<QuestStatus, string> = {
   not_started: "Not Started",
@@ -280,10 +281,6 @@ export default function QuestSection({
         <div className="space-y-2">
           <AnimatePresence>
           {quests.map((quest) => {
-            const locationName = quest.location_id
-              ? locations.find((l) => l.id === quest.location_id)?.name
-              : null;
-
             return (
               <motion.div
                 key={quest.id}
@@ -318,11 +315,17 @@ export default function QuestSection({
                       )}
                     </div>
                     <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
-                      {locationName && (
-                        <span className="text-xs text-gray-400">
-                          {locationName}
-                        </span>
-                      )}
+                      {quest.location_id && (() => {
+                        const location = locations.find((l) => l.id === quest.location_id);
+                        if (!location) return null;
+                        return (
+                          <LocationHoverCard location={location}>
+                            <span className="text-xs text-gray-400 cursor-pointer hover:text-gray-300 transition-colors">
+                              {location.name}
+                            </span>
+                          </LocationHoverCard>
+                        );
+                      })()}
                       {quest.reward && (
                         <span className="text-xs text-amber-500/80">
                           Reward: {quest.reward}

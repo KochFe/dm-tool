@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import type { Npc, NpcCreate, Location } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
 import { CardListSkeleton } from "@/components/skeletons/CardSkeleton";
+import LocationHoverCard from "@/components/LocationHoverCard";
 
 const EMPTY_FORM = {
   name: "",
@@ -340,7 +341,6 @@ export default function NPCSection({
         <div className="space-y-2">
           <AnimatePresence>
           {npcs.map((npc) => {
-            const loc = locationName(npc.location_id);
             return (
               <motion.div
                 key={npc.id}
@@ -375,13 +375,19 @@ export default function NPCSection({
                     </p>
 
                     {/* Location tag */}
-                    {loc && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        <span className="inline-block bg-gray-700/60 rounded px-1.5 py-0.5">
-                          {loc}
-                        </span>
-                      </p>
-                    )}
+                    {npc.location_id && (() => {
+                      const location = locations.find((l) => l.id === npc.location_id);
+                      if (!location) return null;
+                      return (
+                        <p className="text-xs text-gray-500 mt-1">
+                          <LocationHoverCard location={location}>
+                            <span className="inline-block bg-gray-700/60 rounded px-1.5 py-0.5 cursor-pointer hover:bg-gray-600/60 transition-colors">
+                              {location.name}
+                            </span>
+                          </LocationHoverCard>
+                        </p>
+                      );
+                    })()}
 
                     {/* Description snippet */}
                     {npc.description && (
