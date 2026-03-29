@@ -40,6 +40,7 @@ export default function BasicsTab({
   const [newIdeaTag, setNewIdeaTag] = useState<IdeaTag>("story");
   const [savingIdea, setSavingIdea] = useState(false);
   const newIdeaInputRef = useRef<HTMLInputElement>(null);
+  const refocusAfterSave = useRef(false);
 
   // Keep local state in sync if campaign prop changes externally
   useEffect(() => {
@@ -49,6 +50,14 @@ export default function BasicsTab({
   useEffect(() => {
     setPartyLevel(String(campaign.party_level));
   }, [campaign.party_level]);
+
+  // Refocus input after save completes (disabled→enabled transition drops focus)
+  useEffect(() => {
+    if (!savingIdea && refocusAfterSave.current) {
+      refocusAfterSave.current = false;
+      newIdeaInputRef.current?.focus();
+    }
+  }, [savingIdea]);
 
   // --- Campaign field saves ---
 
@@ -99,7 +108,7 @@ export default function BasicsTab({
       await api.createIdea(campaign.id, { text, tag: newIdeaTag });
       await reloadIdeas();
       setNewIdeaText("");
-      newIdeaInputRef.current?.focus();
+      refocusAfterSave.current = true;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to add idea");
     } finally {
