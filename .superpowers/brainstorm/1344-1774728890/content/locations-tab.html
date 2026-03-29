@@ -1,0 +1,169 @@
+<h2>Tab 3 — Locations: Tree + Detail Split View</h2>
+<p class="subtitle">Tree navigation on the left, detail editor on the right, ideas helper in a collapsible sidebar</p>
+
+<div class="mockup">
+  <div class="mockup-header">Campaign Builder — Locations Tab</div>
+  <div class="mockup-body" style="background: #0f1117; padding: 0; font-family: system-ui, sans-serif;">
+
+    <!-- Tab bar -->
+    <div style="display: flex; border-bottom: 1px solid rgba(75,85,99,0.5); background: #111827;">
+      <div style="padding: 12px 24px; color: #9ca3af; font-size: 0.9rem;">1. Basics ✓</div>
+      <div style="padding: 12px 24px; color: #9ca3af; font-size: 0.9rem;">2. Story ✓</div>
+      <div style="padding: 12px 24px; color: #d97706; border-bottom: 2px solid #d97706; font-weight: 600; font-size: 0.9rem;">3. Locations</div>
+      <div style="padding: 12px 24px; color: #f3f4f6; font-size: 0.9rem;">4. Characters</div>
+    </div>
+
+    <div style="display: flex; min-height: 520px;">
+
+      <!-- LEFT: Location Tree -->
+      <div style="width: 280px; background: #111827; border-right: 1px solid rgba(75,85,99,0.5); padding: 16px; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <span style="color: #d1d5db; font-size: 0.85rem; font-weight: 600;">Locations</span>
+          <button style="background: rgba(217,119,6,0.15); color: #d97706; border: 1px solid rgba(217,119,6,0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">+ Add</button>
+        </div>
+
+        <!-- Tree structure -->
+        <div style="flex: 1; overflow-y: auto;">
+          <!-- Phandalin (expanded, selected) -->
+          <div style="margin-bottom: 2px;">
+            <div style="display: flex; align-items: center; gap: 6px; padding: 8px 8px; background: rgba(217,119,6,0.1); border-radius: 6px; cursor: pointer; border: 1px solid rgba(217,119,6,0.3);">
+              <span style="color: #9ca3af; font-size: 0.7rem; width: 14px; text-align: center;">▾</span>
+              <span style="color: #34d399; font-size: 0.8rem;">🏘</span>
+              <span style="color: #f3f4f6; font-size: 0.85rem; font-weight: 500; flex: 1;">Phandalin</span>
+              <button style="background: none; border: none; color: #6b7280; font-size: 0.7rem; cursor: pointer; padding: 2px;" title="Add sublocation">+</button>
+            </div>
+            <!-- Children -->
+            <div style="margin-left: 20px; border-left: 1px solid rgba(75,85,99,0.3); padding-left: 8px;">
+              <div style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;">
+                <span style="color: #9ca3af; font-size: 0.7rem; width: 14px; text-align: center;">▾</span>
+                <span style="color: #9ca3af; font-size: 0.8rem;">🏠</span>
+                <span style="color: #d1d5db; font-size: 0.83rem; flex: 1;">Stonehill Inn</span>
+                <button style="background: none; border: none; color: #6b7280; font-size: 0.7rem; cursor: pointer; padding: 2px;">+</button>
+              </div>
+              <div style="margin-left: 20px; border-left: 1px solid rgba(75,85,99,0.3); padding-left: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;">
+                  <span style="width: 14px;"></span>
+                  <span style="color: #9ca3af; font-size: 0.8rem;">🚪</span>
+                  <span style="color: #d1d5db; font-size: 0.83rem;">Common Room</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;">
+                  <span style="width: 14px;"></span>
+                  <span style="color: #9ca3af; font-size: 0.8rem;">🚪</span>
+                  <span style="color: #d1d5db; font-size: 0.83rem;">Cellar</span>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;">
+                <span style="width: 14px;"></span>
+                <span style="color: #9ca3af; font-size: 0.8rem;">🏠</span>
+                <span style="color: #d1d5db; font-size: 0.83rem;">Barthen's Provisions</span>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; cursor: pointer;">
+                <span style="width: 14px;"></span>
+                <span style="color: #9ca3af; font-size: 0.8rem;">🏠</span>
+                <span style="color: #d1d5db; font-size: 0.83rem;">Shrine of Luck</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gnomengarde (collapsed) -->
+          <div style="margin-bottom: 2px; margin-top: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; padding: 8px 8px; border-radius: 6px; cursor: pointer;">
+              <span style="color: #9ca3af; font-size: 0.7rem; width: 14px; text-align: center;">▸</span>
+              <span style="color: #34d399; font-size: 0.8rem;">🏔</span>
+              <span style="color: #d1d5db; font-size: 0.85rem; flex: 1;">Gnomengarde</span>
+              <button style="background: none; border: none; color: #6b7280; font-size: 0.7rem; cursor: pointer; padding: 2px;">+</button>
+            </div>
+          </div>
+
+          <!-- Icespire Peak (collapsed) -->
+          <div style="margin-bottom: 2px;">
+            <div style="display: flex; align-items: center; gap: 6px; padding: 8px 8px; border-radius: 6px; cursor: pointer;">
+              <span style="color: #9ca3af; font-size: 0.7rem; width: 14px; text-align: center;">▸</span>
+              <span style="color: #34d399; font-size: 0.8rem;">🏔</span>
+              <span style="color: #d1d5db; font-size: 0.85rem; flex: 1;">Icespire Peak</span>
+              <button style="background: none; border: none; color: #6b7280; font-size: 0.7rem; cursor: pointer; padding: 2px;">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(75,85,99,0.3); padding-top: 10px; margin-top: 8px; color: #6b7280; font-size: 0.75rem;">
+          Drag locations to rearrange hierarchy
+        </div>
+      </div>
+
+      <!-- CENTER: Detail Editor -->
+      <div style="flex: 1; padding: 24px 32px; overflow-y: auto;">
+        <div style="max-width: 600px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+            <span style="color: #34d399; font-size: 1.1rem;">🏘</span>
+            <h2 style="color: #f3f4f6; font-size: 1.2rem; margin: 0;">Phandalin</h2>
+            <span style="color: #6b7280; font-size: 0.8rem; background: #1f2937; padding: 2px 8px; border-radius: 4px;">Top-level</span>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <label style="color: #d1d5db; font-size: 0.85rem; display: block; margin-bottom: 6px;">Name *</label>
+            <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 10px 14px; color: #f3f4f6;">Phandalin</div>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <label style="color: #d1d5db; font-size: 0.85rem; display: block; margin-bottom: 6px;">Description</label>
+            <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 10px 14px; color: #d1d5db; min-height: 120px; font-size: 0.9rem; line-height: 1.6;">
+              A small frontier town nestled in the foothills of the Sword Mountains. Once a prosperous mining settlement, Phandalin was destroyed by bandits five centuries ago and has only recently been resettled. The townsfolk are hardy and self-reliant, but increasingly worried about orc raids and sightings of a white dragon...
+            </div>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <label style="color: #d1d5db; font-size: 0.85rem; display: block; margin-bottom: 6px;">Biome</label>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="background: rgba(217,119,6,0.15); border: 1px solid rgba(217,119,6,0.4); border-radius: 8px; padding: 6px 14px; color: #d97706; font-size: 0.83rem; font-weight: 500; cursor: pointer;">Urban</span>
+              <span style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 6px 14px; color: #9ca3af; font-size: 0.83rem; cursor: pointer;">Forest</span>
+              <span style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 6px 14px; color: #9ca3af; font-size: 0.83rem; cursor: pointer;">Mountain</span>
+              <span style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 6px 14px; color: #9ca3af; font-size: 0.83rem; cursor: pointer;">Desert</span>
+              <span style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 6px 14px; color: #9ca3af; font-size: 0.83rem; cursor: pointer;">Coastal</span>
+              <span style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 6px 14px; color: #9ca3af; font-size: 0.83rem; cursor: pointer;">Underground</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <label style="color: #d1d5db; font-size: 0.85rem; display: block; margin-bottom: 6px;">Parent Location</label>
+            <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 10px 14px; color: #6b7280; font-size: 0.9rem; font-style: italic;">None (top-level)</div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 24px;">
+            <button style="background: #d97706; color: #0f1117; font-weight: 600; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">Save</button>
+            <button style="background: none; border: 1px solid rgba(127,29,29,0.5); color: #f87171; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Ideas Helper (collapsible) -->
+      <div style="width: 220px; background: #111827; border-left: 1px solid rgba(75,85,99,0.5); padding: 16px;">
+        <div style="color: #d1d5db; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+          <span style="color: #34d399;">●</span> Location Ideas
+        </div>
+
+        <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.4); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; display: flex; align-items: start; gap: 8px; opacity: 0.5;">
+          <input type="checkbox" checked style="accent-color: #d97706; width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px;">
+          <span style="color: #9ca3af; font-size: 0.8rem; text-decoration: line-through;">Phandalin as central hub with surrounding dungeons</span>
+        </div>
+
+        <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.4); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; display: flex; align-items: start; gap: 8px;">
+          <input type="checkbox" style="accent-color: #d97706; width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px;">
+          <span style="color: #d1d5db; font-size: 0.8rem;">Gnomengarde — quirky gnome inventors</span>
+        </div>
+
+        <div style="border-top: 1px solid rgba(75,85,99,0.3); margin-top: 12px; padding-top: 10px;">
+          <div style="color: #6b7280; font-size: 0.73rem;">1 of 2 done</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom nav -->
+    <div style="border-top: 1px solid rgba(75,85,99,0.5); padding: 16px 32px; display: flex; justify-content: space-between;">
+      <button style="background: none; border: 1px solid rgba(75,85,99,0.5); color: #9ca3af; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">← Back: Story</button>
+      <button style="background: #d97706; color: #0f1117; font-weight: 600; padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">Next: Characters →</button>
+    </div>
+  </div>
+</div>

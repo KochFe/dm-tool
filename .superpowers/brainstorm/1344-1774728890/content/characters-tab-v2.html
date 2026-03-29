@@ -1,0 +1,226 @@
+<h2>Tab 4 — Characters: Grouped by Location</h2>
+<p class="subtitle">NPCs organized under their assigned locations, collapsible groups</p>
+
+<div class="mockup">
+  <div class="mockup-header">Campaign Builder — Characters Tab</div>
+  <div class="mockup-body" style="background: #0f1117; padding: 0; font-family: system-ui, sans-serif;">
+
+    <!-- Tab bar -->
+    <div style="display: flex; border-bottom: 1px solid rgba(75,85,99,0.5); background: #111827;">
+      <div style="padding: 12px 24px; color: #9ca3af; font-size: 0.9rem;">1. Basics ✓</div>
+      <div style="padding: 12px 24px; color: #9ca3af; font-size: 0.9rem;">2. Story ✓</div>
+      <div style="padding: 12px 24px; color: #9ca3af; font-size: 0.9rem;">3. Locations ✓</div>
+      <div style="padding: 12px 24px; color: #d97706; border-bottom: 2px solid #d97706; font-weight: 600; font-size: 0.9rem;">4. Characters</div>
+    </div>
+
+    <div style="display: flex; min-height: 620px;">
+
+      <!-- LEFT: Character List grouped by location -->
+      <div style="width: 270px; background: #111827; border-right: 1px solid rgba(75,85,99,0.5); padding: 16px; display: flex; flex-direction: column; overflow-y: auto;">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <span style="color: #d1d5db; font-size: 0.85rem; font-weight: 600;">Characters</span>
+          <button style="background: rgba(217,119,6,0.15); color: #d97706; border: 1px solid rgba(217,119,6,0.3); padding: 3px 10px; border-radius: 6px; font-size: 0.73rem; cursor: pointer;">+ Add NPC</button>
+        </div>
+
+        <!-- === NPCs by Location === -->
+        <div style="margin-bottom: 6px;">
+          <div style="color: #9ca3af; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">NPCs</div>
+
+          <!-- Phandalin group (expanded) -->
+          <div style="margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; cursor: pointer; border-radius: 6px; background: rgba(52,211,153,0.05);">
+              <span style="color: #6b7280; font-size: 0.7rem; width: 12px;">▾</span>
+              <span style="color: #34d399; font-size: 0.75rem;">🏘</span>
+              <span style="color: #34d399; font-size: 0.8rem; font-weight: 500;">Phandalin</span>
+              <span style="color: #6b7280; font-size: 0.7rem; margin-left: auto;">3</span>
+            </div>
+            <div style="margin-left: 12px; border-left: 1px solid rgba(75,85,99,0.2); padding-left: 8px;">
+              <!-- NPC selected -->
+              <div style="background: rgba(217,119,6,0.1); border: 1px solid rgba(217,119,6,0.3); border-radius: 6px; padding: 8px 10px; margin-bottom: 3px; cursor: pointer;">
+                <div style="color: #f3f4f6; font-size: 0.83rem; font-weight: 500;">Toblen Stonehill</div>
+                <div style="color: #9ca3af; font-size: 0.72rem; margin-top: 1px;">Human · Innkeeper</div>
+              </div>
+              <!-- NPC -->
+              <div style="padding: 8px 10px; margin-bottom: 3px; cursor: pointer; border-radius: 6px;">
+                <div style="color: #d1d5db; font-size: 0.83rem; font-weight: 500;">Harbin Wester</div>
+                <div style="color: #9ca3af; font-size: 0.72rem; margin-top: 1px;">Human · Townmaster</div>
+              </div>
+              <!-- NPC -->
+              <div style="padding: 8px 10px; margin-bottom: 3px; cursor: pointer; border-radius: 6px;">
+                <div style="color: #d1d5db; font-size: 0.83rem; font-weight: 500;">Sister Garaele</div>
+                <div style="color: #9ca3af; font-size: 0.72rem; margin-top: 1px;">Elf · Priestess</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gnomengarde group (collapsed) -->
+          <div style="margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; cursor: pointer; border-radius: 6px;">
+              <span style="color: #6b7280; font-size: 0.7rem; width: 12px;">▸</span>
+              <span style="color: #34d399; font-size: 0.75rem;">🏔</span>
+              <span style="color: #9ca3af; font-size: 0.8rem; font-weight: 500;">Gnomengarde</span>
+              <span style="color: #6b7280; font-size: 0.7rem; margin-left: auto;">2</span>
+            </div>
+          </div>
+
+          <!-- Icespire Peak group (collapsed) -->
+          <div style="margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; cursor: pointer; border-radius: 6px;">
+              <span style="color: #6b7280; font-size: 0.7rem; width: 12px;">▸</span>
+              <span style="color: #34d399; font-size: 0.75rem;">🏔</span>
+              <span style="color: #9ca3af; font-size: 0.8rem; font-weight: 500;">Icespire Peak</span>
+              <span style="color: #6b7280; font-size: 0.7rem; margin-left: auto;">1</span>
+            </div>
+          </div>
+
+          <!-- Unassigned group -->
+          <div style="margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; cursor: pointer; border-radius: 6px;">
+              <span style="color: #6b7280; font-size: 0.7rem; width: 12px;">▾</span>
+              <span style="color: #6b7280; font-size: 0.75rem;">○</span>
+              <span style="color: #6b7280; font-size: 0.8rem; font-weight: 500; font-style: italic;">No location</span>
+              <span style="color: #6b7280; font-size: 0.7rem; margin-left: auto;">1</span>
+            </div>
+            <div style="margin-left: 12px; border-left: 1px solid rgba(75,85,99,0.2); padding-left: 8px;">
+              <div style="padding: 8px 10px; margin-bottom: 3px; cursor: pointer; border-radius: 6px;">
+                <div style="color: #d1d5db; font-size: 0.83rem; font-weight: 500;">Cryovain</div>
+                <div style="color: #9ca3af; font-size: 0.72rem; margin-top: 1px;">White Dragon · Antagonist</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div style="border-top: 1px solid rgba(75,85,99,0.3); margin: 10px 0;"></div>
+
+        <!-- PCs section (flat, no location grouping) -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="color: #9ca3af; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Player Characters</span>
+            <button style="background: rgba(217,119,6,0.15); color: #d97706; border: 1px solid rgba(217,119,6,0.3); padding: 3px 10px; border-radius: 6px; font-size: 0.73rem; cursor: pointer;">+ Add PC</button>
+          </div>
+
+          <div style="padding: 8px 10px; margin-bottom: 3px; cursor: pointer; border-radius: 6px;">
+            <div style="color: #d1d5db; font-size: 0.83rem; font-weight: 500;">Thorn Ironfist</div>
+            <div style="color: #9ca3af; font-size: 0.72rem; margin-top: 1px;">Dwarf · Fighter · Lvl 1</div>
+          </div>
+
+          <div style="padding: 8px 10px; margin-bottom: 3px; cursor: pointer; border-radius: 6px;">
+            <div style="color: #d1d5db; font-size: 0.83rem; font-weight: 500;">Elara Moonwhisper</div>
+            <div style="color: #9ca3af; font-size: 0.72rem; margin-top: 1px;">Elf · Wizard · Lvl 1</div>
+          </div>
+
+          <button style="background: rgba(96,165,250,0.1); color: #60a5fa; border: 1px dashed rgba(96,165,250,0.3); padding: 7px 12px; border-radius: 8px; font-size: 0.76rem; cursor: pointer; width: 100%; margin-top: 6px; text-align: center;">
+            Import from D&D Beyond
+          </button>
+        </div>
+      </div>
+
+      <!-- CENTER: Detail Form -->
+      <div style="flex: 1; padding: 24px 32px; overflow-y: auto;">
+        <div style="max-width: 600px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+            <h2 style="color: #f3f4f6; font-size: 1.2rem; margin: 0;">Toblen Stonehill</h2>
+            <span style="color: #9ca3af; font-size: 0.8rem; background: #1f2937; padding: 2px 10px; border-radius: 4px;">NPC</span>
+          </div>
+
+          <!-- Basic Info row -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+            <div>
+              <label style="color: #d1d5db; font-size: 0.8rem; display: block; margin-bottom: 4px;">Name *</label>
+              <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 8px 12px; color: #f3f4f6; font-size: 0.9rem;">Toblen Stonehill</div>
+            </div>
+            <div>
+              <label style="color: #d1d5db; font-size: 0.8rem; display: block; margin-bottom: 4px;">Race</label>
+              <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 8px 12px; color: #f3f4f6; font-size: 0.9rem;">Human</div>
+            </div>
+            <div>
+              <label style="color: #d1d5db; font-size: 0.8rem; display: block; margin-bottom: 4px;">Class</label>
+              <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 8px 12px; color: #9ca3af; font-size: 0.9rem;">Commoner</div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div style="margin-bottom: 20px;">
+            <label style="color: #d1d5db; font-size: 0.8rem; display: block; margin-bottom: 4px;">Description</label>
+            <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 10px 14px; color: #d1d5db; min-height: 80px; font-size: 0.9rem; line-height: 1.6;">
+              A short, friendly human man who runs the Stonehill Inn. Originally from Triboar, he came to Phandalin to prospect but found he was better suited to innkeeping.
+            </div>
+          </div>
+
+          <!-- Personality & Motivation -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+            <div>
+              <label style="color: #d1d5db; font-size: 0.8rem; display: block; margin-bottom: 4px;">Personality</label>
+              <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 10px 14px; color: #d1d5db; min-height: 60px; font-size: 0.9rem;">Friendly, talkative, loves gossip</div>
+            </div>
+            <div>
+              <label style="color: #d1d5db; font-size: 0.8rem; display: block; margin-bottom: 4px;">Motivation</label>
+              <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 10px 14px; color: #d1d5db; min-height: 60px; font-size: 0.9rem;">Protect his family and business</div>
+            </div>
+          </div>
+
+          <!-- Secrets -->
+          <div style="margin-bottom: 20px;">
+            <label style="color: #d1d5db; font-size: 0.8rem; display: block; margin-bottom: 4px;">Secrets <span style="color: #6b7280; font-size: 0.75rem;">(DM eyes only)</span></label>
+            <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 10px 14px; color: #d1d5db; min-height: 50px; font-size: 0.9rem;">Overheard Redbrands discussing a secret hideout</div>
+          </div>
+
+          <!-- Location (dropdown that triggers regrouping) -->
+          <div style="margin-bottom: 20px;">
+            <label style="color: #d1d5db; font-size: 0.8rem; display: block; margin-bottom: 4px;">Location</label>
+            <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.7); border-radius: 8px; padding: 8px 12px; color: #f3f4f6; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+              <span style="color: #34d399; font-size: 0.8rem;">🏘</span> Phandalin
+            </div>
+            <div style="color: #6b7280; font-size: 0.73rem; margin-top: 4px;">Changing location moves this NPC in the list on the left</div>
+          </div>
+
+          <!-- Collapsible stats -->
+          <details style="margin-bottom: 20px;">
+            <summary style="color: #d1d5db; font-size: 0.85rem; cursor: pointer; padding: 8px 0; border-top: 1px solid rgba(75,85,99,0.3);">
+              Stats & Combat <span style="color: #6b7280; font-size: 0.78rem;">(optional)</span>
+            </summary>
+            <div style="padding-top: 12px; color: #6b7280; font-size: 0.85rem; font-style: italic;">
+              HP, AC, ability scores, etc.
+            </div>
+          </details>
+
+          <div style="display: flex; gap: 8px; margin-top: 16px;">
+            <button style="background: #d97706; color: #0f1117; font-weight: 600; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">Save</button>
+            <button style="background: none; border: 1px solid rgba(127,29,29,0.5); color: #f87171; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Ideas Helper -->
+      <div style="width: 220px; background: #111827; border-left: 1px solid rgba(75,85,99,0.5); padding: 16px;">
+        <div style="color: #d1d5db; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+          <span style="color: #60a5fa;">●</span> Character Ideas
+        </div>
+
+        <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.4); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; display: flex; align-items: start; gap: 8px;">
+          <input type="checkbox" style="accent-color: #d97706; width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px;">
+          <span style="color: #d1d5db; font-size: 0.8rem;">Cryovain the white dragon — main antagonist</span>
+        </div>
+
+        <div style="border-top: 1px solid rgba(75,85,99,0.2); margin: 10px 0;"></div>
+
+        <div style="background: #1f2937; border: 1px solid rgba(75,85,99,0.4); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; display: flex; align-items: start; gap: 8px; opacity: 0.5;">
+          <input type="checkbox" checked style="accent-color: #d97706; width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px;">
+          <span style="color: #9ca3af; font-size: 0.8rem; text-decoration: line-through;">Toblen Stonehill — innkeeper</span>
+        </div>
+
+        <div style="border-top: 1px solid rgba(75,85,99,0.3); margin-top: 12px; padding-top: 10px;">
+          <div style="color: #6b7280; font-size: 0.73rem;">1 of 2 done</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom nav -->
+    <div style="border-top: 1px solid rgba(75,85,99,0.5); padding: 16px 32px; display: flex; justify-content: space-between;">
+      <button style="background: none; border: 1px solid rgba(75,85,99,0.5); color: #9ca3af; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">← Back: Locations</button>
+      <button style="background: #16a34a; color: #fff; font-weight: 600; padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">✓ Finish Campaign</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,84 @@
+<h2>Campaign Builder Wizard — Architecture Approaches</h2>
+<p class="subtitle">How should the wizard interact with the backend during creation?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Eager Save (Recommended)</h3>
+      <p>Create the campaign immediately on "Create New Campaign" click. Each wizard tab saves data to the backend as you go — locations, phases, NPCs are created via existing API endpoints as you fill them in.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Reuses all existing CRUD endpoints — no new backend routes needed for wizard</li>
+            <li>No data loss if browser closes mid-wizard</li>
+            <li>Locations/NPCs/PCs created during wizard are immediately available</li>
+            <li>Simple mental model: wizard is just a guided UI over existing APIs</li>
+            <li>Overview page editing works automatically — same data, same endpoints</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Abandoned wizards leave empty/partial campaigns (needs cleanup or draft state)</li>
+            <li>Tab navigation requires saving before switching (or auto-save)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Deferred Save (All-at-Once)</h3>
+      <p>Collect all wizard data in frontend state. On final "Finish" step, send everything to a new dedicated backend endpoint that creates campaign + all related entities in one transaction.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>No partial campaigns — either everything saves or nothing does</li>
+            <li>Clean cancel behavior — just navigate away, nothing to clean up</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Requires a complex new "bulk create" backend endpoint</li>
+            <li>All data lost if browser closes mid-wizard</li>
+            <li>Large frontend state management for all entities across tabs</li>
+            <li>Location tree with temp IDs needs mapping on save</li>
+            <li>Can't reference real entity IDs until final save</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Hybrid — Draft Campaign + Eager Entities</h3>
+      <p>Create campaign immediately with a <code>status: "draft"</code> field. Entities save eagerly as in Option A. Draft campaigns are hidden from the main list until the wizard is completed, at which point status flips to "active".</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Clean campaign list — no half-built campaigns showing up</li>
+            <li>All the eager-save benefits (no data loss, reuse existing APIs)</li>
+            <li>Clear "wizard complete" transition point</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>New <code>status</code> field on campaign model + migration</li>
+            <li>Filter logic needed on campaign list queries</li>
+            <li>Slightly more backend work than pure Option A</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

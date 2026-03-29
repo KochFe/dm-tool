@@ -1,0 +1,76 @@
+<h2>Campaigns List — With Draft Support</h2>
+<p class="subtitle">How draft campaigns appear alongside active ones</p>
+
+<div class="mockup">
+  <div class="mockup-header">Campaigns Page</div>
+  <div class="mockup-body" style="background: #0f1117; padding: 24px; font-family: system-ui, sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h1 style="color: #f3f4f6; font-size: 1.5rem; margin: 0;">Campaigns</h1>
+      <button style="background: #d97706; color: #0f1117; font-weight: 600; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">+ Create New Campaign</button>
+    </div>
+
+    <!-- Active Campaign -->
+    <div style="background: #111827; border: 1px solid rgba(75,85,99,0.5); border-radius: 12px; padding: 16px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="color: #f3f4f6; font-size: 1.1rem; font-weight: 600;">Curse of the Forgotten King</div>
+        <div style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">Level 5 · Day 12, Evening</div>
+      </div>
+      <button style="background: rgba(127,29,29,0.4); color: #f87171; border: 1px solid rgba(153,27,27,0.5); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">Delete</button>
+    </div>
+
+    <!-- Active Campaign 2 -->
+    <div style="background: #111827; border: 1px solid rgba(75,85,99,0.5); border-radius: 12px; padding: 16px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="color: #f3f4f6; font-size: 1.1rem; font-weight: 600;">The Silver Marches</div>
+        <div style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">Level 3 · Day 1, Morning</div>
+      </div>
+      <button style="background: rgba(127,29,29,0.4); color: #f87171; border: 1px solid rgba(153,27,27,0.5); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">Delete</button>
+    </div>
+
+    <!-- Draft Campaign -->
+    <div style="background: #111827; border: 1px dashed rgba(217,119,6,0.5); border-radius: 12px; padding: 16px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; opacity: 0.85;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="color: #f3f4f6; font-size: 1.1rem; font-weight: 600;">Dragons of Icespire</span>
+          <span style="background: rgba(217,119,6,0.2); color: #d97706; font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 9999px; border: 1px solid rgba(217,119,6,0.3);">DRAFT</span>
+        </div>
+        <div style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">
+          <span style="color: #d97706;">◐</span> Step 2 of 4 — Story &amp; Phases
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button style="background: rgba(217,119,6,0.15); color: #d97706; border: 1px solid rgba(217,119,6,0.3); padding: 6px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer;">Continue</button>
+        <button style="background: rgba(127,29,29,0.4); color: #f87171; border: 1px solid rgba(153,27,27,0.5); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">Delete</button>
+      </div>
+    </div>
+
+    <!-- Draft Campaign (just started) -->
+    <div style="background: #111827; border: 1px dashed rgba(217,119,6,0.5); border-radius: 12px; padding: 16px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; opacity: 0.85;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="color: #f3f4f6; font-size: 1.1rem; font-weight: 600;">Untitled Campaign</span>
+          <span style="background: rgba(217,119,6,0.2); color: #d97706; font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 9999px; border: 1px solid rgba(217,119,6,0.3);">DRAFT</span>
+        </div>
+        <div style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">
+          <span style="color: #d97706;">◐</span> Step 1 of 4 — Basics
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button style="background: rgba(217,119,6,0.15); color: #d97706; border: 1px solid rgba(217,119,6,0.3); padding: 6px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer;">Continue</button>
+        <button style="background: rgba(127,29,29,0.4); color: #f87171; border: 1px solid rgba(153,27,27,0.5); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 24px;">
+  <h3>Design Details</h3>
+  <ul style="color: #b0b0b0; line-height: 1.8;">
+    <li><strong>Input field removed</strong> — just a "Create New Campaign" button</li>
+    <li><strong>Draft campaigns</strong> use a dashed amber border to distinguish from active campaigns</li>
+    <li><strong>Progress indicator</strong> shows which wizard step you're on (e.g., "Step 2 of 4 — Story & Phases")</li>
+    <li><strong>"Continue" button</strong> takes you back into the wizard at the right step</li>
+    <li><strong>Active campaigns</strong> link to the existing campaign view (unchanged)</li>
+    <li>Drafts can be deleted just like active campaigns</li>
+  </ul>
+</div>
