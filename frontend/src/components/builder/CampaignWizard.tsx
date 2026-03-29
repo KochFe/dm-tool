@@ -9,6 +9,8 @@ import type { Campaign, CampaignIdea } from "@/types";
 import WizardTabBar from "./WizardTabBar";
 import BasicsTab from "./BasicsTab";
 import StoryTab from "./StoryTab";
+import LocationsTab from "./LocationsTab";
+import CharactersTab from "./CharactersTab";
 
 const TAB_NAMES = ["Basics", "Story & Phases", "Locations", "Characters"];
 const TOTAL_TABS = TAB_NAMES.length;
@@ -101,10 +103,24 @@ export default function CampaignWizard({
             onToggleIdea={handleToggleIdea}
           />
         );
-      default:
+      case 2:
         return (
-          <p className="text-gray-400">Tab {activeTab + 1} placeholder</p>
+          <LocationsTab
+            campaign={campaign}
+            ideas={ideas}
+            onToggleIdea={handleToggleIdea}
+          />
         );
+      case 3:
+        return (
+          <CharactersTab
+            campaign={campaign}
+            ideas={ideas}
+            onToggleIdea={handleToggleIdea}
+          />
+        );
+      default:
+        return null;
     }
   }
 
