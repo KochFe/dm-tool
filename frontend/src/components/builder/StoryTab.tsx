@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { Campaign, CampaignIdea, CampaignPhase, Quest, Location } from "@/types";
@@ -27,6 +27,8 @@ export default function StoryTab({
   const [quests, setQuests] = useState<Quest[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [addingPhase, setAddingPhase] = useState(false);
+  const [editingNewPhaseId, setEditingNewPhaseId] = useState<string | null>(null);
+  const newPhaseRef = useRef<HTMLDivElement>(null);
 
   // Keep world description in sync if campaign prop changes externally
   useEffect(() => {
@@ -62,6 +64,13 @@ export default function StoryTab({
     loadQuestsAndLocations();
   }, [loadPhases, loadQuestsAndLocations]);
 
+  // Scroll newly-created phase into view
+  useEffect(() => {
+    if (editingNewPhaseId && newPhaseRef.current) {
+      newPhaseRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [editingNewPhaseId]);
+
   async function saveWorldDescription() {
     const trimmed = worldDescription.trim();
     if (trimmed === (campaign.world_description ?? "")) return;
@@ -81,11 +90,12 @@ export default function StoryTab({
   async function handleAddPhase() {
     setAddingPhase(true);
     try {
-      await api.createPhase(campaign.id, {
+      const created = await api.createPhase(campaign.id, {
         title: "New Phase",
         sort_order: phases.length,
       });
       await loadPhases();
+      setEditingNewPhaseId(created.id);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to add phase");
     } finally {
@@ -170,20 +180,26 @@ export default function StoryTab({
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {phases.map((phase, idx) => (
-                <PhaseCard
-                  key={phase.id}
-                  phase={phase}
-                  index={idx}
-                  totalPhases={phases.length}
-                  onUpdate={loadPhases}
-                  onDelete={loadPhases}
-                  onMoveUp={() => handleMoveUp(phase.id)}
-                  onMoveDown={() => handleMoveDown(phase.id)}
-                  quests={quests}
-                  locations={locations}
-                />
-              ))}
+              {phases.map((phase, idx) => {
+                const isNew = phase.id === editingNewPhaseId;
+                return (
+                  <div key={phase.id} ref={isNew ? newPhaseRef : undefined}>
+                    <PhaseCard
+                      phase={phase}
+                      index={idx}
+                      totalPhases={phases.length}
+                      onUpdate={loadPhases}
+                      onDelete={loadPhases}
+                      onMoveUp={() => handleMoveUp(phase.id)}
+                      onMoveDown={() => handleMoveDown(phase.id)}
+                      quests={quests}
+                      locations={locations}
+                      startInEditMode={isNew}
+                      onEditModeConsumed={() => setEditingNewPhaseId(null)}
+                    />
+                  </div>
+                );
+              })}
             </div>
           )}
         </section>
