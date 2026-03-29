@@ -1,6 +1,7 @@
 "use client";
 
 import { use } from "react";
+import { usePathname } from "next/navigation";
 import { CampaignProvider } from "@/contexts/CampaignContext";
 import CampaignSidebar from "@/components/CampaignSidebar";
 import CampaignStatusBar from "@/components/CampaignStatusBar";
@@ -14,6 +15,16 @@ export default function CampaignLayout({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const pathname = usePathname();
+  const isBuilder = pathname.endsWith("/builder");
+
+  if (isBuilder) {
+    return (
+      <main className="h-[calc(100vh-57px)] overflow-y-auto p-6 bg-gray-950">
+        {children}
+      </main>
+    );
+  }
 
   return (
     <CampaignProvider campaignId={id}>
