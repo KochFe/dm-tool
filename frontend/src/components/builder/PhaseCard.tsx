@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { CampaignPhase, Quest, Location } from "@/types";
@@ -9,40 +9,35 @@ interface PhaseCardProps {
   phase: CampaignPhase;
   index: number;
   totalPhases: number;
+  isEditing: boolean;
+  isNew: boolean;
+  onRequestEdit: () => boolean;
+  onEditDone: () => void;
   onUpdate: () => void;
   onDelete: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
   quests: Quest[];
   locations: Location[];
-  startInEditMode?: boolean;
-  onEditModeConsumed?: () => void;
 }
 
 export default function PhaseCard({
   phase,
   index,
   totalPhases,
+  isEditing,
+  isNew,
+  onRequestEdit,
+  onEditDone,
   onUpdate,
   onDelete,
   onMoveUp,
   onMoveDown,
   quests,
   locations,
-  startInEditMode = false,
-  onEditModeConsumed,
 }: PhaseCardProps) {
-  const [editing, setEditing] = useState(startInEditMode);
-  const [title, setTitle] = useState(startInEditMode ? "" : phase.title);
+  const [title, setTitle] = useState(isNew ? "" : phase.title);
   const [description, setDescription] = useState(phase.description ?? "");
-  const titleInputRef = useRef<HTMLInputElement>(null);
-
-  // When startInEditMode fires, notify parent so it clears the flag
-  useEffect(() => {
-    if (startInEditMode) {
-      onEditModeConsumed?.();
-    }
-  }, [startInEditMode, onEditModeConsumed]);
   const [selectedQuestIds, setSelectedQuestIds] = useState<Set<string>>(
     new Set(phase.quest_ids)
   );
@@ -51,28 +46,30 @@ export default function PhaseCard({
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   function enterEdit() {
+    const allowed = onRequestEdit();
+    if (!allowed) return;
     setTitle(phase.title);
     setDescription(phase.description ?? "");
     setSelectedQuestIds(new Set(phase.quest_ids));
     setSelectedLocationIds(new Set(phase.location_ids));
-    setEditing(true);
   }
 
   function cancelEdit() {
-    // Reset to the persisted values on cancel
     setTitle(phase.title);
     setDescription(phase.description ?? "");
     setSelectedQuestIds(new Set(phase.quest_ids));
     setSelectedLocationIds(new Set(phase.location_ids));
-    setEditing(false);
+    onEditDone();
   }
 
   async function handleSave() {
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
       toast.error("Phase title cannot be empty");
+      titleInputRef.current?.focus();
       return;
     }
     setSaving(true);
@@ -83,7 +80,7 @@ export default function PhaseCard({
       });
       await api.setPhaseQuests(phase.id, Array.from(selectedQuestIds));
       await api.setPhaseLocations(phase.id, Array.from(selectedLocationIds));
-      setEditing(false);
+      onEditDone();
       onUpdate();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save phase");
@@ -129,7 +126,7 @@ export default function PhaseCard({
     .filter((l) => phase.location_ids.includes(l.id))
     .map((l) => l.name);
 
-  if (editing) {
+  if (isEditing) {
     return (
       <div className="bg-gray-800 border border-amber-600/30 rounded-xl p-4 flex flex-col gap-4">
         {/* Title row */}

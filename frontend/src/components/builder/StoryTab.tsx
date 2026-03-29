@@ -27,8 +27,11 @@ export default function StoryTab({
   const [quests, setQuests] = useState<Quest[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [addingPhase, setAddingPhase] = useState(false);
-  const [editingNewPhaseId, setEditingNewPhaseId] = useState<string | null>(null);
-  const newPhaseRef = useRef<HTMLDivElement>(null);
+  // Centralized editing lock — only one phase can be in edit mode at a time
+  const [editingPhaseId, setEditingPhaseId] = useState<string | null>(null);
+  // Track whether the editing phase was just created (show empty title)
+  const [isNewPhase, setIsNewPhase] = useState(false);
+  const editingPhaseRef = useRef<HTMLDivElement>(null);
 
   // Keep world description in sync if campaign prop changes externally
   useEffect(() => {
@@ -64,12 +67,12 @@ export default function StoryTab({
     loadQuestsAndLocations();
   }, [loadPhases, loadQuestsAndLocations]);
 
-  // Scroll newly-created phase into view
+  // Scroll editing phase into view when it opens
   useEffect(() => {
-    if (editingNewPhaseId && newPhaseRef.current) {
-      newPhaseRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (editingPhaseId && editingPhaseRef.current) {
+      editingPhaseRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-  }, [editingNewPhaseId]);
+  }, [editingPhaseId]);
 
   async function saveWorldDescription() {
     const trimmed = worldDescription.trim();
@@ -88,6 +91,11 @@ export default function StoryTab({
   }
 
   async function handleAddPhase() {
+    if (editingPhaseId) {
+      toast.warning("Finish editing the current phase before adding a new one");
+      editingPhaseRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return;
+    }
     setAddingPhase(true);
     try {
       const created = await api.createPhase(campaign.id, {
@@ -95,7 +103,8 @@ export default function StoryTab({
         sort_order: phases.length,
       });
       await loadPhases();
-      setEditingNewPhaseId(created.id);
+      setEditingPhaseId(created.id);
+      setIsNewPhase(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to add phase");
     } finally {
@@ -181,21 +190,47 @@ export default function StoryTab({
           ) : (
             <div className="flex flex-col gap-3">
               {phases.map((phase, idx) => {
-                const isNew = phase.id === editingNewPhaseId;
+                const isThisEditing = phase.id === editingPhaseId;
                 return (
-                  <div key={phase.id} ref={isNew ? newPhaseRef : undefined}>
+                  <div
+                    key={phase.id}
+                    ref={isThisEditing ? editingPhaseRef : undefined}
+                  >
                     <PhaseCard
                       phase={phase}
                       index={idx}
                       totalPhases={phases.length}
+                      isEditing={isThisEditing}
+                      isNew={isThisEditing && isNewPhase}
+                      onRequestEdit={() => {
+                        if (editingPhaseId) {
+                          toast.warning("Finish editing the current phase first");
+                          editingPhaseRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                          });
+                          return false;
+                        }
+                        setEditingPhaseId(phase.id);
+                        setIsNewPhase(false);
+                        return true;
+                      }}
+                      onEditDone={() => {
+                        setEditingPhaseId(null);
+                        setIsNewPhase(false);
+                      }}
                       onUpdate={loadPhases}
-                      onDelete={loadPhases}
+                      onDelete={() => {
+                        if (editingPhaseId === phase.id) {
+                          setEditingPhaseId(null);
+                          setIsNewPhase(false);
+                        }
+                        loadPhases();
+                      }}
                       onMoveUp={() => handleMoveUp(phase.id)}
                       onMoveDown={() => handleMoveDown(phase.id)}
                       quests={quests}
                       locations={locations}
-                      startInEditMode={isNew}
-                      onEditModeConsumed={() => setEditingNewPhaseId(null)}
                     />
                   </div>
                 );
