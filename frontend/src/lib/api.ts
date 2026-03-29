@@ -27,9 +27,33 @@ export function clearTokens(): void {
   document.cookie = "has_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 }
 
+// Guard against concurrent refresh attempts — all in-flight requests
+// wait on the same refresh promise instead of each triggering their own.
+let refreshPromise: Promise<void> | null = null;
+
+async function tryRefreshToken(): Promise<boolean> {
+  const refresh = getRefreshToken();
+  if (!refresh) return false;
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refresh }),
+    });
+    const json = await res.json();
+    if (!res.ok || json.error) return false;
+    const data = json.data as TokenResponse;
+    setTokens(data.access_token, data.refresh_token);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function request<T>(
   path: string,
-  options?: RequestInit
+  options?: RequestInit,
+  _isRetry = false
 ): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -44,6 +68,22 @@ async function request<T>(
   });
 
   if (res.status === 204) return undefined as T;
+
+  // On 401, attempt a transparent token refresh and retry once
+  if (res.status === 401 && !_isRetry) {
+    if (!refreshPromise) {
+      refreshPromise = tryRefreshToken().then((ok) => {
+        refreshPromise = null;
+        if (!ok) {
+          clearTokens();
+          window.location.href = "/login";
+          throw new Error("Session expired");
+        }
+      });
+    }
+    await refreshPromise;
+    return request<T>(path, options, true);
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
