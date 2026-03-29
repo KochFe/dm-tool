@@ -15,10 +15,11 @@ const CAMPAIGN_LENGTHS: { label: string; value: NonNullable<Campaign["campaign_l
 
 const TAG_OPTIONS: IdeaTag[] = ["story", "location", "character"];
 
-interface NewIdeaDraft {
-  text: string;
-  tag: IdeaTag;
-}
+const TAG_PILL_STYLES: Record<IdeaTag, string> = {
+  story: "bg-purple-500/15 text-purple-400",
+  location: "bg-emerald-500/15 text-emerald-400",
+  character: "bg-blue-500/15 text-blue-400",
+};
 
 interface BasicsTabProps {
   campaign: Campaign;
@@ -35,9 +36,10 @@ export default function BasicsTab({
 }: BasicsTabProps) {
   const [name, setName] = useState(campaign.name);
   const [partyLevel, setPartyLevel] = useState(String(campaign.party_level));
-  const [draft, setDraft] = useState<NewIdeaDraft | null>(null);
+  const [newIdeaText, setNewIdeaText] = useState("");
+  const [newIdeaTag, setNewIdeaTag] = useState<IdeaTag>("story");
   const [savingIdea, setSavingIdea] = useState(false);
-  const draftInputRef = useRef<HTMLInputElement>(null);
+  const newIdeaInputRef = useRef<HTMLInputElement>(null);
 
   // Keep local state in sync if campaign prop changes externally
   useEffect(() => {
@@ -47,12 +49,6 @@ export default function BasicsTab({
   useEffect(() => {
     setPartyLevel(String(campaign.party_level));
   }, [campaign.party_level]);
-
-  useEffect(() => {
-    if (draft !== null) {
-      draftInputRef.current?.focus();
-    }
-  }, [draft]);
 
   // --- Campaign field saves ---
 
@@ -95,18 +91,15 @@ export default function BasicsTab({
 
   // --- Ideas ---
 
-  async function commitDraft() {
-    if (!draft) return;
-    const text = draft.text.trim();
-    if (!text) {
-      setDraft(null);
-      return;
-    }
+  async function saveNewIdea() {
+    const text = newIdeaText.trim();
+    if (!text) return;
     setSavingIdea(true);
     try {
-      await api.createIdea(campaign.id, { text, tag: draft.tag });
+      await api.createIdea(campaign.id, { text, tag: newIdeaTag });
       await reloadIdeas();
-      setDraft(null);
+      setNewIdeaText("");
+      newIdeaInputRef.current?.focus();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to add idea");
     } finally {
@@ -141,12 +134,10 @@ export default function BasicsTab({
     }
   }
 
-  function handleDraftKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+  function handleNewIdeaKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       e.preventDefault();
-      commitDraft();
-    } else if (e.key === "Escape") {
-      setDraft(null);
+      saveNewIdea();
     }
   }
 
@@ -207,89 +198,55 @@ export default function BasicsTab({
 
       {/* Ideas & Notes */}
       <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-400 uppercase tracking-wide">
-            Ideas &amp; Notes
-          </label>
-          {!draft && (
-            <button
-              onClick={() => setDraft({ text: "", tag: "story" })}
-              className="text-sm text-amber-500 hover:text-amber-400 transition-colors"
-            >
-              + Add Idea
-            </button>
-          )}
+        <label className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+          Ideas &amp; Notes
+        </label>
+
+        {/* Persistent input row — always visible */}
+        <div className="flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2">
+          <input
+            ref={newIdeaInputRef}
+            type="text"
+            value={newIdeaText}
+            onChange={(e) => setNewIdeaText(e.target.value)}
+            onKeyDown={handleNewIdeaKeyDown}
+            placeholder="Type an idea and press Enter..."
+            disabled={savingIdea}
+            className="flex-1 bg-transparent text-sm text-gray-200 placeholder-gray-600 focus:outline-none"
+          />
+          <button
+            onClick={() => {
+              const idx = TAG_OPTIONS.indexOf(newIdeaTag);
+              setNewIdeaTag(TAG_OPTIONS[(idx + 1) % TAG_OPTIONS.length]);
+            }}
+            className={`px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 transition-opacity hover:opacity-80 ${TAG_PILL_STYLES[newIdeaTag]}`}
+            title="Click to change tag"
+          >
+            {newIdeaTag}
+          </button>
+          <button
+            onClick={saveNewIdea}
+            disabled={savingIdea || !newIdeaText.trim()}
+            className="text-amber-500 hover:text-amber-400 text-sm font-medium disabled:opacity-30 disabled:cursor-default transition-opacity flex-shrink-0"
+          >
+            {savingIdea ? "..." : "Save"}
+          </button>
         </div>
 
-        <div className="flex flex-col divide-y divide-gray-800 rounded-lg border border-gray-800 bg-gray-900 px-3">
-          {ideas.map((idea) => (
-            <IdeaRow
-              key={idea.id}
-              idea={idea}
-              onToggleDone={handleToggleDone}
-              onChangeTag={handleChangeTag}
-              onDelete={handleDelete}
-            />
-          ))}
-
-          {/* Draft row */}
-          {draft !== null && (
-            <div className="flex items-center gap-2 py-1.5">
-              <input
-                type="checkbox"
-                disabled
-                className="w-4 h-4 rounded border-gray-600 bg-gray-800 flex-shrink-0 opacity-30"
+        {/* Ideas list */}
+        {ideas.length > 0 && (
+          <div className="flex flex-col divide-y divide-gray-800 rounded-lg border border-gray-800 bg-gray-900 px-3">
+            {ideas.map((idea) => (
+              <IdeaRow
+                key={idea.id}
+                idea={idea}
+                onToggleDone={handleToggleDone}
+                onChangeTag={handleChangeTag}
+                onDelete={handleDelete}
               />
-              <input
-                ref={draftInputRef}
-                type="text"
-                value={draft.text}
-                onChange={(e) => setDraft({ ...draft, text: e.target.value })}
-                onBlur={commitDraft}
-                onKeyDown={handleDraftKeyDown}
-                placeholder="New idea..."
-                className="flex-1 bg-transparent text-sm text-gray-200 placeholder-gray-600 focus:outline-none"
-              />
-              <select
-                value={draft.tag}
-                onChange={(e) => setDraft({ ...draft, tag: e.target.value as IdeaTag })}
-                className="bg-gray-800 border border-gray-700 rounded text-xs text-gray-300 px-1.5 py-0.5 focus:outline-none focus:border-amber-500"
-              >
-                {TAG_OPTIONS.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-              <button
-                onMouseDown={(e) => {
-                  // Prevent blur from firing before click
-                  e.preventDefault();
-                  commitDraft();
-                }}
-                disabled={savingIdea}
-                className="text-amber-500 hover:text-amber-400 text-sm disabled:opacity-50"
-              >
-                {savingIdea ? "..." : "Save"}
-              </button>
-              <button
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setDraft(null);
-                }}
-                className="text-gray-600 hover:text-gray-400 text-sm"
-              >
-                &times;
-              </button>
-            </div>
-          )}
-
-          {ideas.length === 0 && !draft && (
-            <p className="py-4 text-center text-sm text-gray-600">
-              No ideas yet. Click &ldquo;+ Add Idea&rdquo; to start brainstorming.
-            </p>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
