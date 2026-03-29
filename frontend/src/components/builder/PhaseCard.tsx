@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { CampaignPhase, Quest, Location } from "@/types";
@@ -15,6 +15,8 @@ interface PhaseCardProps {
   onMoveDown: () => void;
   quests: Quest[];
   locations: Location[];
+  startInEditMode?: boolean;
+  onEditModeConsumed?: () => void;
 }
 
 export default function PhaseCard({
@@ -27,10 +29,20 @@ export default function PhaseCard({
   onMoveDown,
   quests,
   locations,
+  startInEditMode = false,
+  onEditModeConsumed,
 }: PhaseCardProps) {
-  const [editing, setEditing] = useState(false);
-  const [title, setTitle] = useState(phase.title);
+  const [editing, setEditing] = useState(startInEditMode);
+  const [title, setTitle] = useState(startInEditMode ? "" : phase.title);
   const [description, setDescription] = useState(phase.description ?? "");
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  // When startInEditMode fires, notify parent so it clears the flag
+  useEffect(() => {
+    if (startInEditMode) {
+      onEditModeConsumed?.();
+    }
+  }, [startInEditMode, onEditModeConsumed]);
   const [selectedQuestIds, setSelectedQuestIds] = useState<Set<string>>(
     new Set(phase.quest_ids)
   );
@@ -49,6 +61,11 @@ export default function PhaseCard({
   }
 
   function cancelEdit() {
+    // Reset to the persisted values on cancel
+    setTitle(phase.title);
+    setDescription(phase.description ?? "");
+    setSelectedQuestIds(new Set(phase.quest_ids));
+    setSelectedLocationIds(new Set(phase.location_ids));
     setEditing(false);
   }
 
@@ -121,6 +138,7 @@ export default function PhaseCard({
             Phase Title
           </label>
           <input
+            ref={titleInputRef}
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
