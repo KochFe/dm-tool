@@ -16,6 +16,8 @@ A comprehensive digital assistant for Dungeons & Dragons Dungeon Masters. The go
 | 6 | Deployment & CI/CD | Complete |
 | 7 | App-Level Authentication | Complete |
 | 8 | Multi-Tenancy | Complete |
+| 9 | D&D Beyond Character Import | Complete |
+| 10 | Campaign Builder | Complete |
 
 ## Quick Start (Development)
 
@@ -74,15 +76,4 @@ The app is deployed on a Hetzner VPS with automatic CI/CD:
 docker compose exec backend pytest
 ```
 
-All 165 tests run against SQLite in-memory — no running database required for testing.
-
-## Documentation
-
-Detailed project documentation lives in `docs/` (local only, not tracked in git):
-
-- `docs/ARCHITECTURE.md` — API conventions, DB patterns, LangGraph agent, generators
-- `docs/ROADMAP.md` — Development phases, current objectives, feature requirements
-- `docs/CODEBASE.md` — File tree with module annotations
-- `docs/INFRASTRUCTURE.md` — Docker services, CI/CD pipeline, VPS, production config
-- `docs/DECISIONS.md` — Key architectural decisions with rationale
-
+All 258 tests run against SQLite in-memory — no running database required for testing.
