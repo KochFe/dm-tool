@@ -222,6 +222,55 @@ async def test_set_phase_quests_clear(client: AsyncClient, auth_headers):
 
 
 # ---------------------------------------------------------------------------
+# description_rich field
+# ---------------------------------------------------------------------------
+
+
+async def test_update_phase_description_rich(client: AsyncClient, auth_headers):
+    """PATCH with description_rich stores and returns TipTap JSON."""
+    cid = await _create_campaign(client, auth_headers)
+    created = await _create_phase(client, cid, {"title": "Act 1"}, auth_headers)
+    phase_id = created["id"]
+
+    rich_doc = {
+        "type": "doc",
+        "content": [
+            {
+                "type": "paragraph",
+                "content": [
+                    {"type": "text", "text": "Travel to "},
+                    {
+                        "type": "locationMention",
+                        "attrs": {"name": "Thornwood Forest", "locationId": None},
+                    },
+                ],
+            }
+        ],
+    }
+
+    resp = await client.patch(
+        f"/api/v1/phases/{phase_id}",
+        json={"description_rich": rich_doc},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data["description_rich"] == rich_doc
+
+
+async def test_create_phase_description_rich_null_by_default(client: AsyncClient, auth_headers):
+    """New phases have description_rich as null."""
+    cid = await _create_campaign(client, auth_headers)
+    resp = await client.post(
+        f"/api/v1/campaigns/{cid}/phases",
+        json={"title": "Act 1"},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 201
+    assert resp.json()["data"]["description_rich"] is None
+
+
+# ---------------------------------------------------------------------------
 # Cascade delete
 # ---------------------------------------------------------------------------
 

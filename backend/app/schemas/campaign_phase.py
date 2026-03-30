@@ -13,6 +13,7 @@ class PhaseCreate(BaseModel):
 class PhaseUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=200)
     description: str | None = None
+    description_rich: dict | None = None
     sort_order: int | None = Field(default=None, ge=0)
 
 
@@ -25,6 +26,7 @@ class PhaseResponse(BaseModel):
     campaign_id: uuid.UUID
     title: str
     description: str | None
+    description_rich: dict | None = None
     sort_order: int
     quest_ids: list[uuid.UUID] = Field(default_factory=list)
     location_ids: list[uuid.UUID] = Field(default_factory=list)
@@ -46,6 +48,7 @@ class PhaseResponse(BaseModel):
                 "campaign_id": data.campaign_id,
                 "title": data.title,
                 "description": data.description,
+                "description_rich": data.description_rich,
                 "sort_order": data.sort_order,
                 "quest_ids": [q.id for q in quests],
                 "location_ids": [loc.id for loc in locations],
