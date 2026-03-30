@@ -277,6 +277,7 @@ export interface CampaignPhase {
   campaign_id: string;
   title: string;
   description: string | null;
+  description_rich: Record<string, unknown> | null;
   sort_order: number;
   quest_ids: string[];
   location_ids: string[];
@@ -293,6 +294,7 @@ export interface PhaseCreate {
 export interface PhaseUpdate {
   title?: string;
   description?: string;
+  description_rich?: Record<string, unknown> | null;
   sort_order?: number;
 }
 
