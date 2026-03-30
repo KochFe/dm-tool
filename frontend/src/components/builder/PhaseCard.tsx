@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { CampaignPhase, Quest, Location } from "@/types";
@@ -9,6 +9,15 @@ import RichTextEditor, {
   extractLocationMentions,
   extractPlainText,
 } from "@/components/ui/tiptap/rich-text-editor";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface PhaseCardProps {
   phase: CampaignPhase;
@@ -17,6 +26,7 @@ interface PhaseCardProps {
   isEditing: boolean;
   isNew: boolean;
   campaignId: string;
+  allPhases: CampaignPhase[];
   onRequestEdit: () => boolean;
   onEditDone: () => void;
   onUpdate: () => void;
@@ -34,6 +44,7 @@ export default function PhaseCard({
   isEditing,
   isNew,
   campaignId,
+  allPhases,
   onRequestEdit,
   onEditDone,
   onUpdate,
@@ -53,6 +64,29 @@ export default function PhaseCard({
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
+
+  // Promise-based dialog for nested location deletion
+  const [nestedDialog, setNestedDialog] = useState<{
+    locationName: string;
+    childCount: number;
+  } | null>(null);
+  const nestedDialogResolveRef = useRef<((action: "delete" | "unlink") => void) | null>(null);
+
+  const confirmNestedLocationAction = useCallback(
+    (locationName: string, childCount: number): Promise<"delete" | "unlink"> => {
+      return new Promise((resolve) => {
+        nestedDialogResolveRef.current = resolve;
+        setNestedDialog({ locationName, childCount });
+      });
+    },
+    []
+  );
+
+  function handleNestedDialogChoice(action: "delete" | "unlink") {
+    nestedDialogResolveRef.current?.(action);
+    nestedDialogResolveRef.current = null;
+    setNestedDialog(null);
+  }
 
   function enterEdit() {
     const allowed = onRequestEdit();
@@ -106,6 +140,40 @@ export default function PhaseCard({
       });
       await api.setPhaseQuests(phase.id, Array.from(selectedQuestIds));
       await api.setPhaseLocations(phase.id, uniqueLocationIds);
+
+      // Detect locations that were previously linked but are now removed
+      const previousLocationIds = new Set(phase.location_ids);
+      const newLocationIds = new Set(uniqueLocationIds);
+      const removedLocationIds = [...previousLocationIds].filter(
+        (id) => !newLocationIds.has(id)
+      );
+
+      // Delete removed locations if no other phase references them
+      for (const removedId of removedLocationIds) {
+        const referencedByOtherPhase = allPhases.some(
+          (p) =>
+            p.id !== phase.id && p.location_ids.includes(removedId)
+        );
+        if (referencedByOtherPhase) continue;
+
+        const loc = locations.find((l) => l.id === removedId);
+        const children = locations.filter((l) => l.parent_id === removedId);
+
+        if (children.length > 0 && loc) {
+          const action = await confirmNestedLocationAction(loc.name, children.length);
+          if (action === "unlink") continue;
+          // "delete" — recursively delete children first, then parent
+          for (const child of children) {
+            try { await api.deleteLocation(child.id); } catch { /* already gone */ }
+          }
+        }
+
+        try {
+          await api.deleteLocation(removedId);
+        } catch {
+          // Location may have been deleted already or have other references
+        }
+      }
 
       onEditDone();
       onUpdate();
@@ -174,6 +242,40 @@ export default function PhaseCard({
     );
   }
 
+  const nestedLocationDialog = (
+    <Dialog
+      open={nestedDialog !== null}
+      onOpenChange={(open) => {
+        if (!open) handleNestedDialogChoice("unlink");
+      }}
+    >
+      <DialogContent showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>Location has nested children</DialogTitle>
+          <DialogDescription>
+            <strong>&ldquo;{nestedDialog?.locationName}&rdquo;</strong> has{" "}
+            {nestedDialog?.childCount} nested location
+            {nestedDialog?.childCount !== 1 ? "s" : ""}. What would you like to do?
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => handleNestedDialogChoice("unlink")}
+          >
+            Just Unlink
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => handleNestedDialogChoice("delete")}
+          >
+            Delete All
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
   if (isEditing) {
     return (
       <div className="bg-gray-800 border border-amber-600/30 rounded-xl p-4 flex flex-col gap-4">
@@ -202,20 +304,23 @@ export default function PhaseCard({
             initialContent={richContent}
             plainText={phase.description ?? ""}
             onChange={setRichContent}
+            knownLocationNames={locations.map((l) => l.name)}
             placeholder="Describe what happens in this phase... Select text and click 'Mark as Location' to tag locations."
           />
         </div>
 
-        {/* Tagged Locations (from editor mentions) */}
+        {/* Tagged Locations (from editor mentions, deduplicated) */}
         {richContent && extractLocationMentions(richContent).length > 0 && (
           <div className="flex flex-col gap-2">
             <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">
               Tagged Locations
             </label>
             <div className="flex flex-wrap gap-1.5">
-              {extractLocationMentions(richContent).map((mention, idx) => (
+              {[...new Map(
+                extractLocationMentions(richContent).map((m) => [m.name.toLowerCase(), m])
+              ).values()].map((mention) => (
                 <span
-                  key={`${mention.name}-${idx}`}
+                  key={mention.name}
                   className="inline-flex items-center gap-1 bg-amber-500/15 text-amber-400 text-xs px-2 py-0.5 rounded-full"
                 >
                   {mention.name}
@@ -267,6 +372,7 @@ export default function PhaseCard({
             Cancel
           </button>
         </div>
+        {nestedLocationDialog}
       </div>
     );
   }
