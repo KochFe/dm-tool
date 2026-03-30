@@ -3,7 +3,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { LocationMention } from "./location-mention";
 import type { JSONContent } from "@tiptap/react";
 
@@ -14,9 +14,18 @@ export interface RichTextEditorProps {
   plainText?: string;
   /** Called on every content change with the current TipTap JSON */
   onChange?: (json: JSONContent) => void;
+  /** Known location names for auto-tagging (case-insensitive) */
+  knownLocationNames?: string[];
   placeholder?: string;
   className?: string;
 }
+
+/**
+ * Global set of location names that were explicitly unlinked by the user
+ * in this editing session. The auto-tagger skips these to prevent re-tagging.
+ * Cleared when the editor mounts (new edit session).
+ */
+export const suppressedNames = new Set<string>();
 
 /** Extract all LocationMention nodes from a TipTap JSON document. */
 export function extractLocationMentions(
@@ -90,10 +99,12 @@ export default function RichTextEditor({
   initialContent,
   plainText,
   onChange,
+  knownLocationNames = [],
   placeholder,
   className,
 }: RichTextEditorProps) {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: false,
@@ -129,6 +140,100 @@ export default function RichTextEditor({
     const el = editor.view.dom;
     el.setAttribute("data-placeholder", placeholder);
   }, [editor, placeholder]);
+
+  // Auto-tag known location names (from DB + already tagged in this doc) as user types.
+  // The timer ref lives outside the effect so re-renders don't cancel it.
+  const isAutoTagging = useRef(false);
+  const autoTagTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const knownNamesRef = useRef(knownLocationNames);
+  knownNamesRef.current = knownLocationNames;
+
+  useEffect(() => {
+    if (!editor) return;
+
+    function scanAndTag() {
+      if (!editor || isAutoTagging.current) return;
+
+      // Collect all names: known from DB + already tagged in this doc
+      const docMentionNames = extractLocationMentions(editor.getJSON()).map(
+        (m) => m.name
+      );
+      const allNames = [
+        ...new Map(
+          [...knownNamesRef.current, ...docMentionNames]
+            .filter((n) => !suppressedNames.has(n.toLowerCase()))
+            .map((n) => [n.toLowerCase(), n])
+        ).values(),
+      ];
+      if (allNames.length === 0) return;
+
+      // Sort by length desc to match longest first
+      const sorted = allNames.sort((a, b) => b.length - a.length);
+
+      const doc = editor.state.doc;
+      const replacements: { from: number; to: number; name: string }[] = [];
+
+      doc.descendants((node, pos) => {
+        if (node.type.name !== "text") return;
+        const text = node.text || "";
+        for (const locName of sorted) {
+          const regex = new RegExp(
+            `\\b${locName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+            "gi"
+          );
+          let match;
+          while ((match = regex.exec(text)) !== null) {
+            const from = pos + match.index;
+            const to = from + match[0].length;
+            const overlaps = replacements.some(
+              (r) => from < r.to && to > r.from
+            );
+            if (!overlaps) {
+              replacements.push({ from, to, name: match[0] });
+            }
+          }
+        }
+      });
+
+      if (replacements.length === 0) return;
+
+      isAutoTagging.current = true;
+      const tr = editor.state.tr;
+      replacements
+        .sort((a, b) => b.from - a.from)
+        .forEach(({ from, to, name }) => {
+          const mentionNode =
+            editor.state.schema.nodes.locationMention.create({
+              name,
+              locationId: null,
+            });
+          tr.replaceWith(from, to, mentionNode);
+        });
+      editor.view.dispatch(tr);
+      isAutoTagging.current = false;
+    }
+
+    // Clear suppressed names on mount (new edit session)
+    suppressedNames.clear();
+
+    // Run on mount
+    scanAndTag();
+
+    // Debounced scan after each content change — uses the editor's
+    // native event so the timer survives React re-renders.
+    const onUpdate = () => {
+      if (isAutoTagging.current) return;
+      if (autoTagTimer.current) clearTimeout(autoTagTimer.current);
+      autoTagTimer.current = setTimeout(scanAndTag, 600);
+    };
+
+    editor.on("update", onUpdate);
+    return () => {
+      editor.off("update", onUpdate);
+    };
+    // Only re-attach when the editor instance changes, not on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor]);
 
   const handleMarkLocation = useCallback(() => {
     if (!editor) return;

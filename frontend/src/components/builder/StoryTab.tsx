@@ -203,6 +203,7 @@ export default function StoryTab({
                       isEditing={isThisEditing}
                       isNew={isThisEditing && isNewPhase}
                       campaignId={campaign.id}
+                      allPhases={phases}
                       onRequestEdit={() => {
                         if (editingPhaseId) {
                           toast.warning("Finish editing the current phase first");
