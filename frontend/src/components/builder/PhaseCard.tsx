@@ -4,6 +4,11 @@ import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { CampaignPhase, Quest, Location } from "@/types";
+import type { JSONContent } from "@tiptap/react";
+import RichTextEditor, {
+  extractLocationMentions,
+  extractPlainText,
+} from "@/components/ui/tiptap/rich-text-editor";
 
 interface PhaseCardProps {
   phase: CampaignPhase;
@@ -11,6 +16,7 @@ interface PhaseCardProps {
   totalPhases: number;
   isEditing: boolean;
   isNew: boolean;
+  campaignId: string;
   onRequestEdit: () => boolean;
   onEditDone: () => void;
   onUpdate: () => void;
@@ -27,6 +33,7 @@ export default function PhaseCard({
   totalPhases,
   isEditing,
   isNew,
+  campaignId,
   onRequestEdit,
   onEditDone,
   onUpdate,
@@ -37,12 +44,11 @@ export default function PhaseCard({
   locations,
 }: PhaseCardProps) {
   const [title, setTitle] = useState(isNew ? "" : phase.title);
-  const [description, setDescription] = useState(phase.description ?? "");
+  const [richContent, setRichContent] = useState<JSONContent | null>(
+    (phase.description_rich as JSONContent) ?? null
+  );
   const [selectedQuestIds, setSelectedQuestIds] = useState<Set<string>>(
     new Set(phase.quest_ids)
-  );
-  const [selectedLocationIds, setSelectedLocationIds] = useState<Set<string>>(
-    new Set(phase.location_ids)
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -52,16 +58,14 @@ export default function PhaseCard({
     const allowed = onRequestEdit();
     if (!allowed) return;
     setTitle(phase.title);
-    setDescription(phase.description ?? "");
+    setRichContent((phase.description_rich as JSONContent) ?? null);
     setSelectedQuestIds(new Set(phase.quest_ids));
-    setSelectedLocationIds(new Set(phase.location_ids));
   }
 
   function cancelEdit() {
     setTitle(phase.title);
-    setDescription(phase.description ?? "");
+    setRichContent((phase.description_rich as JSONContent) ?? null);
     setSelectedQuestIds(new Set(phase.quest_ids));
-    setSelectedLocationIds(new Set(phase.location_ids));
     onEditDone();
   }
 
@@ -74,12 +78,35 @@ export default function PhaseCard({
     }
     setSaving(true);
     try {
+      const doc = richContent ?? { type: "doc", content: [] };
+      const mentions = extractLocationMentions(doc);
+      const plainDescription = extractPlainText(doc).trim() || undefined;
+
+      const resolvedLocationIds: string[] = [];
+      for (const mention of mentions) {
+        const existing = locations.find(
+          (l) => l.name.toLowerCase() === mention.name.toLowerCase()
+        );
+        if (existing) {
+          resolvedLocationIds.push(existing.id);
+        } else {
+          const created = await api.createLocation(campaignId, {
+            name: mention.name,
+          });
+          resolvedLocationIds.push(created.id);
+        }
+      }
+
+      const uniqueLocationIds = [...new Set(resolvedLocationIds)];
+
       await api.updatePhase(phase.id, {
         title: trimmedTitle,
-        description: description.trim() || undefined,
+        description: plainDescription,
+        description_rich: doc,
       });
       await api.setPhaseQuests(phase.id, Array.from(selectedQuestIds));
-      await api.setPhaseLocations(phase.id, Array.from(selectedLocationIds));
+      await api.setPhaseLocations(phase.id, uniqueLocationIds);
+
       onEditDone();
       onUpdate();
     } catch (err) {
@@ -109,15 +136,6 @@ export default function PhaseCard({
     });
   }
 
-  function toggleLocationId(id: string) {
-    setSelectedLocationIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
-
   const linkedQuestTitles = quests
     .filter((q) => phase.quest_ids.includes(q.id))
     .map((q) => q.title);
@@ -125,6 +143,36 @@ export default function PhaseCard({
   const linkedLocationNames = locations
     .filter((l) => phase.location_ids.includes(l.id))
     .map((l) => l.name);
+
+  function renderRichDescription() {
+    const rich = phase.description_rich as JSONContent | null;
+    if (!rich?.content) {
+      return phase.description ? (
+        <p className="text-sm text-gray-400 line-clamp-3">{phase.description}</p>
+      ) : null;
+    }
+    return (
+      <div className="text-sm text-gray-400 line-clamp-3">
+        {rich.content.map((block, blockIdx) => {
+          if (block.type !== "paragraph") return null;
+          return (
+            <p key={blockIdx}>
+              {(block.content ?? []).map((node, nodeIdx) => {
+                if (node.type === "locationMention" && node.attrs) {
+                  return (
+                    <span key={nodeIdx} className="text-amber-400">
+                      {node.attrs.name as string}
+                    </span>
+                  );
+                }
+                return <span key={nodeIdx}>{node.text}</span>;
+              })}
+            </p>
+          );
+        })}
+      </div>
+    );
+  }
 
   if (isEditing) {
     return (
@@ -150,14 +198,32 @@ export default function PhaseCard({
           <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">
             Description
           </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={4}
-            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:outline-none focus:border-amber-500 transition-colors resize-none"
-            placeholder="Describe what happens in this phase..."
+          <RichTextEditor
+            initialContent={richContent}
+            plainText={phase.description ?? ""}
+            onChange={setRichContent}
+            placeholder="Describe what happens in this phase... Select text and click 'Mark as Location' to tag locations."
           />
         </div>
+
+        {/* Tagged Locations (from editor mentions) */}
+        {richContent && extractLocationMentions(richContent).length > 0 && (
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+              Tagged Locations
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {extractLocationMentions(richContent).map((mention, idx) => (
+                <span
+                  key={`${mention.name}-${idx}`}
+                  className="inline-flex items-center gap-1 bg-amber-500/15 text-amber-400 text-xs px-2 py-0.5 rounded-full"
+                >
+                  {mention.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Quest linking */}
         {quests.length > 0 && (
@@ -178,31 +244,6 @@ export default function PhaseCard({
                     className="w-4 h-4 rounded border-gray-600 bg-gray-800 accent-amber-500"
                   />
                   {q.title}
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Location linking */}
-        {locations.length > 0 && (
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-              Linked Locations
-            </label>
-            <div className="flex flex-col gap-1 max-h-36 overflow-y-auto">
-              {locations.map((loc) => (
-                <label
-                  key={loc.id}
-                  className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-gray-100"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedLocationIds.has(loc.id)}
-                    onChange={() => toggleLocationId(loc.id)}
-                    className="w-4 h-4 rounded border-gray-600 bg-gray-800 accent-amber-500"
-                  />
-                  {loc.name}
                 </label>
               ))}
             </div>
@@ -276,9 +317,7 @@ export default function PhaseCard({
       </div>
 
       {/* Description */}
-      {phase.description && (
-        <p className="text-sm text-gray-400 line-clamp-3">{phase.description}</p>
-      )}
+      {renderRichDescription()}
 
       {/* Links summary */}
       <div className="flex flex-wrap gap-3 text-xs text-gray-500 mt-1">
