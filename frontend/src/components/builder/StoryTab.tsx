@@ -202,6 +202,7 @@ export default function StoryTab({
                       totalPhases={phases.length}
                       isEditing={isThisEditing}
                       isNew={isThisEditing && isNewPhase}
+                      campaignId={campaign.id}
                       onRequestEdit={() => {
                         if (editingPhaseId) {
                           toast.warning("Finish editing the current phase first");
@@ -219,7 +220,10 @@ export default function StoryTab({
                         setEditingPhaseId(null);
                         setIsNewPhase(false);
                       }}
-                      onUpdate={loadPhases}
+                      onUpdate={() => {
+                        loadPhases();
+                        loadQuestsAndLocations();
+                      }}
                       onDelete={() => {
                         if (editingPhaseId === phase.id) {
                           setEditingPhaseId(null);
