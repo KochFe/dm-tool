@@ -117,16 +117,21 @@ export default function PhaseCard({
       const plainDescription = extractPlainText(doc).trim() || undefined;
 
       const resolvedLocationIds: string[] = [];
+      const createdThisSave = new Map<string, string>(); // lowercase name → id
       for (const mention of mentions) {
+        const key = mention.name.toLowerCase();
         const existing = locations.find(
-          (l) => l.name.toLowerCase() === mention.name.toLowerCase()
+          (l) => l.name.toLowerCase() === key
         );
         if (existing) {
           resolvedLocationIds.push(existing.id);
+        } else if (createdThisSave.has(key)) {
+          resolvedLocationIds.push(createdThisSave.get(key)!);
         } else {
           const created = await api.createLocation(campaignId, {
             name: mention.name,
           });
+          createdThisSave.set(key, created.id);
           resolvedLocationIds.push(created.id);
         }
       }
@@ -444,6 +449,7 @@ export default function PhaseCard({
           </span>
         </span>
       </div>
+      {nestedLocationDialog}
     </div>
   );
 }
