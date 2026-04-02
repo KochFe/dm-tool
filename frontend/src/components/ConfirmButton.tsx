@@ -10,6 +10,7 @@ interface ConfirmButtonProps {
   confirmClassName?: string;
   disabled?: boolean;
   timeoutMs?: number;
+  onConfirmingChange?: (confirming: boolean) => void;
 }
 
 export default function ConfirmButton({
@@ -20,6 +21,7 @@ export default function ConfirmButton({
   confirmClassName,
   disabled = false,
   timeoutMs = 3000,
+  onConfirmingChange,
 }: ConfirmButtonProps) {
   const [confirming, setConfirming] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -35,8 +37,10 @@ export default function ConfirmButton({
 
   function startConfirm() {
     setConfirming(true);
+    onConfirmingChange?.(true);
     timeoutRef.current = setTimeout(() => {
       setConfirming(false);
+      onConfirmingChange?.(false);
       timeoutRef.current = null;
     }, timeoutMs);
   }
@@ -47,6 +51,7 @@ export default function ConfirmButton({
       timeoutRef.current = null;
     }
     setConfirming(false);
+    onConfirmingChange?.(false);
   }
 
   async function handleConfirm() {
@@ -55,6 +60,7 @@ export default function ConfirmButton({
       timeoutRef.current = null;
     }
     setConfirming(false);
+    onConfirmingChange?.(false);
     await onConfirm();
   }
 
@@ -63,7 +69,7 @@ export default function ConfirmButton({
       <span
         className={
           confirmClassName ??
-          "inline-flex items-center gap-1.5"
+          "inline-flex items-center gap-2 border border-red-800/60 bg-red-950/40 rounded-lg px-2.5 py-1"
         }
       >
         <span className="text-xs text-gray-400 whitespace-nowrap">
