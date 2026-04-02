@@ -36,6 +36,7 @@ export default function LocationSection({
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_LOC);
   const [editId, setEditId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,25 +184,30 @@ export default function LocationSection({
                   </p>
                 </div>
                 <div className="flex gap-2 shrink-0">
-                  {!isCurrent && (
-                    <button
-                      onClick={() => handleSetCurrent(loc.id)}
-                      className="text-sm bg-amber-700/30 hover:bg-amber-700/60 text-amber-300 px-3 py-1 rounded-lg transition-colors"
-                    >
-                      Set Current
-                    </button>
+                  {confirmingId !== loc.id && (
+                    <>
+                      {!isCurrent && (
+                        <button
+                          onClick={() => handleSetCurrent(loc.id)}
+                          className="text-sm bg-amber-700/30 hover:bg-amber-700/60 text-amber-300 px-3 py-1 rounded-lg transition-colors"
+                        >
+                          Set Current
+                        </button>
+                      )}
+                      <button
+                        onClick={() => startEdit(loc)}
+                        className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
+                      >
+                        Edit
+                      </button>
+                    </>
                   )}
-                  <button
-                    onClick={() => startEdit(loc)}
-                    className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
-                  >
-                    Edit
-                  </button>
                   <ConfirmButton
                     onConfirm={() => handleDelete(loc.id)}
                     label="Delete"
                     confirmLabel="Are you sure?"
                     className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
+                    onConfirmingChange={(c) => setConfirmingId(c ? loc.id : null)}
                   />
                 </div>
               </motion.div>

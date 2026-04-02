@@ -365,6 +365,7 @@ export default function CharacterSection({
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [showImport, setShowImport] = useState(false);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -715,17 +716,20 @@ export default function CharacterSection({
                     >
                       {isExpanded ? "▲" : "▼"}
                     </button>
-                    <button
-                      onClick={() => startEdit(pc)}
-                      className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
-                    >
-                      Edit
-                    </button>
+                    {confirmingId !== pc.id && (
+                      <button
+                        onClick={() => startEdit(pc)}
+                        className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
+                      >
+                        Edit
+                      </button>
+                    )}
                     <ConfirmButton
                       onConfirm={() => handleDelete(pc.id, pc.name)}
                       label="Delete"
                       confirmLabel="Are you sure?"
                       className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
+                      onConfirmingChange={(c) => setConfirmingId(c ? pc.id : null)}
                     />
                   </div>
                 </div>
