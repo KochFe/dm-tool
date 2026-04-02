@@ -80,6 +80,7 @@ export default function NPCSection({
   const [editId, setEditId] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const loadNpcs = async () => {
     try {
@@ -399,17 +400,20 @@ export default function NPCSection({
 
                   {/* Actions */}
                   <div className="flex gap-2 shrink-0">
-                    <button
-                      onClick={() => openEdit(npc)}
-                      className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
-                    >
-                      Edit
-                    </button>
+                    {confirmingId !== npc.id && (
+                      <button
+                        onClick={() => openEdit(npc)}
+                        className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
+                      >
+                        Edit
+                      </button>
+                    )}
                     <ConfirmButton
                       onConfirm={() => handleDelete(npc)}
                       label="Delete"
                       confirmLabel="Are you sure?"
                       className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
+                      onConfirmingChange={(c) => setConfirmingId(c ? npc.id : null)}
                     />
                   </div>
                 </div>
