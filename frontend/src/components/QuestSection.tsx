@@ -56,6 +56,7 @@ export default function QuestSection({
   const [editId, setEditId] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const loadQuests = async () => {
     setLoading(true);
@@ -339,17 +340,20 @@ export default function QuestSection({
                     )}
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    <button
-                      onClick={() => startEdit(quest)}
-                      className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
-                    >
-                      Edit
-                    </button>
+                    {confirmingId !== quest.id && (
+                      <button
+                        onClick={() => startEdit(quest)}
+                        className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
+                      >
+                        Edit
+                      </button>
+                    )}
                     <ConfirmButton
                       onConfirm={() => handleDelete(quest.id)}
                       label="Delete"
                       confirmLabel="Are you sure?"
                       className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
+                      onConfirmingChange={(c) => setConfirmingId(c ? quest.id : null)}
                     />
                   </div>
                 </div>

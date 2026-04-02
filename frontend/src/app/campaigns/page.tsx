@@ -12,6 +12,7 @@ export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const router = useRouter();
 
   const load = async () => {
@@ -101,17 +102,20 @@ export default function CampaignsPage() {
                   <p className="text-sm text-gray-500 mt-0.5">Not yet activated</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Link
-                    href={`/campaigns/${c.id}/builder`}
-                    className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold text-sm px-3 py-1.5 rounded-lg transition-colors duration-150"
-                  >
-                    Continue
-                  </Link>
+                  {confirmingId !== c.id && (
+                    <Link
+                      href={`/campaigns/${c.id}/builder`}
+                      className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold text-sm px-3 py-1.5 rounded-lg transition-colors duration-150"
+                    >
+                      Continue
+                    </Link>
+                  )}
                   <ConfirmButton
                     onConfirm={() => handleDelete(c.id)}
                     label="Delete"
                     confirmLabel="Are you sure?"
                     className="bg-red-900/40 hover:bg-red-800/60 text-red-400 hover:text-red-300 border border-red-800/50 hover:border-red-700 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors duration-150"
+                    onConfirmingChange={(c2) => setConfirmingId(c2 ? c.id : null)}
                   />
                 </div>
               </div>
@@ -136,6 +140,7 @@ export default function CampaignsPage() {
                   label="Delete"
                   confirmLabel="Are you sure?"
                   className="bg-red-900/40 hover:bg-red-800/60 text-red-400 hover:text-red-300 border border-red-800/50 hover:border-red-700 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors duration-150"
+                  onConfirmingChange={(c2) => setConfirmingId(c2 ? c.id : null)}
                 />
               </div>
             )
