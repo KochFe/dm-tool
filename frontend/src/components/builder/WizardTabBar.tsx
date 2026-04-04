@@ -14,7 +14,7 @@ export default function WizardTabBar({
   completedTabs,
 }: WizardTabBarProps) {
   return (
-    <div className="flex border-b border-gray-700">
+    <div className="flex border-b border-border">
       {TAB_LABELS.map((label, i) => {
         const isActive = activeTab === i;
         const isCompleted = completedTabs.has(i);
@@ -24,13 +24,13 @@ export default function WizardTabBar({
             onClick={() => onTabChange(i)}
             className={`px-5 py-3 text-sm font-medium transition-colors duration-150 border-b-2 -mb-px ${
               isActive
-                ? "border-amber-500 text-amber-400"
-                : "border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
             }`}
           >
             {label}
             {isCompleted && !isActive && (
-              <span className="ml-1 text-amber-500">&#10003;</span>
+              <span className="ml-1 text-primary">&#10003;</span>
             )}
           </button>
         );

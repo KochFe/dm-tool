@@ -16,15 +16,15 @@ export default function LocationHoverCard({ location, isCurrent, children }: Loc
       <HoverCardTrigger asChild>
         {children}
       </HoverCardTrigger>
-      <HoverCardContent className="w-72 bg-gray-900 border-gray-700 text-gray-100">
+      <HoverCardContent className="w-72 bg-card border-border text-foreground">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold">{location.name}</h4>
             <Badge variant="secondary" className="text-xs capitalize">{location.biome}</Badge>
-            {isCurrent && <Badge className="text-xs bg-amber-600/20 text-amber-400">Current</Badge>}
+            {isCurrent && <Badge className="text-xs bg-primary/20 text-primary">Current</Badge>}
           </div>
           {location.description && (
-            <p className="text-xs text-gray-500 line-clamp-3">{location.description}</p>
+            <p className="text-xs text-muted-foreground line-clamp-3">{location.description}</p>
           )}
         </div>
       </HoverCardContent>

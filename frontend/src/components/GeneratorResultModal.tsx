@@ -31,17 +31,17 @@ interface StagedCombatant {
 
 const DIFFICULTY_CLASSES: Record<string, string> = {
   easy: 'bg-green-900/40 text-green-300 border border-green-700/50',
-  medium: 'bg-amber-900/40 text-amber-300 border border-amber-700/50',
+  medium: 'bg-primary/15 text-primary border border-primary/30',
   hard: 'bg-orange-900/40 text-orange-300 border border-orange-700/50',
   deadly: 'bg-red-900/40 text-red-300 border border-red-700/50',
 };
 
 const RARITY_CLASSES: Record<string, string> = {
-  common: 'bg-gray-800 text-gray-300 border border-gray-700/50',
+  common: 'bg-muted text-foreground/80 border border-border',
   uncommon: 'bg-green-900/40 text-green-300 border border-green-700/50',
   rare: 'bg-blue-900/40 text-blue-300 border border-blue-700/50',
   'very rare': 'bg-purple-900/40 text-purple-300 border border-purple-700/50',
-  legendary: 'bg-amber-900/40 text-amber-300 border border-amber-700/50',
+  legendary: 'bg-primary/15 text-primary border border-primary/30',
 };
 
 const ABILITY_KEYS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
@@ -55,15 +55,15 @@ const ABILITY_STAT_KEYS: Record<string, string> = {
 };
 
 function rarityClass(rarity: string): string {
-  return RARITY_CLASSES[rarity.toLowerCase()] ?? 'bg-gray-800 text-gray-300 border border-gray-700/50';
+  return RARITY_CLASSES[rarity.toLowerCase()] ?? 'bg-muted text-foreground/80 border border-border';
 }
 
 function difficultyClass(difficulty: string): string {
-  return DIFFICULTY_CLASSES[difficulty.toLowerCase()] ?? 'bg-gray-800 text-gray-300 border border-gray-700/50';
+  return DIFFICULTY_CLASSES[difficulty.toLowerCase()] ?? 'bg-muted text-foreground/80 border border-border';
 }
 
 const COMPACT_INPUT_CLASS =
-  'bg-gray-800 border border-gray-700 text-gray-100 rounded px-2 py-1 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors';
+  'bg-muted border border-border text-foreground rounded px-2 py-1 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors';
 
 function buildInitialCombatants(encounter: GeneratedEncounter): StagedCombatant[] {
   const rows: StagedCombatant[] = [];
@@ -155,15 +155,15 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
         </span>
       </div>
 
-      <p className="text-gray-300 text-sm leading-relaxed">{encounter.description}</p>
+      <p className="text-foreground/80 text-sm leading-relaxed">{encounter.description}</p>
 
       {encounter.monsters.length > 0 && (
         <div>
-          <h3 className="text-gray-100 text-sm font-semibold mb-2">Monsters</h3>
+          <h3 className="text-foreground text-sm font-semibold mb-2">Monsters</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-700/50 text-gray-400 text-left">
+                <tr className="border-b border-border text-muted-foreground text-left">
                   <th className="pb-2 pr-4 font-medium">Name</th>
                   <th className="pb-2 pr-4 font-medium">CR</th>
                   <th className="pb-2 pr-4 font-medium">HP</th>
@@ -171,9 +171,9 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
                   <th className="pb-2 font-medium">Count</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800">
+              <tbody className="divide-y divide-border">
                 {encounter.monsters.map((m, i) => (
-                  <tr key={i} className="text-gray-300">
+                  <tr key={i} className="text-foreground/80">
                     <td className="py-2 pr-4">{m.name}</td>
                     <td className="py-2 pr-4">{m.cr}</td>
                     <td className="py-2 pr-4">{m.hp}</td>
@@ -189,14 +189,14 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
 
       {encounter.tactical_notes && (
         <div>
-          <h3 className="text-gray-100 text-sm font-semibold mb-1">Tactical Notes</h3>
-          <p className="text-gray-400 text-sm leading-relaxed">{encounter.tactical_notes}</p>
+          <h3 className="text-foreground text-sm font-semibold mb-1">Tactical Notes</h3>
+          <p className="text-muted-foreground text-sm leading-relaxed">{encounter.tactical_notes}</p>
         </div>
       )}
 
       {/* Prepare Combat section */}
-      <div className="border-t border-gray-700/50 pt-4 mt-4">
-        <h3 className="text-amber-400 text-xs font-semibold uppercase tracking-wide mb-3">
+      <div className="border-t border-border pt-4 mt-4">
+        <h3 className="text-primary text-xs font-semibold uppercase tracking-wide mb-3">
           Prepare Combat
         </h3>
 
@@ -204,7 +204,7 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
           <div className="mb-3 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-700/50 text-gray-400 text-left">
+                <tr className="border-b border-border text-muted-foreground text-left">
                   <th className="pb-2 pr-2 font-medium">Name</th>
                   <th className="pb-2 pr-2 font-medium w-16">Init</th>
                   <th className="pb-2 pr-2 font-medium w-16">HP</th>
@@ -213,7 +213,7 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
                   <th className="pb-2 w-6" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800/50">
+              <tbody className="divide-y divide-border/50">
                 {combatants.map((c, i) => (
                   <tr key={i} className="align-middle">
                     <td className="py-1.5 pr-2">
@@ -268,7 +268,7 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
                       <button
                         onClick={() => removeRow(i)}
                         aria-label={`Remove ${c.name || 'combatant'}`}
-                        className="text-gray-500 hover:text-red-400 transition-colors text-base leading-none px-1"
+                        className="text-muted-foreground hover:text-red-400 transition-colors text-base leading-none px-1"
                       >
                         &times;
                       </button>
@@ -282,9 +282,9 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
 
         {/* Add PCs quick-add */}
         <div className="mb-3">
-          <p className="text-gray-500 text-xs mb-1.5 uppercase tracking-wide font-medium">Add PCs</p>
+          <p className="text-muted-foreground text-xs mb-1.5 uppercase tracking-wide font-medium">Add PCs</p>
           {availablePcs.length === 0 ? (
-            <p className="text-gray-500 text-xs italic">
+            <p className="text-muted-foreground text-xs italic">
               {characters.length === 0 ? 'No characters in this campaign.' : 'All PCs added.'}
             </p>
           ) : (
@@ -293,10 +293,10 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
                 <button
                   key={pc.id}
                   onClick={() => addPc(pc)}
-                  className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded text-xs cursor-pointer transition-colors"
+                  className="bg-accent hover:bg-muted text-foreground px-2 py-1 rounded text-xs cursor-pointer transition-colors"
                 >
                   {pc.name}
-                  <span className="text-gray-400 ml-1">({pc.character_class})</span>
+                  <span className="text-muted-foreground ml-1">({pc.character_class})</span>
                 </button>
               ))}
             </div>
@@ -306,7 +306,7 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
         {/* Manual add */}
         <button
           onClick={addBlankRow}
-          className="text-xs text-amber-500 hover:text-amber-400 transition-colors flex items-center gap-1"
+          className="text-xs text-primary hover:text-primary transition-colors flex items-center gap-1"
         >
           <span className="text-base leading-none">+</span> Add Combatant
         </button>
@@ -316,9 +316,9 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
 }
 
 const INPUT_CLASS =
-  'bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors';
+  'bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors';
 const TEXTAREA_CLASS = `${INPUT_CLASS} resize-none`;
-const LABEL_CLASS = 'block text-amber-400 text-xs font-semibold uppercase tracking-wide mb-1';
+const LABEL_CLASS = 'block text-primary text-xs font-semibold uppercase tracking-wide mb-1';
 
 interface NpcEditViewProps {
   npc: GeneratedNpc;
@@ -434,14 +434,14 @@ function NpcEditView({ npc, onChange }: NpcEditViewProps) {
         <div className="grid grid-cols-6 gap-2 mt-1">
           {ABILITY_KEYS.map((abbr) => (
             <div key={abbr} className="flex flex-col items-center gap-1">
-              <span className="text-gray-400 text-xs font-medium">{abbr}</span>
+              <span className="text-muted-foreground text-xs font-medium">{abbr}</span>
               <input
                 type="number"
                 min={1}
                 max={30}
                 value={getStatValue(abbr)}
                 onChange={(e) => setStatValue(abbr, e.target.value)}
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-1 py-1.5 w-full text-center text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+                className="bg-muted border border-border text-foreground rounded-lg px-1 py-1.5 w-full text-center text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
               />
             </div>
           ))}
@@ -455,25 +455,25 @@ function LootView({ loot }: { loot: GeneratedLoot }) {
   return (
     <div className="space-y-4">
       {loot.context && (
-        <p className="text-gray-400 text-sm leading-relaxed italic">{loot.context}</p>
+        <p className="text-muted-foreground text-sm leading-relaxed italic">{loot.context}</p>
       )}
 
       {loot.items.length > 0 && (
         <div>
-          <h3 className="text-gray-100 text-sm font-semibold mb-2">Items</h3>
+          <h3 className="text-foreground text-sm font-semibold mb-2">Items</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-700/50 text-gray-400 text-left">
+                <tr className="border-b border-border text-muted-foreground text-left">
                   <th className="pb-2 pr-4 font-medium">Name</th>
                   <th className="pb-2 pr-4 font-medium">Rarity</th>
                   <th className="pb-2 pr-4 font-medium">Value</th>
                   <th className="pb-2 font-medium">Description</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800">
+              <tbody className="divide-y divide-border">
                 {loot.items.map((item: GeneratedLootItem, i: number) => (
-                  <tr key={i} className="text-gray-300">
+                  <tr key={i} className="text-foreground/80">
                     <td className="py-2 pr-4 font-medium">{item.name}</td>
                     <td className="py-2 pr-4">
                       <span
@@ -483,7 +483,7 @@ function LootView({ loot }: { loot: GeneratedLoot }) {
                       </span>
                     </td>
                     <td className="py-2 pr-4 whitespace-nowrap">{item.value}</td>
-                    <td className="py-2 text-gray-400 text-xs leading-relaxed">{item.description}</td>
+                    <td className="py-2 text-muted-foreground text-xs leading-relaxed">{item.description}</td>
                   </tr>
                 ))}
               </tbody>
@@ -493,9 +493,9 @@ function LootView({ loot }: { loot: GeneratedLoot }) {
       )}
 
       {loot.total_value && (
-        <div className="flex items-center justify-end pt-2 border-t border-gray-700/50">
-          <span className="text-gray-400 text-sm mr-2">Total Value:</span>
-          <span className="text-amber-400 font-semibold text-sm">{loot.total_value}</span>
+        <div className="flex items-center justify-end pt-2 border-t border-border">
+          <span className="text-muted-foreground text-sm mr-2">Total Value:</span>
+          <span className="text-primary font-semibold text-sm">{loot.total_value}</span>
         </div>
       )}
     </div>
@@ -601,13 +601,13 @@ export default function GeneratorResultModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-gray-900 border border-gray-700/50 rounded-lg shadow-xl mx-4">
+      <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-card border border-border rounded-lg shadow-xl mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700/50 flex-shrink-0">
-          <h2 className="text-amber-400 text-lg font-semibold">{TITLES[type]}</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
+          <h2 className="text-primary text-lg font-semibold">{TITLES[type]}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-100 transition-colors text-xl leading-none"
+            className="text-muted-foreground hover:text-foreground transition-colors text-xl leading-none"
             aria-label="Close"
           >
             &times;
@@ -631,7 +631,7 @@ export default function GeneratorResultModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-700/50 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-border flex-shrink-0">
           <div className="flex-1">
             {saveError && (
               <p className="text-sm text-red-400 bg-red-900/20 border border-red-800 rounded px-3 py-2">
@@ -644,7 +644,7 @@ export default function GeneratorResultModal({
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold px-4 py-1.5 rounded text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-1.5 rounded text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? 'Saving...' : 'Save to Campaign'}
               </button>
@@ -658,14 +658,14 @@ export default function GeneratorResultModal({
                     ? 'All combatants must have a name and initiative value'
                     : undefined
                 }
-                className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold px-4 py-1.5 rounded text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-1.5 rounded text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? 'Starting...' : 'Begin Combat'}
               </button>
             )}
             <button
               onClick={onClose}
-              className="px-4 py-1.5 rounded border border-gray-700/50 text-gray-300 hover:bg-gray-800 text-sm transition-colors"
+              className="px-4 py-1.5 rounded border border-border text-foreground/80 hover:bg-muted text-sm transition-colors"
             >
               {type === 'npc' ? 'Discard' : 'Close'}
             </button>

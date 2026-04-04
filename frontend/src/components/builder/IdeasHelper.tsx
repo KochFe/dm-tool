@@ -39,12 +39,12 @@ export default function IdeasHelper({
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2 mb-1">
         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${TAG_DOT_COLORS[tag]}`} />
-        <span className="text-sm font-medium text-gray-300">{TAG_LABELS[tag]}</span>
+        <span className="text-sm font-medium text-foreground/80">{TAG_LABELS[tag]}</span>
       </div>
       {sorted.length === 0 ? (
-        <p className="text-xs text-gray-600 pl-4">No ideas yet.</p>
+        <p className="text-xs text-muted-foreground/60 pl-4">No ideas yet.</p>
       ) : (
-        <div className="flex flex-col divide-y divide-gray-800">
+        <div className="flex flex-col divide-y divide-border">
           {sorted.map((idea) => (
             <IdeaRow
               key={idea.id}
@@ -56,7 +56,7 @@ export default function IdeasHelper({
         </div>
       )}
       {totalCount > 0 && (
-        <p className="text-xs text-gray-600 mt-1 pl-4">
+        <p className="text-xs text-muted-foreground/60 mt-1 pl-4">
           {doneCount} of {totalCount} done
         </p>
       )}

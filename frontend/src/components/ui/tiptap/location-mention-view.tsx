@@ -39,7 +39,7 @@ export default function LocationMentionView({ node, getPos, editor }: NodeViewPr
   return (
     <NodeViewWrapper
       as="span"
-      className="bg-amber-500/20 text-amber-300 rounded px-1 cursor-default inline-block relative"
+      className="bg-primary/20 text-primary rounded px-1 cursor-default inline-block relative"
       data-location-name={name}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -49,7 +49,7 @@ export default function LocationMentionView({ node, getPos, editor }: NodeViewPr
         <button
           type="button"
           onClick={handleUnlink}
-          className="ml-1 text-amber-500/60 hover:text-red-400 text-xs leading-none transition-colors"
+          className="ml-1 text-primary/60 hover:text-red-400 text-xs leading-none transition-colors"
           title="Remove location tag"
         >
           &times;

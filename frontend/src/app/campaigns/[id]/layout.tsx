@@ -20,7 +20,7 @@ export default function CampaignLayout({
 
   if (isBuilder) {
     return (
-      <main className="h-[calc(100vh-57px)] overflow-y-auto p-6 bg-gray-950">
+      <main className="h-[calc(100vh-57px)] overflow-y-auto p-6 bg-background">
         {children}
       </main>
     );

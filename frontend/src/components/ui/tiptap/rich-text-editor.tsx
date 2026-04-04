@@ -124,9 +124,9 @@ export default function RichTextEditor({
     editorProps: {
       attributes: {
         class: [
-          "bg-gray-900 border border-gray-700 rounded-lg px-3 py-2",
-          "text-gray-100 text-sm min-h-[6rem] max-h-[16rem] overflow-y-auto",
-          "focus:outline-none focus:border-amber-500 transition-colors",
+          "bg-card border border-border rounded-lg px-3 py-2",
+          "text-foreground text-sm min-h-[6rem] max-h-[16rem] overflow-y-auto",
+          "focus:outline-none focus:border-ring transition-colors",
           "prose prose-invert prose-sm max-w-none",
           className ?? "",
         ].join(" "),
@@ -278,7 +278,7 @@ export default function RichTextEditor({
         <button
           type="button"
           onClick={handleMarkLocation}
-          className="bg-gray-800 border border-amber-500/50 text-amber-400 text-xs font-medium px-2.5 py-1 rounded-lg shadow-lg hover:bg-gray-700 hover:text-amber-300 transition-colors whitespace-nowrap"
+          className="bg-muted border border-ring text-primary text-xs font-medium px-2.5 py-1 rounded-lg shadow-lg hover:bg-accent hover:text-primary transition-colors whitespace-nowrap"
         >
           Mark as Location
         </button>

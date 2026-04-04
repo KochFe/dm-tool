@@ -9,11 +9,11 @@ export default function LandingPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
-      <h1 className="text-5xl font-bold text-amber-400 mb-4">DM Co-Pilot</h1>
-      <p className="text-xl text-gray-300 mb-2">
+      <h1 className="text-5xl font-bold text-primary mb-4">DM Co-Pilot</h1>
+      <p className="text-xl text-foreground/80 mb-2">
         Your AI-powered Dungeon Master assistant
       </p>
-      <p className="text-gray-500 max-w-md mb-8">
+      <p className="text-muted-foreground max-w-md mb-8">
         Track campaigns, manage initiative, roll dice, and get AI-generated
         encounters, NPCs, and loot — all in one place.
       </p>
@@ -24,14 +24,14 @@ export default function LandingPage() {
         <Link
           href="/campaigns"
           prefetch={false}
-          className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors"
+          className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors"
         >
           Go to Campaigns
         </Link>
       ) : (
         <Link
           href="/login"
-          className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition-colors"
+          className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors"
         >
           Sign In
         </Link>
