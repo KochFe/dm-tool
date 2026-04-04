@@ -643,7 +643,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
               label="End Combat"
               confirmLabel="End session?"
               disabled={busy}
-              className="text-sm bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg disabled:opacity-40 transition-colors"
+              className="text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-700 dark:hover:bg-red-600 dark:text-white px-3 py-1.5 rounded-lg disabled:opacity-40 transition-colors"
             />
           </div>
         </div>

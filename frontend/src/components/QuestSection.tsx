@@ -352,7 +352,7 @@ export default function QuestSection({
                       onConfirm={() => handleDelete(quest.id)}
                       label="Delete"
                       confirmLabel="Are you sure?"
-                      className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
+                      className="text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-700/50 dark:hover:bg-red-700 dark:text-red-200 px-3 py-1 rounded-lg transition-colors"
                       onConfirmingChange={(c) => setConfirmingId(c ? quest.id : null)}
                     />
                   </div>

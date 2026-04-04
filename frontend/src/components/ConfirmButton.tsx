@@ -17,7 +17,7 @@ export default function ConfirmButton({
   onConfirm,
   label,
   confirmLabel = "Are you sure?",
-  className = "text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors",
+  className = "text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-700/50 dark:hover:bg-red-700 dark:text-red-200 px-3 py-1 rounded-lg transition-colors",
   confirmClassName,
   disabled = false,
   timeoutMs = 3000,
@@ -69,7 +69,7 @@ export default function ConfirmButton({
       <span
         className={
           confirmClassName ??
-          "inline-flex items-center gap-2 border border-red-800/60 bg-red-950/40 rounded-lg px-2.5 py-1"
+          "inline-flex items-center gap-2 border border-red-300 bg-red-50 dark:border-red-800/60 dark:bg-red-950/40 rounded-lg px-2.5 py-1"
         }
       >
         <span className="text-xs text-muted-foreground whitespace-nowrap">
@@ -78,7 +78,7 @@ export default function ConfirmButton({
         <button
           type="button"
           onClick={handleConfirm}
-          className="text-sm bg-red-700/50 hover:bg-red-700 text-red-200 px-3 py-1 rounded-lg transition-colors"
+          className="text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-700/50 dark:hover:bg-red-700 dark:text-red-200 px-3 py-1 rounded-lg transition-colors"
         >
           Confirm
         </button>
