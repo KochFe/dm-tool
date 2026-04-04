@@ -114,7 +114,7 @@ export default function CampaignsPage() {
                     onConfirm={() => handleDelete(c.id)}
                     label="Delete"
                     confirmLabel="Are you sure?"
-                    className="bg-red-900/40 hover:bg-red-800/60 text-red-400 hover:text-red-300 border border-red-800/50 hover:border-red-700 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors duration-150"
+                    className="bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 hover:border-red-400 dark:bg-red-900/40 dark:hover:bg-red-800/60 dark:text-red-400 dark:hover:text-red-300 dark:border-red-800/50 dark:hover:border-red-700 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors duration-150"
                     onConfirmingChange={(c2) => setConfirmingId(c2 ? c.id : null)}
                   />
                 </div>
@@ -139,7 +139,7 @@ export default function CampaignsPage() {
                   onConfirm={() => handleDelete(c.id)}
                   label="Delete"
                   confirmLabel="Are you sure?"
-                  className="bg-red-900/40 hover:bg-red-800/60 text-red-400 hover:text-red-300 border border-red-800/50 hover:border-red-700 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors duration-150"
+                  className="bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 hover:border-red-400 dark:bg-red-900/40 dark:hover:bg-red-800/60 dark:text-red-400 dark:hover:text-red-300 dark:border-red-800/50 dark:hover:border-red-700 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors duration-150"
                   onConfirmingChange={(c2) => setConfirmingId(c2 ? c.id : null)}
                 />
               </div>

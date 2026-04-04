@@ -148,7 +148,7 @@ export default function LocationDetail({
             <span className="text-sm text-muted-foreground">Delete &ldquo;{location.name}&rdquo;?</span>
             <button
               onClick={() => onDelete(location.id)}
-              className="text-sm bg-red-800 hover:bg-red-700 text-white px-3 py-1 rounded transition-colors"
+              className="text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-800 dark:hover:bg-red-700 dark:text-white px-3 py-1 rounded transition-colors"
             >
               Yes, delete
             </button>
