@@ -16,17 +16,17 @@ import ConfirmButton from '@/components/ConfirmButton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const CONDITIONS = [
-  { name: 'Blinded', color: 'bg-gray-600 text-gray-200' },
+  { name: 'Blinded', color: 'bg-muted text-foreground' },
   { name: 'Charmed', color: 'bg-pink-800 text-pink-200' },
-  { name: 'Deafened', color: 'bg-gray-600 text-gray-200' },
+  { name: 'Deafened', color: 'bg-muted text-foreground' },
   { name: 'Frightened', color: 'bg-purple-800 text-purple-200' },
   { name: 'Grappled', color: 'bg-yellow-800 text-yellow-200' },
-  { name: 'Incapacitated', color: 'bg-gray-700 text-gray-300' },
+  { name: 'Incapacitated', color: 'bg-accent text-foreground/80' },
   { name: 'Invisible', color: 'bg-blue-800 text-blue-200' },
   { name: 'Paralyzed', color: 'bg-red-900 text-red-200' },
   { name: 'Petrified', color: 'bg-stone-700 text-stone-200' },
   { name: 'Poisoned', color: 'bg-green-800 text-green-200' },
-  { name: 'Prone', color: 'bg-amber-800 text-amber-200' },
+  { name: 'Prone', color: 'bg-primary/25 text-primary' },
   { name: 'Restrained', color: 'bg-orange-800 text-orange-200' },
   { name: 'Stunned', color: 'bg-yellow-700 text-yellow-100' },
   { name: 'Unconscious', color: 'bg-red-900 text-red-100' },
@@ -102,7 +102,7 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
         }`}
       >
         {combatant.hp_current}
-        <span className="text-gray-500 font-normal">/{combatant.hp_max}</span>
+        <span className="text-muted-foreground font-normal">/{combatant.hp_max}</span>
       </span>
       <input
         type="number"
@@ -110,7 +110,7 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
         value={delta}
         onChange={(e) => setDelta(e.target.value === '' ? '' : Math.abs(+e.target.value))}
         placeholder="amt"
-        className="bg-gray-800 border border-gray-600 text-gray-100 rounded px-1.5 py-0.5 w-16 text-xs text-center focus:border-amber-500 focus:outline-none transition-colors"
+        className="bg-muted border border-border text-foreground rounded px-1.5 py-0.5 w-16 text-xs text-center focus:border-ring focus:outline-none transition-colors"
         disabled={busy}
       />
       <button
@@ -163,7 +163,7 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors ${
         isCurrent
           ? 'bg-blue-900/30 border-l-4 border-l-blue-500 border-r border-r-blue-500/30 border-t border-t-blue-500/30 border-b border-b-blue-500/30'
-          : 'border-gray-700/50 hover:bg-gray-800/40'
+          : 'border-border hover:bg-muted/40'
       }`}
     >
       {/* Turn arrow */}
@@ -173,14 +173,14 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
 
       {/* Initiative */}
       <div className="w-8 text-center shrink-0">
-        <span className="text-xs text-gray-400">Init</span>
-        <div className="font-mono font-semibold text-sm text-gray-100">{combatant.initiative}</div>
+        <span className="text-xs text-muted-foreground">Init</span>
+        <div className="font-mono font-semibold text-sm text-foreground">{combatant.initiative}</div>
       </div>
 
       {/* Name + type badge + conditions */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className={`font-medium truncate ${isCurrent ? 'text-blue-200' : 'text-gray-100'}`}>
+          <span className={`font-medium truncate ${isCurrent ? 'text-blue-200' : 'text-foreground'}`}>
             {combatant.name}
           </span>
           {combatant.type === 'pc' ? (
@@ -190,11 +190,11 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
           )}
           <Popover>
             <PopoverTrigger asChild>
-              <button className="shrink-0 text-xs text-gray-500 hover:text-amber-400 transition-colors" title="Toggle conditions">
+              <button className="shrink-0 text-xs text-muted-foreground hover:text-primary transition-colors" title="Toggle conditions">
                 +Cond
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-48 p-2 bg-gray-900 border-gray-700" align="start">
+            <PopoverContent className="w-48 p-2 bg-card border-border" align="start">
               <div className="space-y-0.5">
                 {CONDITIONS.map((c) => {
                   const active = (combatant.conditions ?? []).includes(c.name);
@@ -214,7 +214,7 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
                         }
                       }}
                       className={`w-full text-left text-xs px-2 py-1 rounded transition-colors ${
-                        active ? `${c.color} font-medium` : 'text-gray-400 hover:bg-gray-800'
+                        active ? `${c.color} font-medium` : 'text-muted-foreground hover:bg-muted'
                       }`}
                     >
                       {active ? '✓ ' : ''}{c.name}
@@ -233,7 +233,7 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
               return (
                 <span
                   key={cond}
-                  className={`text-xs px-1.5 py-0.5 rounded-full ${info?.color ?? 'bg-gray-700 text-gray-300'}`}
+                  className={`text-xs px-1.5 py-0.5 rounded-full ${info?.color ?? 'bg-accent text-foreground/80'}`}
                 >
                   {cond}
                 </span>
@@ -256,8 +256,8 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
 
       {/* AC */}
       <div className="w-12 text-center shrink-0">
-        <span className="text-xs text-gray-400">AC</span>
-        <div className="font-mono text-sm text-gray-100">{combatant.armor_class}</div>
+        <span className="text-xs text-muted-foreground">AC</span>
+        <div className="font-mono text-sm text-foreground">{combatant.armor_class}</div>
       </div>
 
       {/* Remove */}
@@ -266,7 +266,7 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
         label="✕"
         confirmLabel="Remove?"
         disabled={removing}
-        className="shrink-0 text-gray-500 hover:text-red-400 disabled:opacity-40 text-sm leading-none px-1 transition-colors"
+        className="shrink-0 text-muted-foreground hover:text-red-400 disabled:opacity-40 text-sm leading-none px-1 transition-colors"
       />
     </div>
   );
@@ -307,13 +307,13 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
   const availablePcs = characters.filter((pc) => !addedPcIds.has(pc.id));
 
   const inputClass =
-    'bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1.5 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors text-sm';
+    'bg-muted border border-border text-foreground rounded-lg px-2 py-1.5 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors text-sm';
 
   return (
-    <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3 space-y-2.5">
+    <div className="bg-muted/50 border border-border rounded-xl p-3 space-y-2.5">
       {availablePcs.length > 0 && (
         <div>
-          <p className="text-xs text-gray-400 mb-1.5">Quick-add PC:</p>
+          <p className="text-xs text-muted-foreground mb-1.5">Quick-add PC:</p>
           <div className="flex flex-wrap gap-1.5">
             {availablePcs.map((pc) => (
               <button
@@ -335,7 +335,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           className={`${inputClass} col-span-2`}
         />
-        <label className="text-xs text-gray-400">
+        <label className="text-xs text-muted-foreground">
           Initiative *
           <input
             type="number"
@@ -346,7 +346,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
             className={`${inputClass} mt-1`}
           />
         </label>
-        <label className="text-xs text-gray-400">
+        <label className="text-xs text-muted-foreground">
           Type
           <select
             value={form.type}
@@ -359,7 +359,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
             <option value="pc">PC</option>
           </select>
         </label>
-        <label className="text-xs text-gray-400">
+        <label className="text-xs text-muted-foreground">
           Current HP *
           <input
             type="number"
@@ -371,7 +371,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
             className={`${inputClass} mt-1`}
           />
         </label>
-        <label className="text-xs text-gray-400">
+        <label className="text-xs text-muted-foreground">
           Max HP *
           <input
             type="number"
@@ -383,7 +383,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
             className={`${inputClass} mt-1`}
           />
         </label>
-        <label className="text-xs text-gray-400">
+        <label className="text-xs text-muted-foreground">
           AC *
           <input
             type="number"
@@ -406,7 +406,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
           form.hp_max === '' ||
           form.armor_class === ''
         }
-        className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg disabled:opacity-40 transition-colors"
+        className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1.5 rounded-lg disabled:opacity-40 transition-colors"
       >
         Add to List
       </button>
@@ -622,10 +622,10 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-gray-100">
+            <h2 className="text-xl font-semibold text-foreground">
               {activeSession.name ?? 'Combat'}
             </h2>
-            <p aria-live="polite" className="text-sm text-gray-400">
+            <p aria-live="polite" className="text-sm text-muted-foreground">
               Round {activeSession.round_number} &middot;{' '}
               {activeSession.combatants.length} combatant
               {activeSession.combatants.length !== 1 ? 's' : ''}
@@ -634,7 +634,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
           <div className="flex gap-2">
             <button
               onClick={() => { setShowAddMidCombat((v) => !v); setError(null); }}
-              className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition-colors"
+              className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1.5 rounded-lg transition-colors"
             >
               {showAddMidCombat ? 'Cancel' : '+ Combatant'}
             </button>
@@ -668,7 +668,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         {/* Combatant list */}
         <div role="list" className="space-y-1.5 mb-4">
           {activeSession.combatants.length === 0 ? (
-            <p className="text-gray-400 text-sm">No combatants.</p>
+            <p className="text-muted-foreground text-sm">No combatants.</p>
           ) : (
             <AnimatePresence>
               {activeSession.combatants.map((combatant, i) => (
@@ -699,16 +699,16 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         <button
           onClick={handleNextTurn}
           disabled={busy || activeSession.combatants.length === 0}
-          className="w-full bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold py-2.5 rounded-lg disabled:opacity-40 transition-colors"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg disabled:opacity-40 transition-colors"
         >
           Next Turn
         </button>
 
         {/* Current turn label */}
         {activeSession.combatants.length > 0 && (
-          <p aria-live="polite" className="text-center text-xs text-gray-400 mt-2">
+          <p aria-live="polite" className="text-center text-xs text-muted-foreground mt-2">
             Current: {activeSession.combatants[activeSession.current_turn_index]?.name ?? '—'}
-            <span className="text-gray-600 ml-2">(Space to advance)</span>
+            <span className="text-muted-foreground/60 ml-2">(Space to advance)</span>
           </p>
         )}
       </div>
@@ -720,11 +720,11 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-100">Initiative Tracker</h2>
+        <h2 className="text-xl font-semibold text-foreground">Initiative Tracker</h2>
         {!isCreating && (
           <button
             onClick={() => { setIsCreating(true); setError(null); }}
-            className="text-sm bg-amber-600 hover:bg-amber-500 text-gray-950 font-medium px-3 py-1.5 rounded-lg transition-colors"
+            className="text-sm bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-3 py-1.5 rounded-lg transition-colors"
           >
             Start Combat
           </button>
@@ -739,18 +739,18 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
 
       {/* New combat form */}
       {isCreating && (
-        <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 mb-4 space-y-3">
-          <h3 className="font-medium text-gray-100">New Combat Session</h3>
+        <div className="bg-muted/50 border border-border rounded-xl p-4 mb-4 space-y-3">
+          <h3 className="font-medium text-foreground">New Combat Session</h3>
 
           <input
             placeholder="Session name (optional)"
             value={sessionName}
             onChange={(e) => setSessionName(e.target.value)}
-            className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full text-sm placeholder-gray-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+            className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full text-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
           />
 
           <div>
-            <h4 className="text-sm font-medium text-gray-300 mb-2">Combatants</h4>
+            <h4 className="text-sm font-medium text-foreground/80 mb-2">Combatants</h4>
             <AddCombatantForm
               characters={characters}
               onAdd={handleAddStaged}
@@ -761,17 +761,17 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
           {/* Staged list */}
           {staged.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 Staged ({staged.length}) — sorted by initiative on start:
               </p>
               {staged.map((s, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-2 text-sm"
+                  className="flex items-center justify-between bg-muted/50 border border-border rounded-lg px-3 py-2 text-sm"
                 >
                   <span>
-                    <span className="font-medium text-gray-100">{s.name}</span>
-                    <span className="text-gray-400 ml-2">
+                    <span className="font-medium text-foreground">{s.name}</span>
+                    <span className="text-muted-foreground ml-2">
                       Init {s.initiative} &middot; HP {s.hp_current}/{s.hp_max} &middot; AC{' '}
                       {s.armor_class}
                     </span>
@@ -784,7 +784,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
                     )}
                     <button
                       onClick={() => removeStaged(i)}
-                      className="text-gray-500 hover:text-red-400 text-xs transition-colors"
+                      className="text-muted-foreground hover:text-red-400 text-xs transition-colors"
                       aria-label={`Remove ${s.name} from staged list`}
                     >
                       ✕
@@ -799,13 +799,13 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
             <button
               onClick={handleBeginCombat}
               disabled={busy || staged.length === 0}
-              className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-medium px-4 py-2 rounded-lg disabled:opacity-40 transition-colors"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 py-2 rounded-lg disabled:opacity-40 transition-colors"
             >
               {busy ? 'Starting...' : 'Begin Combat'}
             </button>
             <button
               onClick={handleCancelCreate}
-              className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg transition-colors"
+              className="bg-accent hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors"
             >
               Cancel
             </button>
@@ -815,7 +815,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
 
       {/* No active combat message */}
       {!isCreating && (
-        <p className="text-gray-400 text-sm mb-4">No active combat. Click "Start Combat" to begin.</p>
+        <p className="text-muted-foreground text-sm mb-4">No active combat. Click "Start Combat" to begin.</p>
       )}
 
       {/* Completed sessions (collapsed) */}
@@ -823,7 +823,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         <div className="mt-4">
           <button
             onClick={() => setShowCompleted((v) => !v)}
-            className="text-sm text-gray-400 hover:text-gray-300 transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground/80 transition-colors"
           >
             {showCompleted ? 'Hide' : 'Show'} completed sessions ({completedSessions.length})
           </button>
@@ -833,13 +833,13 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
               {completedSessions.map((s) => (
                 <div
                   key={s.id}
-                  className="bg-gray-800/30 border border-gray-700/50 rounded-lg px-3 py-2 text-sm text-gray-400 flex items-center justify-between"
+                  className="bg-muted/30 border border-border rounded-lg px-3 py-2 text-sm text-muted-foreground flex items-center justify-between"
                 >
                   <span>
                     {s.name ?? 'Unnamed session'} &middot; Round {s.round_number} &middot;{' '}
                     {s.combatants.length} combatant{s.combatants.length !== 1 ? 's' : ''}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     {new Date(s.created_at).toLocaleDateString()}
                   </span>
                 </div>

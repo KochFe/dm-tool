@@ -87,10 +87,10 @@ function LocationNode({
       <div
         className={`group flex items-center gap-1 rounded-md px-2 py-1 cursor-pointer transition-colors select-none ${
           isSelected
-            ? "bg-amber-600/20 border border-amber-600/40"
+            ? "bg-primary/20 border border-primary/40"
             : isDragOver
-            ? "bg-gray-700 border border-gray-500"
-            : "hover:bg-gray-800 border border-transparent"
+            ? "bg-accent border border-border"
+            : "hover:bg-muted border border-transparent"
         }`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         draggable
@@ -107,8 +107,8 @@ function LocationNode({
             e.stopPropagation();
             if (hasChildren) setExpanded((v) => !v);
           }}
-          className={`w-4 h-4 flex items-center justify-center text-gray-500 flex-shrink-0 ${
-            hasChildren ? "hover:text-gray-300" : "opacity-0 pointer-events-none"
+          className={`w-4 h-4 flex items-center justify-center text-muted-foreground flex-shrink-0 ${
+            hasChildren ? "hover:text-foreground/80" : "opacity-0 pointer-events-none"
           }`}
         >
           <svg
@@ -127,14 +127,14 @@ function LocationNode({
         {/* Location name */}
         <span
           className={`flex-1 text-sm truncate ${
-            isSelected ? "text-amber-300 font-medium" : "text-gray-200"
+            isSelected ? "text-primary font-medium" : "text-foreground"
           }`}
         >
           {node.location.name}
         </span>
 
         {/* Biome badge */}
-        <span className="hidden group-hover:inline text-xs text-gray-600 mr-1">
+        <span className="hidden group-hover:inline text-xs text-muted-foreground/60 mr-1">
           {node.location.biome}
         </span>
 
@@ -144,7 +144,7 @@ function LocationNode({
             e.stopPropagation();
             onAddChild(node.location.id);
           }}
-          className="hidden group-hover:flex items-center justify-center w-5 h-5 text-gray-500 hover:text-amber-400 rounded transition-colors flex-shrink-0"
+          className="hidden group-hover:flex items-center justify-center w-5 h-5 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0"
           title="Add sublocation"
         >
           <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -225,12 +225,12 @@ export default function LocationTree({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Locations
         </span>
         <button
           onClick={onAddRoot}
-          className="text-xs text-amber-500 hover:text-amber-400 transition-colors"
+          className="text-xs text-primary hover:text-primary transition-colors"
         >
           + Add Location
         </button>
@@ -244,8 +244,8 @@ export default function LocationTree({
           onDrop={handleRootDrop}
           className={`mb-2 rounded-md border-2 border-dashed px-3 py-1.5 text-xs text-center transition-colors ${
             rootDropOver
-              ? "border-amber-500 text-amber-400 bg-amber-900/10"
-              : "border-gray-700 text-gray-600"
+              ? "border-primary text-primary bg-primary/10"
+              : "border-border text-muted-foreground/60"
           }`}
         >
           Drop here to make top-level
@@ -255,7 +255,7 @@ export default function LocationTree({
       {/* Tree */}
       <div className="flex-1 overflow-y-auto">
         {tree.length === 0 ? (
-          <p className="text-xs text-gray-600 text-center py-4">
+          <p className="text-xs text-muted-foreground/60 text-center py-4">
             No locations yet. Click &ldquo;+ Add Location&rdquo; to start.
           </p>
         ) : (
@@ -279,7 +279,7 @@ export default function LocationTree({
 
       {/* Hint */}
       {locations.length > 0 && (
-        <p className="mt-3 text-xs text-gray-700 text-center">
+        <p className="mt-3 text-xs text-muted-foreground/40 text-center">
           Drag locations to rearrange hierarchy
         </p>
       )}

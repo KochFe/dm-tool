@@ -84,14 +84,14 @@ export default function LocationDetail({
     <div className="flex flex-col gap-6">
       {/* Breadcrumb */}
       {allLocations.length > 1 && location.parent_id && (
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-muted-foreground/60">
           {breadcrumb}
         </p>
       )}
 
       {/* Name */}
       <section className="flex flex-col gap-2">
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Name
         </label>
         <input
@@ -99,14 +99,14 @@ export default function LocationDetail({
           value={name}
           onChange={(e) => setName(e.target.value)}
           onBlur={saveName}
-          className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:outline-none focus:border-amber-500 transition-colors"
+          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
           placeholder="Location name"
         />
       </section>
 
       {/* Description */}
       <section className="flex flex-col gap-2">
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Description
         </label>
         <textarea
@@ -114,14 +114,14 @@ export default function LocationDetail({
           onChange={(e) => setDescription(e.target.value)}
           onBlur={saveDescription}
           rows={5}
-          className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:outline-none focus:border-amber-500 transition-colors resize-none"
+          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
           placeholder="Describe this location..."
         />
       </section>
 
       {/* Biome */}
       <section className="flex flex-col gap-2">
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Biome
         </label>
         <div className="flex flex-wrap gap-2">
@@ -131,8 +131,8 @@ export default function LocationDetail({
               onClick={() => selectBiome(biome)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                 location.biome === biome
-                  ? "bg-amber-600 border-amber-500 text-gray-950"
-                  : "bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500"
+                  ? "bg-primary border-primary text-primary-foreground"
+                  : "bg-muted border-border text-foreground/80 hover:border-border"
               }`}
             >
               {biome}
@@ -142,10 +142,10 @@ export default function LocationDetail({
       </section>
 
       {/* Delete */}
-      <section className="pt-2 border-t border-gray-800">
+      <section className="pt-2 border-t border-border">
         {confirmDelete ? (
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-400">Delete &ldquo;{location.name}&rdquo;?</span>
+            <span className="text-sm text-muted-foreground">Delete &ldquo;{location.name}&rdquo;?</span>
             <button
               onClick={() => onDelete(location.id)}
               className="text-sm bg-red-800 hover:bg-red-700 text-white px-3 py-1 rounded transition-colors"
@@ -154,7 +154,7 @@ export default function LocationDetail({
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="text-sm text-gray-500 hover:text-gray-300 px-2 py-1 transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground/80 px-2 py-1 transition-colors"
             >
               Cancel
             </button>

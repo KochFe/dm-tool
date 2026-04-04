@@ -266,7 +266,7 @@ function ProficiencyCheckboxes({
               type="checkbox"
               checked={selected.includes(opt)}
               onChange={() => toggle(opt)}
-              className="accent-amber-500 cursor-pointer"
+              className="accent-primary cursor-pointer"
             />
             <span className="text-xs text-foreground/80 group-hover:text-foreground transition-colors">
               {opt}

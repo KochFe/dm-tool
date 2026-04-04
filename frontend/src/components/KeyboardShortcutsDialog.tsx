@@ -22,18 +22,18 @@ interface KeyboardShortcutsDialogProps {
 export default function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcutsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-900 border-gray-700 text-gray-100 max-w-md">
+      <DialogContent className="bg-card border-border text-foreground max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-gray-100">Keyboard Shortcuts</DialogTitle>
+          <DialogTitle className="text-foreground">Keyboard Shortcuts</DialogTitle>
         </DialogHeader>
         <div className="space-y-1 mt-2">
           {SHORTCUTS.map((s) => (
             <div key={s.keys} className="flex items-center justify-between py-2 px-1">
               <div>
-                <span className="text-sm text-gray-200">{s.action}</span>
-                <span className="text-xs text-gray-500 ml-2">{s.context}</span>
+                <span className="text-sm text-foreground">{s.action}</span>
+                <span className="text-xs text-muted-foreground ml-2">{s.context}</span>
               </div>
-              <kbd className="text-xs bg-gray-800 border border-gray-600 rounded px-2 py-1 font-mono text-gray-300">
+              <kbd className="text-xs bg-muted border border-border rounded px-2 py-1 font-mono text-foreground/80">
                 {s.keys}
               </kbd>
             </div>

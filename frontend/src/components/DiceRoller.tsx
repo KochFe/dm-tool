@@ -75,8 +75,8 @@ export default function DiceRoller({ className }: { className?: string }) {
   }
 
   return (
-    <div className={`bg-gray-900 border border-gray-700/50 rounded-xl p-5 space-y-4 ${className ?? ''}`}>
-      <h2 className="text-xl font-semibold text-gray-100">Dice Roller</h2>
+    <div className={`bg-card border border-border rounded-xl p-5 space-y-4 ${className ?? ''}`}>
+      <h2 className="text-xl font-semibold text-foreground">Dice Roller</h2>
 
       {/* Quick-roll buttons */}
       <div className="flex flex-wrap gap-2">
@@ -87,8 +87,8 @@ export default function DiceRoller({ className }: { className?: string }) {
             disabled={rolling}
             className={`text-sm font-medium px-3 py-1.5 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
               sides === 20
-                ? 'bg-amber-600 hover:bg-amber-500 text-gray-950'
-                : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                : 'bg-accent hover:bg-muted text-foreground'
             }`}
           >
             d{sides}
@@ -105,13 +105,13 @@ export default function DiceRoller({ className }: { className?: string }) {
           onKeyDown={handleKeyDown}
           placeholder="e.g. 2d6+3"
           disabled={rolling}
-          className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 flex-1 text-sm placeholder-gray-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 disabled:opacity-50 transition-colors"
+          className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 flex-1 text-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 disabled:opacity-50 transition-colors"
           aria-label="Custom dice notation"
         />
         <button
           type="submit"
           disabled={rolling || !notation.trim()}
-          className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-medium text-sm px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Roll
         </button>
@@ -124,12 +124,12 @@ export default function DiceRoller({ className }: { className?: string }) {
 
       {/* Last roll result */}
       {lastRoll && (
-        <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 space-y-1">
-          <p className="text-xs text-gray-400 uppercase tracking-wide">Last Roll</p>
-          <p className="text-sm text-gray-300">
-            <span className="font-medium text-gray-100">{lastRoll.notation}</span>
+        <div className="bg-muted/50 border border-border rounded-lg p-3 space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Last Roll</p>
+          <p className="text-sm text-foreground/80">
+            <span className="font-medium text-foreground">{lastRoll.notation}</span>
             {' — '}
-            <span className="text-gray-400">
+            <span className="text-muted-foreground">
               [{lastRoll.rolls.join(', ')}]
               {lastRoll.modifier !== 0 && (
                 <span>
@@ -138,24 +138,24 @@ export default function DiceRoller({ className }: { className?: string }) {
               )}
             </span>
           </p>
-          <p className="text-2xl font-bold text-amber-400">{lastRoll.total}</p>
+          <p className="text-2xl font-bold text-primary">{lastRoll.total}</p>
         </div>
       )}
 
       {/* Roll history */}
       {history.length > 0 && (
         <div className="space-y-1">
-          <p className="text-xs text-gray-400 uppercase tracking-wide">History</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">History</p>
           <ul className="space-y-0.5">
             {history.map((entry, idx) => (
               <li
                 key={idx}
-                className="flex items-center justify-between text-sm text-gray-400 py-1 border-b border-gray-700/50 last:border-0"
+                className="flex items-center justify-between text-sm text-muted-foreground py-1 border-b border-border last:border-0"
               >
                 <span>
                   {entry.notation}
                   {' '}
-                  <span className="text-gray-500 text-xs">
+                  <span className="text-muted-foreground text-xs">
                     [{entry.rolls.join(', ')}]
                     {entry.modifier !== 0 && (
                       <span>
@@ -164,7 +164,7 @@ export default function DiceRoller({ className }: { className?: string }) {
                     )}
                   </span>
                 </span>
-                <span className="font-semibold text-gray-200 ml-2">{entry.total}</span>
+                <span className="font-semibold text-foreground ml-2">{entry.total}</span>
               </li>
             ))}
           </ul>

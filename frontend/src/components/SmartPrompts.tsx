@@ -179,17 +179,17 @@ export default function SmartPrompts({
   const disabled = currentLocationName === null;
 
   return (
-    <div className="bg-gray-900 border border-gray-700/50 rounded-xl p-4 space-y-3">
+    <div className="bg-card border border-border rounded-xl p-4 space-y-3">
       {/* Header row */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-amber-400 uppercase tracking-wide">
+        <h2 className="text-sm font-semibold text-primary uppercase tracking-wide">
           AI Generators
         </h2>
         {disabled && (
-          <span className="text-xs text-gray-500 italic">Set a location first</span>
+          <span className="text-xs text-muted-foreground italic">Set a location first</span>
         )}
         {!disabled && (
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-muted-foreground">
             {currentLocationName} &middot; Party Level {partyLevel}
           </span>
         )}
@@ -218,12 +218,12 @@ export default function SmartPrompts({
                 title={disabled ? 'Set a location first to enable AI generators' : label}
                 className={`
                   flex items-center gap-2
-                  bg-gray-800 border border-gray-700 rounded-lg px-4 py-2
-                  text-sm text-gray-200
+                  bg-muted border border-border rounded-lg px-4 py-2
+                  text-sm text-foreground
                   transition-colors duration-150
                   ${isDisabled
                     ? 'opacity-50 cursor-not-allowed'
-                    : 'hover:bg-gray-700 hover:border-gray-600 cursor-pointer'
+                    : 'hover:bg-accent hover:border-border cursor-pointer'
                   }
                 `}
               >
@@ -253,10 +253,10 @@ export default function SmartPrompts({
             }
           }}
         >
-          <div className="bg-gray-900 border border-gray-700/50 rounded-xl p-6 w-full max-w-sm mx-4 space-y-4">
-            <h3 className="text-base font-semibold text-gray-100">Generate NPC</h3>
+          <div className="bg-card border border-border rounded-xl p-6 w-full max-w-sm mx-4 space-y-4">
+            <h3 className="text-base font-semibold text-foreground">Generate NPC</h3>
             <div className="space-y-1">
-              <label className="text-xs text-gray-400" htmlFor="npc-role-input">
+              <label className="text-xs text-muted-foreground" htmlFor="npc-role-input">
                 Role or archetype (optional)
               </label>
               <input
@@ -276,7 +276,7 @@ export default function SmartPrompts({
                     setNpcRole('');
                   }
                 }}
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors"
+                className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
               />
             </div>
             <div className="flex justify-end gap-2">
@@ -285,7 +285,7 @@ export default function SmartPrompts({
                   setShowNpcPrompt(false);
                   setNpcRole('');
                 }}
-                className="px-4 py-2 rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800 text-sm transition-colors"
+                className="px-4 py-2 rounded-lg border border-border text-foreground/80 hover:bg-muted text-sm transition-colors"
               >
                 Cancel
               </button>
@@ -296,7 +296,7 @@ export default function SmartPrompts({
                 }}
                 disabled={loading !== null}
                 className={`
-                  bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold px-4 py-2 rounded-lg text-sm transition-colors
+                  bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-2 rounded-lg text-sm transition-colors
                   flex items-center gap-2
                   ${loading !== null ? 'opacity-50 cursor-not-allowed' : ''}
                 `}
