@@ -147,8 +147,8 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
 
   const panelMode = mode === "panel";
   const asideClass = panelMode
-    ? "flex flex-col h-full bg-gray-900"
-    : `fixed top-[57px] right-0 bottom-0 z-30 w-[380px] bg-gray-900 border-l border-gray-700/50 flex flex-col transform transition-transform duration-200 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`;
+    ? "flex flex-col h-full bg-card"
+    : `fixed top-[57px] right-0 bottom-0 z-30 w-[380px] bg-card border-l border-border flex flex-col transform transition-transform duration-200 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`;
 
   return (
     <aside
@@ -157,12 +157,12 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
       className={asideClass}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700/50 shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
         <div className="flex items-center gap-2.5">
-          <SparklesIcon className="w-4 h-4 text-amber-400" />
+          <SparklesIcon className="w-4 h-4 text-primary" />
           <div>
-            <p className="text-sm font-semibold text-gray-100 leading-tight">Lore Oracle</p>
-            <p className="text-xs text-gray-500 leading-tight">
+            <p className="text-sm font-semibold text-foreground leading-tight">Lore Oracle</p>
+            <p className="text-xs text-muted-foreground leading-tight">
               Ask anything about rules, lore, or your campaign
             </p>
           </div>
@@ -171,7 +171,7 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
           <button
             onClick={onClose}
             aria-label="Close chat sidebar"
-            className="text-gray-500 hover:text-gray-300 hover:bg-gray-800 p-1.5 rounded-lg transition-colors duration-150"
+            className="text-muted-foreground hover:text-foreground/80 hover:bg-accent p-1.5 rounded-lg transition-colors duration-150"
           >
             <XIcon />
           </button>
@@ -183,12 +183,12 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
         {messages.length === 0 ? (
           /* Empty state */
           <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 text-center gap-4 h-full">
-            <div className="w-14 h-14 rounded-full bg-gray-800 border border-gray-700/50 flex items-center justify-center">
-              <SparklesIcon className="w-6 h-6 text-amber-400" />
+            <div className="w-14 h-14 rounded-full bg-muted border border-border flex items-center justify-center">
+              <SparklesIcon className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-300 mb-1">The Oracle awaits</p>
-              <p className="text-xs text-gray-500 leading-relaxed max-w-[220px] mx-auto">
+              <p className="text-sm font-semibold text-foreground/80 mb-1">The Oracle awaits</p>
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-[220px] mx-auto">
                 Ask about D&amp;D rules, lore, campaign context, or generate content on the fly.
               </p>
             </div>
@@ -197,7 +197,7 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
                 <button
                   key={suggestion}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className="text-left text-xs px-3 py-2 rounded-lg bg-gray-800/60 border border-gray-700/50 text-gray-400 hover:text-amber-400 hover:border-amber-500/30 hover:bg-gray-800 transition-colors duration-150"
+                  className="text-left text-xs px-3 py-2 rounded-lg bg-muted/50 border border-border text-muted-foreground hover:text-primary hover:border-ring hover:bg-muted transition-colors duration-150"
                 >
                   {suggestion}
                 </button>
@@ -210,16 +210,16 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
             {messages.map((msg, i) =>
               msg.role === 'user' ? (
                 <div key={i} className="flex justify-end">
-                  <div className="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-2.5 bg-amber-600/20 border border-amber-500/30 text-gray-100 text-sm leading-relaxed whitespace-pre-wrap">
+                  <div className="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-2.5 bg-primary/15 border border-ring text-foreground text-sm leading-relaxed whitespace-pre-wrap">
                     {msg.content}
                   </div>
                 </div>
               ) : (
                 <div key={i} className="flex gap-2.5 items-start">
-                  <div className="shrink-0 w-7 h-7 rounded-full bg-gray-800 border border-gray-700/50 flex items-center justify-center mt-0.5">
-                    <SparklesIcon className="w-3.5 h-3.5 text-amber-400" />
+                  <div className="shrink-0 w-7 h-7 rounded-full bg-muted border border-border flex items-center justify-center mt-0.5">
+                    <SparklesIcon className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <div className="max-w-[85%] rounded-2xl rounded-tl-sm px-4 py-2.5 bg-gray-800 border border-gray-700/50 text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">
+                  <div className="max-w-[85%] rounded-2xl rounded-tl-sm px-4 py-2.5 bg-muted border border-border text-foreground text-sm leading-relaxed whitespace-pre-wrap">
                     {msg.content}
                   </div>
                 </div>
@@ -229,13 +229,13 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
             {/* Loading indicator */}
             {isLoading && (
               <div className="flex gap-2.5 items-start">
-                <div className="shrink-0 w-7 h-7 rounded-full bg-gray-800 border border-gray-700/50 flex items-center justify-center mt-0.5">
-                  <SparklesIcon className="w-3.5 h-3.5 text-amber-400" />
+                <div className="shrink-0 w-7 h-7 rounded-full bg-muted border border-border flex items-center justify-center mt-0.5">
+                  <SparklesIcon className="w-3.5 h-3.5 text-primary" />
                 </div>
-                <div className="rounded-2xl rounded-tl-sm px-4 py-3 bg-gray-800 border border-gray-700/50 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-gray-500 animate-bounce [animation-delay:0ms]" />
-                  <span className="w-2 h-2 rounded-full bg-gray-500 animate-bounce [animation-delay:150ms]" />
-                  <span className="w-2 h-2 rounded-full bg-gray-500 animate-bounce [animation-delay:300ms]" />
+                <div className="rounded-2xl rounded-tl-sm px-4 py-3 bg-muted border border-border flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:0ms]" />
+                  <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:150ms]" />
+                  <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce [animation-delay:300ms]" />
                 </div>
               </div>
             )}
@@ -252,7 +252,7 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
       )}
 
       {/* Input area */}
-      <div className="shrink-0 border-t border-gray-700/50 px-4 py-3 bg-gray-900">
+      <div className="shrink-0 border-t border-border px-4 py-3 bg-card">
         <div className="flex items-end gap-2">
           <textarea
             ref={textareaRef}
@@ -261,18 +261,18 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
             onKeyDown={handleKeyDown}
             placeholder="Ask the Oracle..."
             rows={1}
-            className="flex-1 bg-gray-800 border border-gray-600 text-gray-100 rounded-xl px-3 py-2.5 text-sm placeholder-gray-500 resize-none focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors duration-150 max-h-36 overflow-y-auto"
+            className="flex-1 bg-muted border border-border text-foreground rounded-xl px-3 py-2.5 text-sm placeholder:text-muted-foreground resize-none focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors duration-150 max-h-36 overflow-y-auto"
           />
           <button
             onClick={handleSubmit}
             disabled={isLoading || !input.trim()}
             aria-label="Send message"
-            className="shrink-0 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 text-gray-950 p-2.5 rounded-xl transition-colors duration-150 self-end"
+            className="shrink-0 bg-primary hover:bg-primary/90 disabled:opacity-40 text-primary-foreground p-2.5 rounded-xl transition-colors duration-150 self-end"
           >
             <SendIcon />
           </button>
         </div>
-        <p className="text-xs text-gray-600 mt-1.5 text-right">
+        <p className="text-xs text-muted-foreground/60 mt-1.5 text-right">
           Enter to send &middot; Shift+Enter for new line
         </p>
       </div>

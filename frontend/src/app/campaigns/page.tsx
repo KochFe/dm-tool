@@ -58,18 +58,18 @@ export default function CampaignsPage() {
 
   if (loading) {
     return (
-      <p className="text-gray-400 text-sm">Loading campaigns...</p>
+      <p className="text-muted-foreground text-sm">Loading campaigns...</p>
     );
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-100">Campaigns</h1>
+        <h1 className="text-2xl font-bold text-foreground">Campaigns</h1>
         <button
           onClick={handleCreate}
           disabled={creating}
-          className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed text-gray-950 font-semibold px-5 py-2 rounded-lg transition-colors duration-150"
+          className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground font-semibold px-5 py-2 rounded-lg transition-colors duration-150"
         >
           {creating ? "Creating..." : "Create New Campaign"}
         </button>
@@ -77,8 +77,8 @@ export default function CampaignsPage() {
 
       {campaigns.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-gray-500 text-sm mb-3">No campaigns yet.</p>
-          <p className="text-gray-600 text-sm">
+          <p className="text-muted-foreground text-sm mb-3">No campaigns yet.</p>
+          <p className="text-muted-foreground/60 text-sm">
             Click &ldquo;Create New Campaign&rdquo; to get started.
           </p>
         </div>
@@ -88,24 +88,24 @@ export default function CampaignsPage() {
             c.status === "draft" ? (
               <div
                 key={c.id}
-                className="bg-gray-900 border border-dashed border-amber-600/50 rounded-xl p-4 flex items-center justify-between"
+                className="bg-card border border-dashed border-primary/50 rounded-xl p-4 flex items-center justify-between"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-semibold text-gray-100">
+                    <span className="text-lg font-semibold text-foreground">
                       {c.name}
                     </span>
-                    <span className="text-xs font-semibold bg-amber-600/20 text-amber-400 border border-amber-600/40 rounded-full px-2 py-0.5">
+                    <span className="text-xs font-semibold bg-primary/20 text-primary border border-primary/40 rounded-full px-2 py-0.5">
                       DRAFT
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 mt-0.5">Not yet activated</p>
+                  <p className="text-sm text-muted-foreground mt-0.5">Not yet activated</p>
                 </div>
                 <div className="flex items-center gap-2">
                   {confirmingId !== c.id && (
                     <Link
                       href={`/campaigns/${c.id}/builder`}
-                      className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold text-sm px-3 py-1.5 rounded-lg transition-colors duration-150"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm px-3 py-1.5 rounded-lg transition-colors duration-150"
                     >
                       Continue
                     </Link>
@@ -122,16 +122,16 @@ export default function CampaignsPage() {
             ) : (
               <div
                 key={c.id}
-                className="bg-gray-900 border border-gray-700/50 rounded-xl p-4 flex items-center justify-between hover:border-gray-600 transition-colors duration-150"
+                className="bg-card border border-border rounded-xl p-4 flex items-center justify-between hover:border-border transition-colors duration-150"
               >
                 <div>
                   <Link
                     href={`/campaigns/${c.id}`}
-                    className="text-lg font-semibold text-gray-100 hover:text-amber-400 transition-colors duration-150"
+                    className="text-lg font-semibold text-foreground hover:text-primary transition-colors duration-150"
                   >
                     {c.name}
                   </Link>
-                  <p className="text-sm text-gray-400 mt-0.5">
+                  <p className="text-sm text-muted-foreground mt-0.5">
                     Level {c.party_level} &middot; {c.in_game_time}
                   </p>
                 </div>

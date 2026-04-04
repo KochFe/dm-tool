@@ -9,10 +9,10 @@ export function NavUser() {
 
   return (
     <div className="flex items-center gap-4">
-      <span className="text-sm text-gray-400">{user.display_name}</span>
+      <span className="text-sm text-muted-foreground">{user.display_name}</span>
       <button
         onClick={logout}
-        className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
+        className="text-sm text-muted-foreground hover:text-foreground/80 transition-colors"
       >
         Logout
       </button>
