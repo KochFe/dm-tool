@@ -168,14 +168,14 @@ function formToPayload(form: CharacterFormState): Record<string, unknown> {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const INPUT_CLS =
-  "bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors";
+  "bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors";
 
 const SMALL_INPUT_CLS =
-  "bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1.5 w-full mt-1 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors";
+  "bg-muted border border-border text-foreground rounded-lg px-2 py-1.5 w-full mt-1 focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors";
 
 function Tag({ label }: { label: string }) {
   return (
-    <span className="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-0.5 rounded">
+    <span className="inline-block bg-accent text-foreground/80 text-xs px-2 py-0.5 rounded">
       {label}
     </span>
   );
@@ -188,13 +188,13 @@ function AbilityScoreGrid({ pc }: { pc: PlayerCharacter }) {
       {ABILITY_KEYS.map((key) => (
         <div
           key={key}
-          className="bg-gray-900/60 border border-gray-700 rounded-lg py-1.5 text-center"
+          className="bg-card/60 border border-border rounded-lg py-1.5 text-center"
         >
-          <p className="text-xs text-gray-500 uppercase tracking-wide">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">
             {ABILITY_LABELS[key]}
           </p>
-          <p className="text-sm font-semibold text-gray-100">{pc[key]}</p>
-          <p className="text-xs text-amber-400">{abilityModifier(pc[key])}</p>
+          <p className="text-sm font-semibold text-foreground">{pc[key]}</p>
+          <p className="text-xs text-primary">{abilityModifier(pc[key])}</p>
         </div>
       ))}
     </div>
@@ -212,7 +212,7 @@ function AbilityScoreInputs({
   return (
     <div className="grid grid-cols-6 gap-2">
       {ABILITY_KEYS.map((key) => (
-        <label key={key} className="text-xs text-gray-400 text-center">
+        <label key={key} className="text-xs text-muted-foreground text-center">
           {ABILITY_LABELS[key]}
           <input
             type="number"
@@ -220,7 +220,7 @@ function AbilityScoreInputs({
             max={30}
             value={form[key]}
             onChange={(e) => setForm({ ...form, [key]: +e.target.value })}
-            className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-1 py-1.5 w-full mt-1 text-center focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+            className="bg-muted border border-border text-foreground rounded-lg px-1 py-1.5 w-full mt-1 text-center focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
           />
         </label>
       ))}
@@ -252,7 +252,7 @@ function ProficiencyCheckboxes({
 
   return (
     <div>
-      <p className="text-xs text-gray-400 mb-1.5">{label}</p>
+      <p className="text-xs text-muted-foreground mb-1.5">{label}</p>
       <div
         className="grid gap-x-4 gap-y-1"
         style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
@@ -266,9 +266,9 @@ function ProficiencyCheckboxes({
               type="checkbox"
               checked={selected.includes(opt)}
               onChange={() => toggle(opt)}
-              className="accent-amber-500 cursor-pointer"
+              className="accent-primary cursor-pointer"
             />
-            <span className="text-xs text-gray-300 group-hover:text-gray-100 transition-colors">
+            <span className="text-xs text-foreground/80 group-hover:text-foreground transition-colors">
               {opt}
             </span>
           </label>
@@ -307,7 +307,7 @@ function SpellSlotsEditor({
 
   return (
     <div>
-      <p className="text-xs text-gray-400 mb-1.5">Spell Slots</p>
+      <p className="text-xs text-muted-foreground mb-1.5">Spell Slots</p>
       <div className="space-y-1.5">
         {pairs.map((pair, i) => (
           <div key={i} className="flex gap-2 items-center">
@@ -315,7 +315,7 @@ function SpellSlotsEditor({
               placeholder="Level (e.g. 1)"
               value={pair.level}
               onChange={(e) => updatePair(i, "level", e.target.value)}
-              className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1 w-28 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors placeholder-gray-600"
+              className="bg-muted border border-border text-foreground rounded-lg px-2 py-1 w-28 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors placeholder:text-muted-foreground/60"
             />
             <input
               type="number"
@@ -323,12 +323,12 @@ function SpellSlotsEditor({
               placeholder="Slots"
               value={pair.slots}
               onChange={(e) => updatePair(i, "slots", e.target.value)}
-              className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-2 py-1 w-20 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+              className="bg-muted border border-border text-foreground rounded-lg px-2 py-1 w-20 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
             />
             <button
               type="button"
               onClick={() => removePair(i)}
-              className="text-gray-500 hover:text-red-400 transition-colors text-sm px-1"
+              className="text-muted-foreground hover:text-red-400 transition-colors text-sm px-1"
               aria-label="Remove spell slot row"
             >
               ✕
@@ -338,7 +338,7 @@ function SpellSlotsEditor({
         <button
           type="button"
           onClick={addPair}
-          className="text-xs text-amber-500 hover:text-amber-400 transition-colors"
+          className="text-xs text-primary hover:text-primary/80 transition-colors"
         >
           + Add level
         </button>
@@ -423,7 +423,7 @@ export default function CharacterSection({
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-100">Characters</h2>
+        <h2 className="text-xl font-semibold text-foreground">Characters</h2>
         <div className="flex gap-2">
           <button
             onClick={() => setShowImport(true)}
@@ -442,7 +442,7 @@ export default function CharacterSection({
                 setFormError(null);
               }
             }}
-            className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition-colors"
+            className="text-sm bg-accent hover:bg-accent text-foreground/80 px-3 py-1.5 rounded-lg transition-colors"
           >
             {showForm ? "Cancel" : "+ Add"}
           </button>
@@ -453,7 +453,7 @@ export default function CharacterSection({
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 mb-4 space-y-3"
+          className="bg-muted/50 border border-border/50 rounded-xl p-4 mb-4 space-y-3"
         >
           {/* Error banner */}
           {formError && (
@@ -489,7 +489,7 @@ export default function CharacterSection({
             />
           </div>
           <div className="grid grid-cols-4 gap-2">
-            <label className="text-xs text-gray-400">
+            <label className="text-xs text-muted-foreground">
               Level
               <input
                 type="number"
@@ -500,7 +500,7 @@ export default function CharacterSection({
                 className={SMALL_INPUT_CLS}
               />
             </label>
-            <label className="text-xs text-gray-400">
+            <label className="text-xs text-muted-foreground">
               HP
               <input
                 type="number"
@@ -511,7 +511,7 @@ export default function CharacterSection({
                 className={SMALL_INPUT_CLS}
               />
             </label>
-            <label className="text-xs text-gray-400">
+            <label className="text-xs text-muted-foreground">
               Max HP
               <input
                 type="number"
@@ -521,7 +521,7 @@ export default function CharacterSection({
                 className={SMALL_INPUT_CLS}
               />
             </label>
-            <label className="text-xs text-gray-400">
+            <label className="text-xs text-muted-foreground">
               AC
               <input
                 type="number"
@@ -537,7 +537,7 @@ export default function CharacterSection({
 
           {/* Passive Perception (Known Gap #1 fix) */}
           <div className="grid grid-cols-4 gap-2">
-            <label className="text-xs text-gray-400">
+            <label className="text-xs text-muted-foreground">
               Passive Perc.
               <input
                 type="number"
@@ -553,11 +553,11 @@ export default function CharacterSection({
           </div>
 
           {/* ── Advanced Stats collapsible ── */}
-          <div className="border-t border-gray-700/50 pt-3">
+          <div className="border-t border-border/50 pt-3">
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-200 transition-colors"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground/80 transition-colors"
             >
               <span
                 className={`transition-transform ${showAdvanced ? "rotate-90" : ""}`}
@@ -571,13 +571,13 @@ export default function CharacterSection({
               <div className="mt-3 space-y-4">
                 {/* Ability Scores */}
                 <div>
-                  <p className="text-xs text-gray-400 mb-1.5">Ability Scores</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">Ability Scores</p>
                   <AbilityScoreInputs form={form} setForm={setForm} />
                 </div>
 
                 {/* Proficiency Bonus + Speed */}
                 <div className="grid grid-cols-4 gap-2">
-                  <label className="text-xs text-gray-400">
+                  <label className="text-xs text-muted-foreground">
                     Prof. Bonus
                     <input
                       type="number"
@@ -590,7 +590,7 @@ export default function CharacterSection({
                       className={SMALL_INPUT_CLS}
                     />
                   </label>
-                  <label className="text-xs text-gray-400">
+                  <label className="text-xs text-muted-foreground">
                     Speed (ft)
                     <input
                       type="number"
@@ -640,7 +640,7 @@ export default function CharacterSection({
 
           <button
             type="submit"
-            className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-medium px-4 py-2 rounded-lg transition-colors"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-colors"
           >
             {editId ? "Update" : "Create"}
           </button>
@@ -649,7 +649,7 @@ export default function CharacterSection({
 
       {/* Character List */}
       {characters.length === 0 ? (
-        <p className="text-gray-400 text-sm">No characters yet.</p>
+        <p className="text-muted-foreground text-sm">No characters yet.</p>
       ) : (
         <div className="space-y-2">
           <AnimatePresence>
@@ -665,37 +665,37 @@ export default function CharacterSection({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.15 }}
-                className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4"
+                className="bg-muted/50 border border-border/50 rounded-xl p-4"
               >
                 {/* Card header row */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-100">
+                    <p className="font-medium text-foreground">
                       {pc.name}{" "}
-                      <span className="text-sm text-gray-400">
+                      <span className="text-sm text-muted-foreground">
                         {pc.race} {pc.character_class} (Lv {pc.level})
                       </span>
                     </p>
                     <div className="mt-1">
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         <span
                           className={`font-semibold ${hpColor(pc.hp_current, pc.hp_max)}`}
                         >
                           HP {pc.hp_current}/{pc.hp_max}
                         </span>
                         {" "}
-                        <span className="text-gray-500">&middot;</span>
+                        <span className="text-muted-foreground">&middot;</span>
                         {" "}
                         AC {pc.armor_class}
                         {" "}
-                        <span className="text-gray-500">&middot;</span>
+                        <span className="text-muted-foreground">&middot;</span>
                         {" "}
-                        <span className="text-gray-500">
+                        <span className="text-muted-foreground">
                           Speed {pc.speed}ft &middot; Prof +{pc.proficiency_bonus}
                         </span>
                       </p>
                       {/* HP bar */}
-                      <div className="mt-1.5 h-1 w-full bg-gray-700 rounded-full overflow-hidden">
+                      <div className="mt-1.5 h-1 w-full bg-accent rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all ${hpBarColor(pc.hp_current, pc.hp_max)}`}
                           style={{
@@ -711,7 +711,7 @@ export default function CharacterSection({
                       onClick={() =>
                         setExpandedCardId(isExpanded ? null : pc.id)
                       }
-                      className="text-sm bg-gray-700/60 hover:bg-gray-700 text-gray-400 hover:text-gray-200 px-2 py-1 rounded-lg transition-colors"
+                      className="text-sm bg-accent/60 hover:bg-accent text-muted-foreground hover:text-foreground/80 px-2 py-1 rounded-lg transition-colors"
                       aria-label={isExpanded ? "Hide stats" : "Show stats"}
                     >
                       {isExpanded ? "▲" : "▼"}
@@ -719,7 +719,7 @@ export default function CharacterSection({
                     {confirmingId !== pc.id && (
                       <button
                         onClick={() => startEdit(pc)}
-                        className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
+                        className="text-sm bg-accent hover:bg-accent text-foreground/80 px-3 py-1 rounded-lg transition-colors"
                       >
                         Edit
                       </button>
@@ -736,7 +736,7 @@ export default function CharacterSection({
 
                 {/* Collapsible stats panel */}
                 {isExpanded && (
-                  <div className="mt-3 pt-3 border-t border-gray-700/50 space-y-3">
+                  <div className="mt-3 pt-3 border-t border-border/50 space-y-3">
                     {/* Ability scores */}
                     <AbilityScoreGrid pc={pc} />
 
@@ -744,7 +744,7 @@ export default function CharacterSection({
                     {pc.saving_throw_proficiencies &&
                       pc.saving_throw_proficiencies.length > 0 && (
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">
+                          <p className="text-xs text-muted-foreground mb-1">
                             Saving Throws
                           </p>
                           <div className="flex flex-wrap gap-1">
@@ -759,7 +759,7 @@ export default function CharacterSection({
                     {pc.skill_proficiencies &&
                       pc.skill_proficiencies.length > 0 && (
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Skills</p>
+                          <p className="text-xs text-muted-foreground mb-1">Skills</p>
                           <div className="flex flex-wrap gap-1">
                             {pc.skill_proficiencies.map((s) => (
                               <Tag key={s} label={s} />
@@ -771,7 +771,7 @@ export default function CharacterSection({
                     {/* Spell slots */}
                     {hasSpellSlots && (
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">
+                        <p className="text-xs text-muted-foreground mb-1">
                           Spell Slots
                         </p>
                         <div className="flex flex-wrap gap-1">

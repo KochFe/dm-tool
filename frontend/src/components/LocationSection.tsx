@@ -93,14 +93,14 @@ export default function LocationSection({
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-100">Locations</h2>
+        <h2 className="text-xl font-semibold text-foreground">Locations</h2>
         <button
           onClick={() => {
             setShowForm(!showForm);
             setEditId(null);
             setForm(EMPTY_LOC);
           }}
-          className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition-colors"
+          className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1.5 rounded-lg transition-colors"
         >
           {showForm ? "Cancel" : "+ Add"}
         </button>
@@ -109,27 +109,27 @@ export default function LocationSection({
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 mb-4 space-y-3"
+          className="bg-muted/50 border border-border rounded-xl p-4 mb-4 space-y-3"
         >
           <input
             placeholder="Name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors"
+            className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
             required
           />
           <input
             placeholder="Description (optional)"
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors"
+            className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
           />
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Biome</label>
+            <label className="text-xs text-muted-foreground block mb-1">Biome</label>
             <select
               value={form.biome}
               onChange={(e) => setForm({ ...form, biome: e.target.value })}
-              className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+              className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
             >
               {BIOMES.map((b) => (
                 <option key={b} value={b.toLowerCase()}>
@@ -140,7 +140,7 @@ export default function LocationSection({
           </div>
           <button
             type="submit"
-            className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-medium px-4 py-2 rounded-lg transition-colors"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-colors"
           >
             {editId ? "Update" : "Create"}
           </button>
@@ -148,7 +148,7 @@ export default function LocationSection({
       )}
 
       {locations.length === 0 ? (
-        <p className="text-gray-400 text-sm">No locations yet.</p>
+        <p className="text-muted-foreground text-sm">No locations yet.</p>
       ) : (
         <div className="space-y-2">
           <AnimatePresence>
@@ -161,25 +161,25 @@ export default function LocationSection({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.15 }}
-                className={`bg-gray-800/50 border rounded-xl p-4 flex items-start justify-between gap-3 ${
+                className={`bg-muted/50 border rounded-xl p-4 flex items-start justify-between gap-3 ${
                   isCurrent
-                    ? "border-amber-500/50 ring-1 ring-amber-500/20"
-                    : "border-gray-700/50"
+                    ? "border-ring ring-1 ring-ring/20"
+                    : "border-border"
                 }`}
               >
                 <div className="min-w-0">
-                  <p className="font-medium text-gray-100">
+                  <p className="font-medium text-foreground">
                     {loc.name}
                     {isCurrent && (
-                      <span className="ml-2 text-xs text-amber-400 font-normal">
+                      <span className="ml-2 text-xs text-primary font-normal">
                         Current
                       </span>
                     )}
                   </p>
-                  <p className="text-sm text-gray-400 capitalize">
+                  <p className="text-sm text-muted-foreground capitalize">
                     {loc.biome}
                     {loc.description && (
-                      <span className="text-gray-500"> &mdash; {loc.description}</span>
+                      <span className="text-muted-foreground"> &mdash; {loc.description}</span>
                     )}
                   </p>
                 </div>
@@ -189,14 +189,14 @@ export default function LocationSection({
                       {!isCurrent && (
                         <button
                           onClick={() => handleSetCurrent(loc.id)}
-                          className="text-sm bg-amber-700/30 hover:bg-amber-700/60 text-amber-300 px-3 py-1 rounded-lg transition-colors"
+                          className="text-sm bg-primary/20 hover:bg-primary/30 text-primary px-3 py-1 rounded-lg transition-colors"
                         >
                           Set Current
                         </button>
                       )}
                       <button
                         onClick={() => startEdit(loc)}
-                        className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
+                        className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1 rounded-lg transition-colors"
                       >
                         Edit
                       </button>

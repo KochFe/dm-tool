@@ -91,7 +91,7 @@ export default function CommandPalette() {
           </CommandGroup>
 
           {diceResult && (
-            <div className="px-3 py-2 text-sm text-amber-400 border-b border-gray-800">
+            <div className="px-3 py-2 text-sm text-primary border-b border-border">
               {diceResult}
             </div>
           )}
@@ -115,7 +115,7 @@ export default function CommandPalette() {
                   onSelect={() => navigate(`${base}/characters`)}
                 >
                   {c.name}
-                  <span className="ml-2 text-xs text-gray-500">
+                  <span className="ml-2 text-xs text-muted-foreground">
                     {c.race} {c.character_class}
                   </span>
                 </CommandItem>
@@ -131,7 +131,7 @@ export default function CommandPalette() {
                   onSelect={() => viewEntity({ type: "npc", data: n })}
                 >
                   {n.name}
-                  <span className="ml-2 text-xs text-gray-500">{n.race}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">{n.race}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -145,7 +145,7 @@ export default function CommandPalette() {
                   onSelect={() => viewEntity({ type: "location", data: l })}
                 >
                   {l.name}
-                  <span className="ml-2 text-xs text-gray-500 capitalize">
+                  <span className="ml-2 text-xs text-muted-foreground capitalize">
                     {l.biome}
                   </span>
                 </CommandItem>
@@ -161,7 +161,7 @@ export default function CommandPalette() {
                   onSelect={() => viewEntity({ type: "quest", data: q })}
                 >
                   {q.title}
-                  <span className="ml-2 text-xs text-gray-500 capitalize">
+                  <span className="ml-2 text-xs text-muted-foreground capitalize">
                     {q.status.replace("_", " ")}
                   </span>
                 </CommandItem>

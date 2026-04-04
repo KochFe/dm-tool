@@ -9,8 +9,8 @@ import SessionNotes from "@/components/SessionNotes";
 import type { GeneratedEncounter, GeneratedNpc, GeneratedLoot } from "@/types";
 
 const STATUS_BADGE: Record<string, string> = {
-  not_started: "bg-gray-700 text-gray-300",
-  in_progress: "bg-amber-900 text-amber-400",
+  not_started: "bg-accent text-foreground/80",
+  in_progress: "bg-primary/20 text-primary",
   completed: "bg-green-900 text-green-400",
   failed: "bg-red-900 text-red-400",
 };
@@ -33,7 +33,7 @@ export default function ExplorationView() {
   if (!currentLocation) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-gray-500 text-sm">Set a current location to see location-specific info.</p>
+        <p className="text-muted-foreground text-sm">Set a current location to see location-specific info.</p>
       </div>
     );
   }
@@ -41,26 +41,26 @@ export default function ExplorationView() {
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-6">
       {/* Current Location */}
-      <div className="bg-gray-900 border border-amber-500/20 rounded-xl p-5">
+      <div className="bg-card border border-primary/20 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-lg font-semibold text-gray-100">{currentLocation.name}</h3>
+          <h3 className="text-lg font-semibold text-foreground">{currentLocation.name}</h3>
           <Badge variant="secondary" className="text-xs capitalize">{currentLocation.biome}</Badge>
         </div>
         {currentLocation.description && (
-          <p className="text-gray-400 text-sm leading-relaxed">{currentLocation.description}</p>
+          <p className="text-muted-foreground text-sm leading-relaxed">{currentLocation.description}</p>
         )}
       </div>
 
       {/* NPCs at this location */}
       {locationNpcs.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-gray-300 mb-2">NPCs Here</h4>
+          <h4 className="text-sm font-semibold text-foreground/80 mb-2">NPCs Here</h4>
           <div className="space-y-2">
             {locationNpcs.map((npc) => (
-              <div key={npc.id} className="bg-gray-900 border border-gray-700/50 rounded-lg p-3">
+              <div key={npc.id} className="bg-card border border-border rounded-lg p-3">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-100 text-sm">{npc.name}</span>
-                  <span className="text-xs text-gray-500">
+                  <span className="font-medium text-foreground text-sm">{npc.name}</span>
+                  <span className="text-xs text-muted-foreground">
                     {npc.race}{npc.npc_class ? ` · ${npc.npc_class}` : ""}
                   </span>
                   {!npc.is_alive && (
@@ -68,7 +68,7 @@ export default function ExplorationView() {
                   )}
                 </div>
                 {npc.description && (
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">{npc.description}</p>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{npc.description}</p>
                 )}
               </div>
             ))}
@@ -79,12 +79,12 @@ export default function ExplorationView() {
       {/* Active quests at this location */}
       {locationQuests.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-gray-300 mb-2">Quests Here</h4>
+          <h4 className="text-sm font-semibold text-foreground/80 mb-2">Quests Here</h4>
           <div className="space-y-2">
             {locationQuests.map((q) => (
-              <div key={q.id} className="bg-gray-900 border border-gray-700/50 rounded-lg p-3">
+              <div key={q.id} className="bg-card border border-border rounded-lg p-3">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-100 text-sm">{q.title}</span>
+                  <span className="font-medium text-foreground text-sm">{q.title}</span>
                   <span
                     className={`text-xs px-1.5 py-0.5 rounded-full ${STATUS_BADGE[q.status] ?? ""}`}
                   >
@@ -92,7 +92,7 @@ export default function ExplorationView() {
                   </span>
                 </div>
                 {q.description && (
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">{q.description}</p>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{q.description}</p>
                 )}
               </div>
             ))}

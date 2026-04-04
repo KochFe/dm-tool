@@ -17,8 +17,8 @@ const STATUS_LABELS: Record<QuestStatus, string> = {
 };
 
 const STATUS_BADGE: Record<QuestStatus, string> = {
-  not_started: "bg-gray-700 text-gray-300",
-  in_progress: "bg-amber-900 text-amber-400",
+  not_started: "bg-accent text-foreground/80",
+  in_progress: "bg-primary/20 text-primary",
   completed: "bg-green-900 text-green-400",
   failed: "bg-red-900 text-red-400",
 };
@@ -33,10 +33,10 @@ const EMPTY_FORM: QuestCreate = {
 };
 
 function levelIndicatorClass(questLevel: number, partyLevel: number): string {
-  if (questLevel === partyLevel) return "text-gray-400";
+  if (questLevel === partyLevel) return "text-muted-foreground";
   if (questLevel > partyLevel + 2) return "text-red-400";
-  if (questLevel > partyLevel) return "text-amber-400";
-  return "text-gray-500";
+  if (questLevel > partyLevel) return "text-primary";
+  return "text-muted-foreground";
 }
 
 export default function QuestSection({
@@ -145,7 +145,7 @@ export default function QuestSection({
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-100">Quests</h2>
+        <h2 className="text-xl font-semibold text-foreground">Quests</h2>
         <button
           onClick={() => {
             if (showForm) {
@@ -157,7 +157,7 @@ export default function QuestSection({
               setSubmitError(null);
             }
           }}
-          className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition-colors"
+          className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1.5 rounded-lg transition-colors"
         >
           {showForm ? "Cancel" : "+ Add"}
         </button>
@@ -166,13 +166,13 @@ export default function QuestSection({
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 mb-4 space-y-3"
+          className="bg-muted/50 border border-border rounded-xl p-4 mb-4 space-y-3"
         >
           <input
             placeholder="Quest title"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors"
+            className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
             required
           />
           <textarea
@@ -180,17 +180,17 @@ export default function QuestSection({
             value={form.description ?? ""}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={3}
-            className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors resize-none"
+            className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors resize-none"
           />
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Status</label>
+              <label className="text-xs text-muted-foreground block mb-1">Status</label>
               <select
                 value={form.status ?? "not_started"}
                 onChange={(e) =>
                   setForm({ ...form, status: e.target.value as QuestStatus })
                 }
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+                className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
               >
                 {(Object.keys(STATUS_LABELS) as QuestStatus[]).map((s) => (
                   <option key={s} value={s}>
@@ -200,7 +200,7 @@ export default function QuestSection({
               </select>
             </div>
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Location (optional)</label>
+              <label className="text-xs text-muted-foreground block mb-1">Location (optional)</label>
               <select
                 value={form.location_id ?? ""}
                 onChange={(e) =>
@@ -209,7 +209,7 @@ export default function QuestSection({
                     location_id: e.target.value || undefined,
                   })
                 }
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+                className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
               >
                 <option value="">— None —</option>
                 {locations.map((loc) => (
@@ -222,16 +222,16 @@ export default function QuestSection({
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Reward (optional)</label>
+              <label className="text-xs text-muted-foreground block mb-1">Reward (optional)</label>
               <input
                 placeholder="e.g. 500 gp, Magic Sword"
                 value={form.reward ?? ""}
                 onChange={(e) => setForm({ ...form, reward: e.target.value })}
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors"
+                className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
               />
             </div>
             <div>
-              <label className="text-xs text-gray-400 block mb-1">
+              <label className="text-xs text-muted-foreground block mb-1">
                 Recommended Level (optional)
               </label>
               <input
@@ -246,7 +246,7 @@ export default function QuestSection({
                     level: e.target.value === "" ? undefined : +e.target.value,
                   })
                 }
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors"
+                className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
               />
             </div>
           </div>
@@ -257,7 +257,7 @@ export default function QuestSection({
           )}
           <button
             type="submit"
-            className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-medium px-4 py-2 rounded-lg transition-colors"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-colors"
           >
             {editId ? "Update Quest" : "Create Quest"}
           </button>
@@ -277,7 +277,7 @@ export default function QuestSection({
           {error}
         </p>
       ) : quests.length === 0 ? (
-        <p className="text-gray-400 text-sm">No quests yet.</p>
+        <p className="text-muted-foreground text-sm">No quests yet.</p>
       ) : (
         <div className="space-y-2">
           <AnimatePresence>
@@ -289,12 +289,12 @@ export default function QuestSection({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.15 }}
-                className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4"
+                className="bg-muted/50 border border-border rounded-xl p-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-medium text-gray-100">{quest.title}</p>
+                      <p className="font-medium text-foreground">{quest.title}</p>
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_BADGE[quest.status]}`}
                       >
@@ -321,20 +321,20 @@ export default function QuestSection({
                         if (!location) return null;
                         return (
                           <LocationHoverCard location={location}>
-                            <span className="text-xs text-gray-400 cursor-pointer hover:text-gray-300 transition-colors">
+                            <span className="text-xs text-muted-foreground cursor-pointer hover:text-foreground/80 transition-colors">
                               {location.name}
                             </span>
                           </LocationHoverCard>
                         );
                       })()}
                       {quest.reward && (
-                        <span className="text-xs text-amber-500/80">
+                        <span className="text-xs text-primary/80">
                           Reward: {quest.reward}
                         </span>
                       )}
                     </div>
                     {quest.description && (
-                      <p className="text-sm text-gray-400 mt-1.5 leading-snug line-clamp-2">
+                      <p className="text-sm text-muted-foreground mt-1.5 leading-snug line-clamp-2">
                         {quest.description}
                       </p>
                     )}
@@ -343,7 +343,7 @@ export default function QuestSection({
                     {confirmingId !== quest.id && (
                       <button
                         onClick={() => startEdit(quest)}
-                        className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
+                        className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1 rounded-lg transition-colors"
                       >
                         Edit
                       </button>

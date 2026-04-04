@@ -28,7 +28,7 @@ export default function LoginPage() {
     <div className="mx-auto max-w-7xl px-4 py-6">
     <div className="flex items-center justify-center min-h-[80vh]">
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-amber-400 text-center mb-8">
+        <h1 className="text-2xl font-bold text-primary text-center mb-8">
           Sign In
         </h1>
 
@@ -42,7 +42,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm text-gray-400 mb-1"
+              className="block text-sm text-muted-foreground mb-1"
             >
               Email
             </label>
@@ -53,14 +53,14 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoFocus
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:border-ring"
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-sm text-gray-400 mb-1"
+              className="block text-sm text-muted-foreground mb-1"
             >
               Password
             </label>
@@ -70,21 +70,21 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 focus:outline-none focus:border-amber-500"
+              className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:border-ring"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors"
+            className="w-full py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-semibold rounded-lg transition-colors"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600 mt-6">
-          <Link href="/" className="hover:text-gray-400 transition-colors">
+        <p className="text-center text-sm text-muted-foreground/60 mt-6">
+          <Link href="/" className="hover:text-muted-foreground transition-colors">
             Back to home
           </Link>
         </p>

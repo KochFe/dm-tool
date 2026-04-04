@@ -154,7 +154,7 @@ export default function BasicsTab({
     <div className="flex flex-col gap-8 max-w-2xl">
       {/* Campaign Name */}
       <section className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+        <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
           Campaign Name
         </label>
         <input
@@ -162,14 +162,14 @@ export default function BasicsTab({
           value={name}
           onChange={(e) => setName(e.target.value)}
           onBlur={saveName}
-          className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:outline-none focus:border-amber-500 transition-colors"
+          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
           placeholder="Enter campaign name"
         />
       </section>
 
       {/* Campaign Length */}
       <section className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+        <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
           Campaign Length
         </label>
         <div className="flex gap-2 flex-wrap">
@@ -179,8 +179,8 @@ export default function BasicsTab({
               onClick={() => saveCampaignLength(value)}
               className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                 campaign.campaign_length === value
-                  ? "bg-amber-600 border-amber-500 text-gray-950"
-                  : "bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500"
+                  ? "bg-primary border-primary text-primary-foreground"
+                  : "bg-muted border-border text-foreground/80 hover:border-border"
               }`}
             >
               {label}
@@ -191,7 +191,7 @@ export default function BasicsTab({
 
       {/* Party Level */}
       <section className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+        <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
           Party Level
         </label>
         <input
@@ -201,18 +201,18 @@ export default function BasicsTab({
           value={partyLevel}
           onChange={(e) => setPartyLevel(e.target.value)}
           onBlur={savePartyLevel}
-          className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm w-24 focus:outline-none focus:border-amber-500 transition-colors"
+          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm w-24 focus:outline-none focus:border-ring transition-colors"
         />
       </section>
 
       {/* Ideas & Notes */}
       <section className="flex flex-col gap-3">
-        <label className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+        <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
           Ideas &amp; Notes
         </label>
 
         {/* Persistent input row — always visible */}
-        <div className="flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2">
           <input
             ref={newIdeaInputRef}
             type="text"
@@ -221,7 +221,7 @@ export default function BasicsTab({
             onKeyDown={handleNewIdeaKeyDown}
             placeholder="Type an idea and press Enter..."
             disabled={savingIdea}
-            className="flex-1 bg-transparent text-sm text-gray-200 placeholder-gray-600 focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           <button
             onClick={() => {
@@ -236,7 +236,7 @@ export default function BasicsTab({
           <button
             onClick={saveNewIdea}
             disabled={savingIdea || !newIdeaText.trim()}
-            className="text-amber-500 hover:text-amber-400 text-sm font-medium disabled:opacity-30 disabled:cursor-default transition-opacity flex-shrink-0"
+            className="text-primary hover:text-primary text-sm font-medium disabled:opacity-30 disabled:cursor-default transition-opacity flex-shrink-0"
           >
             {savingIdea ? "..." : "Save"}
           </button>
@@ -244,7 +244,7 @@ export default function BasicsTab({
 
         {/* Ideas list */}
         {ideas.length > 0 && (
-          <div className="flex flex-col divide-y divide-gray-800 rounded-lg border border-gray-800 bg-gray-900 px-3">
+          <div className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card px-3">
             {ideas.map((idea) => (
               <IdeaRow
                 key={idea.id}

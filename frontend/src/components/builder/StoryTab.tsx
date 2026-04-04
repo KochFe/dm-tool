@@ -151,10 +151,10 @@ export default function StoryTab({
         {/* World Description */}
         <section className="flex flex-col gap-2">
           <div>
-            <label className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+            <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               World Description
             </label>
-            <p className="text-xs text-gray-600 mt-0.5">
+            <p className="text-xs text-muted-foreground/60 mt-0.5">
               (the setting — region, politics, lore)
             </p>
           </div>
@@ -163,7 +163,7 @@ export default function StoryTab({
             onChange={(e) => setWorldDescription(e.target.value)}
             onBlur={saveWorldDescription}
             rows={5}
-            className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:outline-none focus:border-amber-500 transition-colors resize-none"
+            className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
             placeholder="Describe the world your campaign takes place in..."
           />
         </section>
@@ -171,20 +171,20 @@ export default function StoryTab({
         {/* Campaign Phases */}
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+            <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               Campaign Phases
             </label>
             <button
               onClick={handleAddPhase}
               disabled={addingPhase}
-              className="text-sm text-amber-500 hover:text-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="text-sm text-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {addingPhase ? "Adding..." : "+ Add Phase"}
             </button>
           </div>
 
           {phases.length === 0 ? (
-            <div className="text-sm text-gray-600 border border-gray-800 rounded-xl px-4 py-6 text-center">
+            <div className="text-sm text-muted-foreground/60 border border-border rounded-xl px-4 py-6 text-center">
               No phases yet. Phases help you plan your campaign arc — add one to get started.
             </div>
           ) : (
@@ -247,8 +247,8 @@ export default function StoryTab({
 
       {/* Ideas sidebar */}
       <div className="w-56 flex-shrink-0">
-        <div className="sticky top-0 bg-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-800 p-3">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
+        <div className="sticky top-0 bg-card/80 backdrop-blur-sm rounded-xl border border-border p-3">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
             Story Ideas
           </p>
           <IdeasHelper

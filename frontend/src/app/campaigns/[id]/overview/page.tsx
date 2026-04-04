@@ -58,12 +58,12 @@ function PhaseCard({ phase, onSave, onDelete }: PhaseCardProps) {
   }, [editDesc, editTitle, phase.id, phase.description, onSave]);
 
   return (
-    <div className="bg-gray-900 border border-gray-700/50 rounded-xl overflow-hidden">
+    <div className="bg-card border border-border/50 rounded-xl overflow-hidden">
       <div
         className="flex items-center gap-3 p-4 cursor-pointer select-none"
         onClick={() => setExpanded((v) => !v)}
       >
-        <span className="text-gray-500 text-sm w-4 flex-shrink-0">
+        <span className="text-muted-foreground text-sm w-4 flex-shrink-0">
           {expanded ? "▾" : "▸"}
         </span>
         <div className="flex-1 min-w-0">
@@ -72,29 +72,29 @@ function PhaseCard({ phase, onSave, onDelete }: PhaseCardProps) {
             onChange={(e) => setEditTitle(e.target.value)}
             onBlur={handleTitleBlur}
             onClick={(e) => e.stopPropagation()}
-            className="bg-transparent text-sm font-medium text-gray-100 w-full outline-none focus:text-amber-300 transition-colors"
+            className="bg-transparent text-sm font-medium text-foreground w-full outline-none focus:text-primary transition-colors"
             aria-label="Phase title"
           />
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {phase.quest_ids.length > 0 && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               {phase.quest_ids.length} quest{phase.quest_ids.length !== 1 ? "s" : ""}
             </span>
           )}
           {phase.location_ids.length > 0 && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               {phase.location_ids.length} loc{phase.location_ids.length !== 1 ? "s" : ""}
             </span>
           )}
-          {saving && <span className="text-xs text-gray-600">saving…</span>}
+          {saving && <span className="text-xs text-muted-foreground/60">saving…</span>}
           {!confirmDelete ? (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setConfirmDelete(true);
               }}
-              className="text-gray-600 hover:text-red-400 transition-colors text-sm px-1"
+              className="text-muted-foreground/60 hover:text-red-400 transition-colors text-sm px-1"
               title="Delete phase"
               aria-label="Delete phase"
             >
@@ -110,7 +110,7 @@ function PhaseCard({ phase, onSave, onDelete }: PhaseCardProps) {
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
-                className="text-xs text-gray-500 hover:text-gray-300 px-1"
+                className="text-xs text-muted-foreground hover:text-foreground/80 px-1"
               >
                 Cancel
               </button>
@@ -120,14 +120,14 @@ function PhaseCard({ phase, onSave, onDelete }: PhaseCardProps) {
       </div>
 
       {expanded && (
-        <div className="px-4 pb-4 border-t border-gray-700/50 pt-3">
+        <div className="px-4 pb-4 border-t border-border/50 pt-3">
           <textarea
             value={editDesc}
             onChange={(e) => setEditDesc(e.target.value)}
             onBlur={handleDescBlur}
             placeholder="Phase description…"
             rows={3}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 outline-none focus:border-amber-500/50 resize-none transition-colors"
+            className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-ring resize-none transition-colors"
           />
         </div>
       )}
@@ -305,9 +305,9 @@ export default function OverviewPage() {
       {/* 1. Title + campaign length badge */}
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <h2 className="text-xl font-semibold text-gray-100">Overview</h2>
+          <h2 className="text-xl font-semibold text-foreground">Overview</h2>
           {campaign.campaign_length && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/15 text-amber-400 border border-amber-500/20">
+            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/20">
               {formatCampaignLength(campaign.campaign_length)}
             </span>
           )}
@@ -315,11 +315,11 @@ export default function OverviewPage() {
 
         {/* 2. Description */}
         {campaign.description ? (
-          <p className="text-gray-400 text-sm leading-relaxed">{campaign.description}</p>
+          <p className="text-muted-foreground text-sm leading-relaxed">{campaign.description}</p>
         ) : (
-          <p className="text-gray-500 text-sm italic">
+          <p className="text-muted-foreground text-sm italic">
             No description yet.{" "}
-            <Link href={`${base}/settings`} className="text-amber-400 hover:text-amber-300">
+            <Link href={`${base}/settings`} className="text-primary hover:text-primary">
               Add one in Settings
             </Link>
           </p>
@@ -327,26 +327,26 @@ export default function OverviewPage() {
       </div>
 
       {/* 3. World Description */}
-      <div className="bg-gray-900 border border-gray-700/50 rounded-xl p-4">
-        <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">World Description</p>
+      <div className="bg-card border border-border/50 rounded-xl p-4">
+        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">World Description</p>
         <textarea
           value={worldDesc}
           onChange={(e) => setWorldDesc(e.target.value)}
           onBlur={handleWorldDescBlur}
           placeholder="Add a world description — setting, tone, key themes…"
           rows={3}
-          className="w-full bg-transparent text-sm text-gray-300 placeholder-gray-600 outline-none resize-none leading-relaxed"
+          className="w-full bg-transparent text-sm text-foreground/80 placeholder:text-muted-foreground outline-none resize-none leading-relaxed"
         />
       </div>
 
       {/* 4. Current Location */}
       {currentLocation && (
-        <div className="bg-gray-900 border border-gray-700/50 rounded-xl p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Current Location</p>
-          <p className="text-gray-100 font-medium">{currentLocation.name}</p>
-          <p className="text-sm text-gray-400 capitalize">{currentLocation.biome}</p>
+        <div className="bg-card border border-border/50 rounded-xl p-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Current Location</p>
+          <p className="text-foreground font-medium">{currentLocation.name}</p>
+          <p className="text-sm text-muted-foreground capitalize">{currentLocation.biome}</p>
           {currentLocation.description && (
-            <p className="text-sm text-gray-500 mt-1">{currentLocation.description}</p>
+            <p className="text-sm text-muted-foreground mt-1">{currentLocation.description}</p>
           )}
         </div>
       )}
@@ -362,10 +362,10 @@ export default function OverviewPage() {
           <Link
             key={item.label}
             href={item.href}
-            className="bg-gray-900 border border-gray-700/50 rounded-xl p-4 hover:border-gray-600 transition-colors group"
+            className="bg-card border border-border/50 rounded-xl p-4 hover:border-border transition-colors group"
           >
-            <p className="text-2xl font-bold text-gray-100">{item.count}</p>
-            <p className="text-sm text-gray-400 group-hover:text-amber-400 transition-colors">
+            <p className="text-2xl font-bold text-foreground">{item.count}</p>
+            <p className="text-sm text-muted-foreground group-hover:text-primary transition-colors">
               {item.label} →
             </p>
           </Link>
@@ -378,21 +378,21 @@ export default function OverviewPage() {
           onClick={() => setPhasesOpen((v) => !v)}
           className="flex items-center gap-2 mb-3 group"
         >
-          <span className="text-gray-500 text-sm">{phasesOpen ? "▾" : "▸"}</span>
-          <h3 className="text-sm font-semibold text-gray-300 group-hover:text-gray-100 transition-colors">
+          <span className="text-muted-foreground text-sm">{phasesOpen ? "▾" : "▸"}</span>
+          <h3 className="text-sm font-semibold text-foreground/80 group-hover:text-foreground transition-colors">
             Phases
           </h3>
           {phases.length > 0 && (
-            <span className="text-xs text-gray-600">({phases.length})</span>
+            <span className="text-xs text-muted-foreground/60">({phases.length})</span>
           )}
         </button>
 
         {phasesOpen && (
           <div className="space-y-2">
             {phasesLoading ? (
-              <p className="text-xs text-gray-600 px-1">Loading phases…</p>
+              <p className="text-xs text-muted-foreground/60 px-1">Loading phases…</p>
             ) : phases.length === 0 ? (
-              <p className="text-xs text-gray-600 italic px-1">
+              <p className="text-xs text-muted-foreground/60 italic px-1">
                 No phases yet. Phases help you plan your campaign arc.
               </p>
             ) : (
@@ -415,12 +415,12 @@ export default function OverviewPage() {
                   if (e.key === "Enter") handleAddPhase();
                 }}
                 placeholder="New phase title…"
-                className="flex-1 bg-gray-900 border border-gray-700/50 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 outline-none focus:border-amber-500/50 transition-colors"
+                className="flex-1 bg-card border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-ring transition-colors"
               />
               <button
                 onClick={handleAddPhase}
                 disabled={!newPhaseTitle.trim() || addingPhase}
-                className="px-3 py-2 rounded-lg text-sm bg-gray-800 border border-gray-700/50 text-gray-300 hover:text-amber-400 hover:border-amber-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 rounded-lg text-sm bg-muted border border-border/50 text-foreground/80 hover:text-primary hover:border-primary/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 + Add Phase
               </button>
@@ -432,17 +432,17 @@ export default function OverviewPage() {
       {/* 7. Active Quests */}
       {activeQuests.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-gray-300 mb-3">Active Quests</h3>
+          <h3 className="text-sm font-semibold text-foreground/80 mb-3">Active Quests</h3>
           <div className="space-y-2">
             {activeQuests.map((q) => (
               <div
                 key={q.id}
-                className="bg-gray-900 border border-gray-700/50 rounded-lg p-3 flex items-center justify-between"
+                className="bg-card border border-border/50 rounded-lg p-3 flex items-center justify-between"
               >
                 <div>
-                  <p className="text-sm font-medium text-gray-100">{q.title}</p>
+                  <p className="text-sm font-medium text-foreground">{q.title}</p>
                   {q.description && (
-                    <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{q.description}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{q.description}</p>
                   )}
                 </div>
                 <Badge variant="secondary" className="text-xs">
@@ -460,21 +460,21 @@ export default function OverviewPage() {
           onClick={() => setIdeasOpen((v) => !v)}
           className="flex items-center gap-2 mb-3 group"
         >
-          <span className="text-gray-500 text-sm">{ideasOpen ? "▾" : "▸"}</span>
-          <h3 className="text-sm font-semibold text-gray-300 group-hover:text-gray-100 transition-colors">
+          <span className="text-muted-foreground text-sm">{ideasOpen ? "▾" : "▸"}</span>
+          <h3 className="text-sm font-semibold text-foreground/80 group-hover:text-foreground transition-colors">
             Ideas
           </h3>
           {ideas.length > 0 && (
-            <span className="text-xs text-gray-600">({ideas.length})</span>
+            <span className="text-xs text-muted-foreground/60">({ideas.length})</span>
           )}
         </button>
 
         {ideasOpen && (
-          <div className="bg-gray-900 border border-gray-700/50 rounded-xl p-4 space-y-1">
+          <div className="bg-card border border-border/50 rounded-xl p-4 space-y-1">
             {ideasLoading ? (
-              <p className="text-xs text-gray-600">Loading ideas…</p>
+              <p className="text-xs text-muted-foreground/60">Loading ideas…</p>
             ) : ideas.length === 0 ? (
-              <p className="text-xs text-gray-600 italic">
+              <p className="text-xs text-muted-foreground/60 italic">
                 No ideas yet. Capture story hooks, location concepts, and character seeds here.
               </p>
             ) : (
@@ -490,7 +490,7 @@ export default function OverviewPage() {
             )}
 
             {/* Add Idea */}
-            <div className="flex items-center gap-2 pt-2 border-t border-gray-800 mt-2">
+            <div className="flex items-center gap-2 pt-2 border-t border-muted mt-2">
               <input
                 value={newIdeaText}
                 onChange={(e) => setNewIdeaText(e.target.value)}
@@ -498,12 +498,12 @@ export default function OverviewPage() {
                   if (e.key === "Enter") handleAddIdea();
                 }}
                 placeholder="New idea…"
-                className="flex-1 bg-gray-800 border border-gray-700/50 rounded-lg px-3 py-1.5 text-sm text-gray-200 placeholder-gray-600 outline-none focus:border-amber-500/50 transition-colors"
+                className="flex-1 bg-muted border border-border/50 rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-ring transition-colors"
               />
               <select
                 value={newIdeaTag}
                 onChange={(e) => setNewIdeaTag(e.target.value as IdeaTag)}
-                className="bg-gray-800 border border-gray-700/50 rounded-lg px-2 py-1.5 text-xs text-gray-400 outline-none focus:border-amber-500/50 transition-colors"
+                className="bg-muted border border-border/50 rounded-lg px-2 py-1.5 text-xs text-muted-foreground outline-none focus:border-ring transition-colors"
               >
                 <option value="story">story</option>
                 <option value="location">location</option>
@@ -512,7 +512,7 @@ export default function OverviewPage() {
               <button
                 onClick={handleAddIdea}
                 disabled={!newIdeaText.trim() || addingIdea}
-                className="px-3 py-1.5 rounded-lg text-sm bg-gray-800 border border-gray-700/50 text-gray-300 hover:text-amber-400 hover:border-amber-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 rounded-lg text-sm bg-muted border border-border/50 text-foreground/80 hover:text-primary hover:border-primary/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 + Add
               </button>

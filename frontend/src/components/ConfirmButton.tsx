@@ -72,7 +72,7 @@ export default function ConfirmButton({
           "inline-flex items-center gap-2 border border-red-800/60 bg-red-950/40 rounded-lg px-2.5 py-1"
         }
       >
-        <span className="text-xs text-gray-400 whitespace-nowrap">
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
           {confirmLabel}
         </span>
         <button
@@ -85,7 +85,7 @@ export default function ConfirmButton({
         <button
           type="button"
           onClick={cancelConfirm}
-          className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded-lg transition-colors"
+          className="text-sm bg-accent hover:bg-muted text-foreground/80 px-3 py-1 rounded-lg transition-colors"
         >
           Cancel
         </button>
