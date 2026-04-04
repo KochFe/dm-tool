@@ -69,20 +69,20 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
           "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150",
           "group relative",
           variant === "session" && !active
-            ? "text-amber-400/70 hover:text-amber-400 hover:bg-amber-400/10"
+            ? "text-primary/70 hover:text-primary hover:bg-primary/10"
             : active
-            ? "bg-amber-400/15 text-amber-400"
-            : "text-gray-400 hover:text-gray-100 hover:bg-gray-800"
+            ? "bg-primary/15 text-primary"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent"
         )}
       >
         <Icon
           className={cn(
             "shrink-0 w-5 h-5",
             variant === "session" && !active
-              ? "text-amber-400/70 group-hover:text-amber-400"
+              ? "text-primary/70 group-hover:text-primary"
               : active
-              ? "text-amber-400"
-              : "text-gray-500 group-hover:text-gray-300"
+              ? "text-primary"
+              : "text-muted-foreground group-hover:text-foreground/80"
           )}
         />
         <span className="hidden xl:block truncate">{item.label}</span>
@@ -93,7 +93,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
   return (
     <>
       {/* Desktop sidebar — hidden on mobile */}
-      <aside className="hidden md:flex w-14 xl:w-56 shrink-0 border-r border-gray-800 bg-gray-900/60 flex-col py-3 px-2 gap-1 overflow-y-auto">
+      <aside className="hidden md:flex w-14 xl:w-56 shrink-0 border-r border-border bg-card/60 flex-col py-3 px-2 gap-1 overflow-y-auto">
         {/* Main navigation */}
         <nav className="flex flex-col gap-1">
           {mainNav.map((item) => (
@@ -102,7 +102,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
         </nav>
 
         {/* Separator */}
-        <div className="my-2 border-t border-gray-800" />
+        <div className="my-2 border-t border-border" />
 
         {/* Session — styled as a prominent action */}
         <nav className="flex flex-col gap-1">
@@ -112,7 +112,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
         </nav>
 
         {/* Separator */}
-        <div className="my-2 border-t border-gray-800" />
+        <div className="my-2 border-t border-border" />
 
         {/* Settings */}
         <nav className="flex flex-col gap-1">
@@ -128,7 +128,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
         <Link
           href="/campaigns"
           prefetch={false}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-300 hover:bg-gray-800 transition-colors duration-150"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground/80 hover:bg-accent transition-colors duration-150"
         >
           <ArrowLeft className="shrink-0 w-5 h-5" />
           <span className="hidden xl:block truncate">All Campaigns</span>
@@ -138,14 +138,14 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
       {/* Mobile menu trigger — only visible below md */}
       <button
         onClick={() => setSheetOpen(true)}
-        className="fixed bottom-4 left-4 z-40 md:hidden bg-gray-800 border border-gray-700 text-gray-300 p-3 rounded-full shadow-lg hover:bg-gray-700 transition-colors"
+        className="fixed bottom-4 left-4 z-40 md:hidden bg-muted border border-border text-foreground/80 p-3 rounded-full shadow-lg hover:bg-accent transition-colors"
         aria-label="Open navigation menu"
       >
         <Menu className="w-5 h-5" />
       </button>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent side="left" className="w-64 bg-gray-900 border-gray-700 p-0 md:hidden">
+        <SheetContent side="left" className="w-64 bg-card border-border p-0 md:hidden">
           <nav className="flex flex-col gap-1 p-3 pt-8">
             {mainNav.map((item) => (
               <Link
@@ -157,20 +157,20 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   isActive(item.href, item.exact)
-                    ? "bg-amber-400/15 text-amber-400"
-                    : "text-gray-400 hover:text-gray-100 hover:bg-gray-800"
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
                 )}
               >
                 <item.icon
                   className={cn(
                     "w-5 h-5",
-                    isActive(item.href, item.exact) ? "text-amber-400" : "text-gray-500"
+                    isActive(item.href, item.exact) ? "text-primary" : "text-muted-foreground"
                   )}
                 />
                 <span>{item.label}</span>
               </Link>
             ))}
-            <div className="my-2 border-t border-gray-800" />
+            <div className="my-2 border-t border-border" />
             {sessionNav.map((item) => (
               <Link
                 key={item.href}
@@ -181,15 +181,15 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   isActive(item.href)
-                    ? "bg-amber-400/15 text-amber-400"
-                    : "text-amber-400/70 hover:text-amber-400 hover:bg-amber-400/10"
+                    ? "bg-primary/15 text-primary"
+                    : "text-primary/70 hover:text-primary hover:bg-primary/10"
                 )}
               >
                 <item.icon className="w-5 h-5" />
                 <span>{item.label}</span>
               </Link>
             ))}
-            <div className="my-2 border-t border-gray-800" />
+            <div className="my-2 border-t border-border" />
             {bottomNav.map((item) => (
               <Link
                 key={item.href}
@@ -200,8 +200,8 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   isActive(item.href)
-                    ? "bg-amber-400/15 text-amber-400"
-                    : "text-gray-400 hover:text-gray-100 hover:bg-gray-800"
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
                 )}
               >
                 <item.icon className="w-5 h-5" />
@@ -213,7 +213,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
               href="/campaigns"
               prefetch={false}
               onClick={() => setSheetOpen(false)}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-500 hover:text-gray-300 hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground/80 hover:bg-accent transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>All Campaigns</span>
