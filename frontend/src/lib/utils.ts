@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function hpColor(current: number, max: number): string {
-  if (max <= 0) return 'text-gray-400';
+  if (max <= 0) return 'text-muted-foreground';
   const pct = current / max;
   if (pct > 0.5) return 'text-green-400';
   if (pct > 0.25) return 'text-yellow-400';
@@ -14,7 +14,7 @@ export function hpColor(current: number, max: number): string {
 }
 
 export function hpBarColor(current: number, max: number): string {
-  if (max <= 0) return 'bg-gray-600';
+  if (max <= 0) return 'bg-muted';
   const pct = current / max;
   if (pct > 0.5) return 'bg-green-500';
   if (pct > 0.25) return 'bg-yellow-500';

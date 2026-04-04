@@ -33,7 +33,7 @@ export default function SessionNotes() {
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex items-center gap-2 text-sm font-semibold text-gray-300 hover:text-gray-100 transition-colors">
+      <CollapsibleTrigger className="flex items-center gap-2 text-sm font-semibold text-foreground/80 hover:text-foreground transition-colors">
         <span className={`transition-transform ${open ? "rotate-90" : ""}`}>▶</span>
         Session Notes
       </CollapsibleTrigger>
@@ -43,7 +43,7 @@ export default function SessionNotes() {
           onChange={(e) => handleChange(e.target.value)}
           onBlur={handleBlur}
           placeholder="Take notes during your session..."
-          className="mt-2 w-full bg-gray-800 border border-gray-700 text-gray-100 rounded-lg px-3 py-2 text-sm resize-none focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors min-h-[120px]"
+          className="mt-2 w-full bg-muted border border-border text-foreground rounded-lg px-3 py-2 text-sm resize-none focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors min-h-[120px]"
         />
       </CollapsibleContent>
     </Collapsible>

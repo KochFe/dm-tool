@@ -15,7 +15,7 @@ export default function NpcHoverCard({ npc, children }: NpcHoverCardProps) {
       <HoverCardTrigger asChild>
         {children}
       </HoverCardTrigger>
-      <HoverCardContent className="w-72 bg-gray-900 border-gray-700 text-gray-100">
+      <HoverCardContent className="w-72 bg-card border-border text-foreground">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold">{npc.name}</h4>
@@ -23,12 +23,12 @@ export default function NpcHoverCard({ npc, children }: NpcHoverCardProps) {
               {npc.is_alive ? "Alive" : "Dead"}
             </Badge>
           </div>
-          <p className="text-xs text-gray-400">{npc.race}{npc.npc_class ? ` · ${npc.npc_class}` : ""}</p>
+          <p className="text-xs text-muted-foreground">{npc.race}{npc.npc_class ? ` · ${npc.npc_class}` : ""}</p>
           {npc.personality && (
-            <p className="text-xs text-gray-500 line-clamp-2">{npc.personality}</p>
+            <p className="text-xs text-muted-foreground line-clamp-2">{npc.personality}</p>
           )}
           {npc.description && (
-            <p className="text-xs text-gray-500 line-clamp-2">{npc.description}</p>
+            <p className="text-xs text-muted-foreground line-clamp-2">{npc.description}</p>
           )}
         </div>
       </HoverCardContent>

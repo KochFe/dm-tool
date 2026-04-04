@@ -221,11 +221,11 @@ export default function PhaseCard({
     const rich = phase.description_rich as JSONContent | null;
     if (!rich?.content) {
       return phase.description ? (
-        <p className="text-sm text-gray-400 line-clamp-3">{phase.description}</p>
+        <p className="text-sm text-muted-foreground line-clamp-3">{phase.description}</p>
       ) : null;
     }
     return (
-      <div className="text-sm text-gray-400 line-clamp-3">
+      <div className="text-sm text-muted-foreground line-clamp-3">
         {rich.content.map((block, blockIdx) => {
           if (block.type !== "paragraph") return null;
           return (
@@ -233,7 +233,7 @@ export default function PhaseCard({
               {(block.content ?? []).map((node, nodeIdx) => {
                 if (node.type === "locationMention" && node.attrs) {
                   return (
-                    <span key={nodeIdx} className="text-amber-400">
+                    <span key={nodeIdx} className="text-primary">
                       {node.attrs.name as string}
                     </span>
                   );
@@ -283,10 +283,10 @@ export default function PhaseCard({
 
   if (isEditing) {
     return (
-      <div className="bg-gray-800 border border-amber-600/30 rounded-xl p-4 flex flex-col gap-4">
+      <div className="bg-muted border border-primary/30 rounded-xl p-4 flex flex-col gap-4">
         {/* Title row */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             Phase Title
           </label>
           <input
@@ -294,7 +294,7 @@ export default function PhaseCard({
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 text-sm focus:outline-none focus:border-amber-500 transition-colors"
+            className="bg-card border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
             placeholder="Phase title"
             autoFocus
           />
@@ -302,7 +302,7 @@ export default function PhaseCard({
 
         {/* Description */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             Description
           </label>
           <RichTextEditor
@@ -317,7 +317,7 @@ export default function PhaseCard({
         {/* Tagged Locations (from editor mentions, deduplicated) */}
         {richContent && extractLocationMentions(richContent).length > 0 && (
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Tagged Locations
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -326,7 +326,7 @@ export default function PhaseCard({
               ).values()].map((mention) => (
                 <span
                   key={mention.name}
-                  className="inline-flex items-center gap-1 bg-amber-500/15 text-amber-400 text-xs px-2 py-0.5 rounded-full"
+                  className="inline-flex items-center gap-1 bg-primary/15 text-primary text-xs px-2 py-0.5 rounded-full"
                 >
                   {mention.name}
                 </span>
@@ -338,20 +338,20 @@ export default function PhaseCard({
         {/* Quest linking */}
         {quests.length > 0 && (
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Linked Quests
             </label>
             <div className="flex flex-col gap-1 max-h-36 overflow-y-auto">
               {quests.map((q) => (
                 <label
                   key={q.id}
-                  className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-gray-100"
+                  className="flex items-center gap-2 text-sm text-foreground/80 cursor-pointer hover:text-foreground"
                 >
                   <input
                     type="checkbox"
                     checked={selectedQuestIds.has(q.id)}
                     onChange={() => toggleQuestId(q.id)}
-                    className="w-4 h-4 rounded border-gray-600 bg-gray-800 accent-amber-500"
+                    className="w-4 h-4 rounded border-border bg-muted accent-primary"
                   />
                   {q.title}
                 </label>
@@ -365,14 +365,14 @@ export default function PhaseCard({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed text-gray-950 text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors"
+            className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors"
           >
             {saving ? "Saving..." : "Save"}
           </button>
           <button
             onClick={cancelEdit}
             disabled={saving}
-            className="text-sm text-gray-400 hover:text-gray-200 px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-500 transition-colors disabled:opacity-50"
+            className="text-sm text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg border border-border hover:border-border transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
@@ -383,14 +383,14 @@ export default function PhaseCard({
   }
 
   return (
-    <div className="bg-gray-800 border border-gray-700/50 rounded-xl p-4 flex flex-col gap-2">
+    <div className="bg-muted border border-border rounded-xl p-4 flex flex-col gap-2">
       {/* Header row */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="bg-amber-600/15 text-amber-500 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">
+          <span className="bg-primary/15 text-primary text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">
             PHASE {index + 1}
           </span>
-          <span className="text-gray-100 font-medium">{phase.title}</span>
+          <span className="text-foreground font-medium">{phase.title}</span>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           {/* Reorder buttons */}
@@ -398,7 +398,7 @@ export default function PhaseCard({
             onClick={onMoveUp}
             disabled={index === 0}
             title="Move up"
-            className="text-gray-600 hover:text-gray-300 disabled:opacity-20 disabled:cursor-not-allowed p-1 rounded transition-colors"
+            className="text-muted-foreground/60 hover:text-foreground/80 disabled:opacity-20 disabled:cursor-not-allowed p-1 rounded transition-colors"
           >
             &#8593;
           </button>
@@ -406,13 +406,13 @@ export default function PhaseCard({
             onClick={onMoveDown}
             disabled={index === totalPhases - 1}
             title="Move down"
-            className="text-gray-600 hover:text-gray-300 disabled:opacity-20 disabled:cursor-not-allowed p-1 rounded transition-colors"
+            className="text-muted-foreground/60 hover:text-foreground/80 disabled:opacity-20 disabled:cursor-not-allowed p-1 rounded transition-colors"
           >
             &#8595;
           </button>
           <button
             onClick={enterEdit}
-            className="text-sm text-amber-500 hover:text-amber-400 px-2 py-0.5 rounded transition-colors"
+            className="text-sm text-primary hover:text-primary px-2 py-0.5 rounded transition-colors"
           >
             Edit
           </button>
@@ -420,7 +420,7 @@ export default function PhaseCard({
             onClick={handleDelete}
             disabled={deleting}
             title="Delete phase"
-            className="text-gray-600 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed px-1.5 py-0.5 rounded transition-colors text-base leading-none"
+            className="text-muted-foreground/60 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed px-1.5 py-0.5 rounded transition-colors text-base leading-none"
           >
             &times;
           </button>
@@ -431,10 +431,10 @@ export default function PhaseCard({
       {renderRichDescription()}
 
       {/* Links summary */}
-      <div className="flex flex-wrap gap-3 text-xs text-gray-500 mt-1">
+      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mt-1">
         <span>
           Linked:{" "}
-          <span className="text-gray-400">
+          <span className="text-muted-foreground">
             {linkedQuestTitles.length > 0
               ? `${linkedQuestTitles.length} quest${linkedQuestTitles.length !== 1 ? "s" : ""}`
               : "none yet"}
@@ -442,7 +442,7 @@ export default function PhaseCard({
         </span>
         <span>
           Locations:{" "}
-          <span className="text-gray-400">
+          <span className="text-muted-foreground">
             {linkedLocationNames.length > 0
               ? linkedLocationNames.join(", ")
               : "none yet"}

@@ -57,10 +57,10 @@ function npcToForm(npc: Npc): FormState {
 }
 
 const INPUT_CLS =
-  "bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors";
+  "bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors";
 
 const TEXTAREA_CLS =
-  "bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 placeholder-gray-500 transition-colors resize-none";
+  "bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors resize-none";
 
 export default function NPCSection({
   campaignId,
@@ -183,10 +183,10 @@ export default function NPCSection({
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-100">NPCs</h2>
+        <h2 className="text-xl font-semibold text-foreground">NPCs</h2>
         <button
           onClick={showForm ? cancelForm : openCreate}
-          className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 rounded-lg transition-colors"
+          className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1.5 rounded-lg transition-colors"
         >
           {showForm ? "Cancel" : "+ Add"}
         </button>
@@ -196,7 +196,7 @@ export default function NPCSection({
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 mb-4 space-y-3"
+          className="bg-muted/50 border border-border rounded-xl p-4 mb-4 space-y-3"
         >
           {/* Name */}
           <input
@@ -262,9 +262,9 @@ export default function NPCSection({
 
           {/* Stats JSON */}
           <div>
-            <label className="text-xs text-gray-400 block mb-1">
+            <label className="text-xs text-muted-foreground block mb-1">
               Stats — JSON format, e.g.{" "}
-              <span className="font-mono text-gray-500">
+              <span className="font-mono text-muted-foreground">
                 {"{"}
                 &quot;str&quot;: 10, &quot;dex&quot;: 14
                 {"}"}
@@ -282,11 +282,11 @@ export default function NPCSection({
           {/* Location + Alive */}
           <div className="grid grid-cols-2 gap-2 items-end">
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Location</label>
+              <label className="text-xs text-muted-foreground block mb-1">Location</label>
               <select
                 value={form.location_id}
                 onChange={(e) => setForm({ ...form, location_id: e.target.value })}
-                className="bg-gray-800 border border-gray-600 text-gray-100 rounded-lg px-3 py-2 w-full focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors"
+                className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
               >
                 <option value="">— None —</option>
                 {locations.map((loc) => (
@@ -297,12 +297,12 @@ export default function NPCSection({
               </select>
             </div>
 
-            <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pb-2">
+            <label className="flex items-center gap-2 text-sm text-foreground/80 cursor-pointer pb-2">
               <input
                 type="checkbox"
                 checked={form.is_alive}
                 onChange={(e) => setForm({ ...form, is_alive: e.target.checked })}
-                className="w-4 h-4 rounded accent-amber-500"
+                className="w-4 h-4 rounded accent-primary"
               />
               Alive
             </label>
@@ -319,7 +319,7 @@ export default function NPCSection({
           <button
             type="submit"
             disabled={submitting}
-            className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed text-gray-950 font-medium px-4 py-2 rounded-lg transition-colors"
+            className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground font-medium px-4 py-2 rounded-lg transition-colors"
           >
             {submitting ? "Saving…" : editId ? "Update" : "Create"}
           </button>
@@ -337,7 +337,7 @@ export default function NPCSection({
       {loading ? (
         <CardListSkeleton count={3} />
       ) : npcs.length === 0 ? (
-        <p className="text-gray-400 text-sm">No NPCs yet.</p>
+        <p className="text-muted-foreground text-sm">No NPCs yet.</p>
       ) : (
         <div className="space-y-2">
           <AnimatePresence>
@@ -349,13 +349,13 @@ export default function NPCSection({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.15 }}
-                className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4"
+                className="bg-muted/50 border border-border rounded-xl p-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     {/* Name + status badge */}
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-medium text-gray-100">{npc.name}</p>
+                      <p className="font-medium text-foreground">{npc.name}</p>
                       {npc.is_alive ? (
                         <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-900/50 text-green-400 border border-green-800/60">
                           Alive
@@ -368,10 +368,10 @@ export default function NPCSection({
                     </div>
 
                     {/* Race / class */}
-                    <p className="text-sm text-gray-400 mt-0.5">
+                    <p className="text-sm text-muted-foreground mt-0.5">
                       {npc.race}
                       {npc.npc_class && (
-                        <span className="text-gray-500"> &middot; {npc.npc_class}</span>
+                        <span className="text-muted-foreground"> &middot; {npc.npc_class}</span>
                       )}
                     </p>
 
@@ -380,9 +380,9 @@ export default function NPCSection({
                       const location = locations.find((l) => l.id === npc.location_id);
                       if (!location) return null;
                       return (
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           <LocationHoverCard location={location}>
-                            <span className="inline-block bg-gray-700/60 rounded px-1.5 py-0.5 cursor-pointer hover:bg-gray-600/60 transition-colors">
+                            <span className="inline-block bg-accent/60 rounded px-1.5 py-0.5 cursor-pointer hover:bg-muted/60 transition-colors">
                               {location.name}
                             </span>
                           </LocationHoverCard>
@@ -392,7 +392,7 @@ export default function NPCSection({
 
                     {/* Description snippet */}
                     {npc.description && (
-                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                         {npc.description}
                       </p>
                     )}
@@ -403,7 +403,7 @@ export default function NPCSection({
                     {confirmingId !== npc.id && (
                       <button
                         onClick={() => openEdit(npc)}
-                        className="text-sm bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-lg transition-colors"
+                        className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1 rounded-lg transition-colors"
                       >
                         Edit
                       </button>

@@ -38,10 +38,10 @@ export default function IdeaRow({
         type="checkbox"
         checked={idea.is_done}
         onChange={(e) => onToggleDone(idea.id, e.target.checked)}
-        className="w-4 h-4 rounded border-gray-600 bg-gray-800 accent-amber-500 cursor-pointer flex-shrink-0"
+        className="w-4 h-4 rounded border-border bg-muted accent-primary cursor-pointer flex-shrink-0"
       />
       <span
-        className={`flex-1 text-sm text-gray-200 ${idea.is_done ? "line-through text-gray-500" : ""}`}
+        className={`flex-1 text-sm text-foreground ${idea.is_done ? "line-through text-muted-foreground" : ""}`}
       >
         {idea.text}
       </span>
@@ -57,7 +57,7 @@ export default function IdeaRow({
           {onDelete && (
             <button
               onClick={() => onDelete(idea.id)}
-              className="text-gray-600 hover:text-red-400 transition-colors text-sm leading-none px-1"
+              className="text-muted-foreground/60 hover:text-red-400 transition-colors text-sm leading-none px-1"
               title="Delete idea"
               aria-label="Delete idea"
             >

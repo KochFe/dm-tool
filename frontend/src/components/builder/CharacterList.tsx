@@ -38,10 +38,10 @@ function LocationGroup({
     <div className="mb-1">
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-1.5 px-2 py-1 rounded hover:bg-gray-800 transition-colors text-left"
+        className="w-full flex items-center gap-1.5 px-2 py-1 rounded hover:bg-muted transition-colors text-left"
       >
         <svg
-          className={`w-3 h-3 text-gray-500 flex-shrink-0 transition-transform ${expanded ? "rotate-90" : ""}`}
+          className={`w-3 h-3 text-muted-foreground flex-shrink-0 transition-transform ${expanded ? "rotate-90" : ""}`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -51,10 +51,10 @@ function LocationGroup({
             clipRule="evenodd"
           />
         </svg>
-        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide flex-1 truncate">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex-1 truncate">
           {label}
         </span>
-        <span className="text-xs text-gray-600 flex-shrink-0">{npcs.length}</span>
+        <span className="text-xs text-muted-foreground/60 flex-shrink-0">{npcs.length}</span>
       </button>
 
       {expanded && (
@@ -67,13 +67,13 @@ function LocationGroup({
                 onClick={() => onSelectNpc(npc)}
                 className={`w-full text-left px-2 py-1 rounded text-sm truncate transition-colors ${
                   isSelected
-                    ? "bg-amber-600/20 border border-amber-600/40 text-amber-300 font-medium"
-                    : "text-gray-300 hover:bg-gray-800 border border-transparent"
+                    ? "bg-primary/20 border border-primary/40 text-primary font-medium"
+                    : "text-foreground/80 hover:bg-muted border border-transparent"
                 }`}
               >
                 {npc.name}
                 {!npc.is_alive && (
-                  <span className="ml-1 text-xs text-gray-600">(deceased)</span>
+                  <span className="ml-1 text-xs text-muted-foreground/60">(deceased)</span>
                 )}
               </button>
             );
@@ -119,12 +119,12 @@ export default function CharacterList({
     <div className="flex flex-col h-full overflow-y-auto">
       {/* NPC section header */}
       <div className="flex items-center justify-between px-1 mb-2">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           NPCs
         </span>
         <button
           onClick={onAddNpc}
-          className="text-xs text-amber-500 hover:text-amber-400 transition-colors"
+          className="text-xs text-primary hover:text-primary transition-colors"
         >
           + Add NPC
         </button>
@@ -132,7 +132,7 @@ export default function CharacterList({
 
       {/* NPC groups */}
       {locationGroups.length === 0 && unassigned.length === 0 ? (
-        <p className="text-xs text-gray-600 text-center py-3">No NPCs yet.</p>
+        <p className="text-xs text-muted-foreground/60 text-center py-3">No NPCs yet.</p>
       ) : (
         <>
           {locationGroups.map((group) => (
@@ -159,16 +159,16 @@ export default function CharacterList({
       )}
 
       {/* Divider */}
-      <div className="my-3 border-t border-gray-800" />
+      <div className="my-3 border-t border-border" />
 
       {/* PC section header */}
       <div className="flex items-center justify-between px-1 mb-2">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           Player Characters
         </span>
         <button
           onClick={onAddPc}
-          className="text-xs text-amber-500 hover:text-amber-400 transition-colors"
+          className="text-xs text-primary hover:text-primary transition-colors"
         >
           + Add PC
         </button>
@@ -176,7 +176,7 @@ export default function CharacterList({
 
       {/* PC list */}
       {pcs.length === 0 ? (
-        <p className="text-xs text-gray-600 text-center py-3">No PCs yet.</p>
+        <p className="text-xs text-muted-foreground/60 text-center py-3">No PCs yet.</p>
       ) : (
         <div className="flex flex-col gap-0.5">
           {pcs.map((pc) => {
@@ -187,12 +187,12 @@ export default function CharacterList({
                 onClick={() => onSelectPc(pc)}
                 className={`w-full text-left px-2 py-1 rounded text-sm truncate transition-colors ${
                   isSelected
-                    ? "bg-amber-600/20 border border-amber-600/40 text-amber-300 font-medium"
-                    : "text-gray-300 hover:bg-gray-800 border border-transparent"
+                    ? "bg-primary/20 border border-primary/40 text-primary font-medium"
+                    : "text-foreground/80 hover:bg-muted border border-transparent"
                 }`}
               >
                 {pc.name}
-                <span className="ml-1 text-xs text-gray-600">
+                <span className="ml-1 text-xs text-muted-foreground/60">
                   Lv{pc.level} {pc.character_class}
                 </span>
               </button>

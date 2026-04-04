@@ -24,9 +24,9 @@ export default function EntitySheet({ entity, onClose }: EntitySheetProps) {
 
   return (
     <Sheet open={!!entity} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <SheetContent className="bg-gray-900 border-gray-700 text-gray-100">
+      <SheetContent className="bg-card border-border text-foreground">
         <SheetHeader>
-          <SheetTitle className="text-gray-100">
+          <SheetTitle className="text-foreground">
             {entity.type === "npc" && entity.data.name}
             {entity.type === "location" && entity.data.name}
             {entity.type === "quest" && entity.data.title}
@@ -46,7 +46,7 @@ function NpcDetail({ npc }: { npc: Npc }) {
   return (
     <>
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-400">
+        <span className="text-sm text-muted-foreground">
           {npc.race}
           {npc.npc_class ? ` · ${npc.npc_class}` : ""}
         </span>
@@ -80,7 +80,7 @@ function QuestDetail({ quest }: { quest: Quest }) {
       {quest.description && <Field label="Description" value={quest.description} />}
       {quest.reward && <Field label="Reward" value={quest.reward} />}
       {quest.level && (
-        <p className="text-sm text-gray-400">Recommended Level: {quest.level}</p>
+        <p className="text-sm text-muted-foreground">Recommended Level: {quest.level}</p>
       )}
     </>
   );
@@ -89,8 +89,8 @@ function QuestDetail({ quest }: { quest: Quest }) {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{label}</p>
-      <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{value}</p>
+      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
+      <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{value}</p>
     </div>
   );
 }

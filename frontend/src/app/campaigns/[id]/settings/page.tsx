@@ -35,15 +35,15 @@ export default function SettingsPage() {
   };
 
   const inputCls =
-    "bg-gray-800 border border-gray-700 text-gray-100 rounded-lg px-3 py-2 w-full focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 transition-colors";
+    "bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring/50 transition-colors";
 
   return (
     <div className="max-w-2xl">
-      <h2 className="text-xl font-semibold text-gray-100 mb-6">Campaign Settings</h2>
+      <h2 className="text-xl font-semibold text-foreground mb-6">Campaign Settings</h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Campaign Name</label>
+          <label className="block text-sm text-muted-foreground mb-1">Campaign Name</label>
           <input
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -53,7 +53,7 @@ export default function SettingsPage() {
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Description</label>
+          <label className="block text-sm text-muted-foreground mb-1">Description</label>
           <textarea
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -65,7 +65,7 @@ export default function SettingsPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Party Level</label>
+            <label className="block text-sm text-muted-foreground mb-1">Party Level</label>
             <input
               type="number"
               min={1}
@@ -76,7 +76,7 @@ export default function SettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">In-Game Time</label>
+            <label className="block text-sm text-muted-foreground mb-1">In-Game Time</label>
             <input
               value={form.in_game_time}
               onChange={(e) => setForm({ ...form, in_game_time: e.target.value })}
@@ -88,7 +88,7 @@ export default function SettingsPage() {
         <button
           type="submit"
           disabled={saving}
-          className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-gray-950 font-semibold px-5 py-2 rounded-lg transition-colors"
+          className="bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-semibold px-5 py-2 rounded-lg transition-colors"
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>

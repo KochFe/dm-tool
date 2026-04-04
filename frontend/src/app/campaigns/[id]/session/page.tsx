@@ -33,16 +33,16 @@ export default function SessionPage() {
   return (
     <div className="flex flex-col h-full -m-6">
       {/* Mode toggle bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800 shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border shrink-0">
         <Tabs value={mode} onValueChange={(v) => setMode(v as SessionMode)}>
-          <TabsList className="bg-gray-800">
+          <TabsList className="bg-muted">
             <TabsTrigger value="exploration" className="text-xs">Exploration</TabsTrigger>
             <TabsTrigger value="combat" className="text-xs">Combat</TabsTrigger>
           </TabsList>
         </Tabs>
         <button
           onClick={() => setIsChatOpen((v) => !v)}
-          className="text-xs text-gray-400 hover:text-amber-400 transition-colors px-2 py-1"
+          className="text-xs text-muted-foreground hover:text-primary transition-colors px-2 py-1"
         >
           {isChatOpen ? "Hide Oracle" : "Show Oracle"}
         </button>
@@ -51,7 +51,7 @@ export default function SessionPage() {
       {/* Three-panel layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Party Panel — hidden below lg */}
-        <div className="hidden lg:block w-52 shrink-0 border-r border-gray-800 bg-gray-900/30">
+        <div className="hidden lg:block w-52 shrink-0 border-r border-border bg-card/30">
           <PartyPanel characters={characters} />
         </div>
 
@@ -60,7 +60,7 @@ export default function SessionPage() {
 
         {/* Right: Chat Panel (inline panel mode) — hidden below lg */}
         {isChatOpen && (
-          <div className="hidden lg:block w-[360px] shrink-0 border-l border-gray-800">
+          <div className="hidden lg:block w-[360px] shrink-0 border-l border-border">
             <ChatSidebar
               campaignId={campaign.id}
               isOpen={true}

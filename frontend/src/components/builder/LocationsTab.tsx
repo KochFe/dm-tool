@@ -107,9 +107,9 @@ export default function LocationsTab({
   return (
     <div className="flex gap-4 h-full">
       {/* Left panel: tree */}
-      <div className="w-72 flex-shrink-0 bg-gray-900/60 border border-gray-800 rounded-xl p-3 flex flex-col">
+      <div className="w-72 flex-shrink-0 bg-card/60 border border-border rounded-xl p-3 flex flex-col">
         {loading ? (
-          <p className="text-xs text-gray-600 text-center py-4">Loading...</p>
+          <p className="text-xs text-muted-foreground/60 text-center py-4">Loading...</p>
         ) : (
           <LocationTree
             locations={locations}
@@ -123,10 +123,10 @@ export default function LocationsTab({
       </div>
 
       {/* Center panel: detail editor */}
-      <div className="flex-1 min-w-0 bg-gray-900/60 border border-gray-800 rounded-xl p-5 overflow-y-auto">
+      <div className="flex-1 min-w-0 bg-card/60 border border-border rounded-xl p-5 overflow-y-auto">
         {selectedLocation ? (
           <>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-4">
               Location Details
             </p>
             <LocationDetail
@@ -139,7 +139,7 @@ export default function LocationsTab({
         ) : (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
             <svg
-              className="w-10 h-10 text-gray-700"
+              className="w-10 h-10 text-muted-foreground/40"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -157,13 +157,13 @@ export default function LocationsTab({
                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
               />
             </svg>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground/60">
               Select a location to edit its details
             </p>
             {locations.length === 0 && !loading && (
               <button
                 onClick={handleAddRoot}
-                className="text-sm text-amber-500 hover:text-amber-400 transition-colors"
+                className="text-sm text-primary hover:text-primary transition-colors"
               >
                 + Add your first location
               </button>
@@ -174,8 +174,8 @@ export default function LocationsTab({
 
       {/* Right panel: ideas */}
       <div className="w-56 flex-shrink-0">
-        <div className="sticky top-0 bg-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-800 p-3">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
+        <div className="sticky top-0 bg-card/80 backdrop-blur-sm rounded-xl border border-border p-3">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
             Location Ideas
           </p>
           <IdeasHelper

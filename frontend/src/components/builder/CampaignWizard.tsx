@@ -127,19 +127,19 @@ export default function CampaignWizard({
   return (
     <div className="flex flex-col h-full">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-900 rounded-t-lg">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card rounded-t-lg">
         <Link
           href="/campaigns"
-          className="text-sm text-gray-400 hover:text-gray-200 transition-colors duration-150"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
         >
           &#8592; Back to Campaigns
         </Link>
-        <span className="text-sm text-gray-500">Draft auto-saved</span>
+        <span className="text-sm text-muted-foreground">Draft auto-saved</span>
       </div>
 
       {/* Campaign title */}
       <div className="px-4 pt-4 pb-2">
-        <h1 className="text-xl font-bold text-gray-100">{campaign.name}</h1>
+        <h1 className="text-xl font-bold text-foreground">{campaign.name}</h1>
       </div>
 
       {/* Tab bar */}
@@ -157,12 +157,12 @@ export default function CampaignWizard({
       </div>
 
       {/* Bottom navigation bar */}
-      <div className="flex items-center justify-between px-4 py-4 border-t border-gray-800 bg-gray-900 rounded-b-lg">
+      <div className="flex items-center justify-between px-4 py-4 border-t border-border bg-card rounded-b-lg">
         <div>
           {!isFirstTab && prevTabName && (
             <button
               onClick={goBack}
-              className="text-sm text-gray-400 hover:text-gray-200 transition-colors duration-150 px-4 py-2 rounded-lg border border-gray-700 hover:border-gray-500"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150 px-4 py-2 rounded-lg border border-border hover:border-border"
             >
               &#8592; Back: {prevTabName}
             </button>
@@ -181,7 +181,7 @@ export default function CampaignWizard({
             nextTabName && (
               <button
                 onClick={goNext}
-                className="bg-amber-600 hover:bg-amber-500 text-gray-950 font-semibold px-5 py-2 rounded-lg transition-colors duration-150"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-5 py-2 rounded-lg transition-colors duration-150"
               >
                 Next: {nextTabName} &#8594;
               </button>
