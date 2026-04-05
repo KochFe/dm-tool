@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="faceMain" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d4943e"/>
+      <stop offset="100%" stop-color="#b87530"/>
+    </linearGradient>
+    <linearGradient id="faceLeft" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a0632a"/>
+      <stop offset="100%" stop-color="#7d4e22"/>
+    </linearGradient>
+    <linearGradient id="faceRight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c4853a"/>
+      <stop offset="100%" stop-color="#96602a"/>
+    </linearGradient>
+    <linearGradient id="faceDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b4220"/>
+      <stop offset="100%" stop-color="#4a2e16"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer triangular shape (top-down D20 silhouette) -->
+  <!-- Main top face -->
+  <polygon points="32,4 54,40 10,40" fill="url(#faceMain)" stroke="#3d2410" stroke-width="1.2"/>
+
+  <!-- Lower-left face -->
+  <polygon points="10,40 32,60 4,54" fill="url(#faceLeft)" stroke="#3d2410" stroke-width="1.2"/>
+
+  <!-- Lower-right face -->
+  <polygon points="54,40 32,60 60,54" fill="url(#faceRight)" stroke="#3d2410" stroke-width="1.2"/>
+
+  <!-- Internal facet lines for the D20 look -->
+  <!-- Inner triangle (inverted) -->
+  <polygon points="22,24 42,24 32,40" fill="url(#faceDark)" stroke="#3d2410" stroke-width="0.8" opacity="0.5"/>
+
+  <!-- Top-left edge facet -->
+  <line x1="32" y1="4" x2="22" y2="24" stroke="#3d2410" stroke-width="0.8" opacity="0.6"/>
+  <!-- Top-right edge facet -->
+  <line x1="32" y1="4" x2="42" y2="24" stroke="#3d2410" stroke-width="0.8" opacity="0.6"/>
+  <!-- Bottom-left inner -->
+  <line x1="10" y1="40" x2="22" y2="24" stroke="#3d2410" stroke-width="0.8" opacity="0.6"/>
+  <!-- Bottom-right inner -->
+  <line x1="54" y1="40" x2="42" y2="24" stroke="#3d2410" stroke-width="0.8" opacity="0.6"/>
+  <!-- Bottom center to vertices -->
+  <line x1="32" y1="40" x2="10" y2="40" stroke="#3d2410" stroke-width="0.8" opacity="0.6"/>
+  <line x1="32" y1="40" x2="54" y2="40" stroke="#3d2410" stroke-width="0.8" opacity="0.6"/>
+  <!-- Lower face lines -->
+  <line x1="32" y1="40" x2="32" y2="60" stroke="#3d2410" stroke-width="0.8" opacity="0.6"/>
+  <line x1="10" y1="40" x2="4" y2="54" stroke="#3d2410" stroke-width="0.8" opacity="0.4"/>
+  <line x1="54" y1="40" x2="60" y2="54" stroke="#3d2410" stroke-width="0.8" opacity="0.4"/>
+
+  <!-- "20" text on main face -->
+  <text x="32" y="36" text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="16" fill="#fef3e0" stroke="#3d2410" stroke-width="0.5">20</text>
+</svg>
