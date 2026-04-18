@@ -1,10 +1,13 @@
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_current_user, get_db
+from app.models.player_character import PlayerCharacter
 from app.models.user import User
+from app.schemas.ai_assist import AIAssistRequest, PersonalityResult
 from app.schemas.player_character import (
     PlayerCharacterCreate,
     PlayerCharacterUpdate,
@@ -12,6 +15,9 @@ from app.schemas.player_character import (
 )
 from app.schemas.common import APIResponse
 from app.services import campaign_service, player_character_service
+from app.services.generator_service import generate_pc_personality
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -92,3 +98,31 @@ async def delete_character(
     if not pc:
         raise HTTPException(status_code=404, detail="Character not found")
     await player_character_service.delete_player_character(db, pc)
+
+
+@router.post(
+    "/characters/{pc_id}/ai/personality",
+    response_model=APIResponse[PersonalityResult],
+)
+async def ai_pc_personality_endpoint(
+    pc_id: uuid.UUID,
+    request: AIAssistRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> APIResponse[PersonalityResult]:
+    """Generate or augment the player character's personality + motivation."""
+    pc = await db.get(PlayerCharacter, pc_id)
+    if not pc:
+        raise HTTPException(status_code=404, detail="Player character not found")
+
+    campaign = await campaign_service.get_campaign(db, pc.campaign_id, current_user.id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+
+    try:
+        result = await generate_pc_personality(pc, campaign, request)
+    except RuntimeError:
+        logger.exception("AI pc-personality error for pc %s", pc_id)
+        raise HTTPException(status_code=503, detail="AI generation failed")
+
+    return APIResponse(data=result)
