@@ -101,3 +101,34 @@ async def test_generate_phase_description_augment_mode(client: AsyncClient, auth
         )
     _campaign, _phase, _prior, called_req = mock_gen.await_args.args
     assert called_req.existing_content == "The party arrives in town."
+
+
+async def _create_campaign_and_npc(client: AsyncClient, auth_headers: dict) -> tuple[str, str]:
+    cid = await _create_campaign(client, auth_headers)
+    resp = await client.post(
+        f"/api/v1/campaigns/{cid}/npcs",
+        json={"name": "Garrick", "race": "Dwarf"},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 201
+    return cid, resp.json()["data"]["id"]
+
+
+async def test_generate_npc_personality_happy_path(client: AsyncClient, auth_headers):
+    _, nid = await _create_campaign_and_npc(client, auth_headers)
+    with patch(
+        "app.routers.npcs.generate_npc_personality",
+        new_callable=AsyncMock,
+    ) as mock_gen:
+        mock_gen.return_value = PersonalityResult(
+            personality="Gruff but kind.", motivation="Seeks his lost brother."
+        )
+        resp = await client.post(
+            f"/api/v1/npcs/{nid}/ai/personality",
+            json={"steer": "haunted by his past"},
+            headers=auth_headers,
+        )
+    assert resp.status_code == 200
+    body = resp.json()["data"]
+    assert body["personality"] == "Gruff but kind."
+    assert body["motivation"] == "Seeks his lost brother."

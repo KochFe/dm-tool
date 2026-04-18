@@ -1,13 +1,19 @@
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_current_user, get_db
+from app.models.npc import Npc
 from app.models.user import User
+from app.schemas.ai_assist import AIAssistRequest, PersonalityResult
 from app.schemas.npc import NpcCreate, NpcUpdate, NpcResponse
 from app.schemas.common import APIResponse
 from app.services import campaign_service, npc_service
+from app.services.generator_service import generate_npc_personality
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -88,3 +94,31 @@ async def delete_npc(
     if not npc:
         raise HTTPException(status_code=404, detail="NPC not found")
     await npc_service.delete_npc(db, npc)
+
+
+@router.post(
+    "/npcs/{npc_id}/ai/personality",
+    response_model=APIResponse[PersonalityResult],
+)
+async def ai_npc_personality_endpoint(
+    npc_id: uuid.UUID,
+    request: AIAssistRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> APIResponse[PersonalityResult]:
+    """Generate or augment the NPC's personality + motivation (non-persistent)."""
+    npc = await db.get(Npc, npc_id)
+    if not npc:
+        raise HTTPException(status_code=404, detail="NPC not found")
+
+    campaign = await campaign_service.get_campaign(db, npc.campaign_id, current_user.id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+
+    try:
+        result = await generate_npc_personality(npc, campaign, request)
+    except RuntimeError:
+        logger.exception("AI npc-personality error for npc %s", npc_id)
+        raise HTTPException(status_code=503, detail="AI generation failed")
+
+    return APIResponse(data=result)
