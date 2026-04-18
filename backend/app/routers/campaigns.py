@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -5,9 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_current_user, get_db
 from app.models.user import User
+from app.schemas.ai_assist import AIAssistRequest, TextResult
 from app.schemas.campaign import CampaignCreate, CampaignUpdate, CampaignResponse
 from app.schemas.common import APIResponse
 from app.services import campaign_service
+from app.services.generator_service import generate_world_description
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -67,6 +72,30 @@ async def delete_campaign(
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     await campaign_service.delete_campaign(db, campaign)
+
+
+@router.post(
+    "/campaigns/{campaign_id}/ai/world-description",
+    response_model=APIResponse[TextResult],
+)
+async def ai_world_description_endpoint(
+    campaign_id: uuid.UUID,
+    request: AIAssistRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> APIResponse[TextResult]:
+    """Generate or augment the campaign world description (non-persistent)."""
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+
+    try:
+        result = await generate_world_description(campaign, request)
+    except RuntimeError:
+        logger.exception("AI world-description error for campaign %s", campaign_id)
+        raise HTTPException(status_code=503, detail="AI generation failed")
+
+    return APIResponse(data=result)
 
 
 @router.post(

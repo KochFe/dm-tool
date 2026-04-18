@@ -1,11 +1,18 @@
 from langchain_groq import ChatGroq
 
 from app.ai.prompts import (
+    CAMPAIGN_WORLD_TASK,
     ENCOUNTER_GENERATOR_PROMPT,
     LOOT_GENERATOR_PROMPT,
     NPC_GENERATOR_PROMPT,
+    PERSONALITY_TASK,
+    PHASE_DESCRIPTION_TASK,
+    PERSONALITY_SCHEMA_HINT,
+    TEXT_SCHEMA_HINT,
+    build_ai_assist_prompt,
 )
 from app.config import settings
+from app.schemas.ai_assist import AIAssistRequest, PersonalityResult, TextResult
 from app.schemas.generators import GeneratedEncounter, GeneratedLoot, GeneratedNpc
 
 
@@ -59,6 +66,40 @@ async def generate_encounter(
         except Exception as exc:
             raise RuntimeError("AI generation failed — please try again") from exc
 
+    return result
+
+
+async def generate_world_description(
+    campaign: object,  # app.models.campaign.Campaign
+    req: AIAssistRequest,
+) -> TextResult:
+    """Generate or augment a campaign world description based on user steer."""
+    llm = _get_llm(temperature=1.0)
+    structured_llm = llm.with_structured_output(TextResult)
+
+    context_block = (
+        "## Campaign context\n"
+        f"- Name: {campaign.name}\n"
+        f"- Party level: {campaign.party_level}\n"
+    )
+
+    prompt = build_ai_assist_prompt(
+        task_description=CAMPAIGN_WORLD_TASK,
+        context_block=context_block,
+        steer=req.steer,
+        existing_content=req.existing_content,
+        previous_output=req.previous_output,
+        feedback=req.feedback,
+        output_schema_hint=TEXT_SCHEMA_HINT,
+    )
+
+    try:
+        result = await structured_llm.ainvoke(prompt)
+    except Exception:
+        try:
+            result = await structured_llm.ainvoke(prompt)
+        except Exception as exc:
+            raise RuntimeError("AI generation failed — please try again") from exc
     return result
 
 
