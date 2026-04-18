@@ -3,12 +3,14 @@
 import { useState, useRef, useCallback } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import type { TextResult } from "@/lib/api";
 import type { CampaignPhase, Quest, Location } from "@/types";
 import type { JSONContent } from "@tiptap/react";
 import RichTextEditor, {
   extractLocationMentions,
   extractPlainText,
 } from "@/components/ui/tiptap/rich-text-editor";
+import { AIAssistModal } from "@/components/ai/AIAssistModal";
 import {
   Dialog,
   DialogContent,
@@ -63,6 +65,7 @@ export default function PhaseCard({
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [aiDescOpen, setAiDescOpen] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   // Promise-based dialog for nested location deletion
@@ -302,9 +305,19 @@ export default function PhaseCard({
 
         {/* Description */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Description
-          </label>
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Description
+            </label>
+            <button
+              type="button"
+              onClick={() => setAiDescOpen(true)}
+              aria-label="AI generate phase description"
+              className="text-xs text-blue-600 hover:underline"
+            >
+              ✨ AI
+            </button>
+          </div>
           <RichTextEditor
             initialContent={richContent}
             plainText={phase.description ?? ""}
@@ -378,6 +391,24 @@ export default function PhaseCard({
           </button>
         </div>
         {nestedLocationDialog}
+        <AIAssistModal<TextResult>
+          open={aiDescOpen}
+          onClose={() => setAiDescOpen(false)}
+          title="Generate phase description"
+          existingContent={
+            richContent ? extractPlainText(richContent).trim() || undefined : undefined
+          }
+          placeholder="e.g. 'The party infiltrates a corrupt merchant guild, gathering evidence across three districts.'"
+          onGenerate={(req) => api.ai.generatePhaseDescription(campaignId, phase.id, req)}
+          onAccept={(result) => {
+            setRichContent({
+              type: "doc",
+              content: [{ type: "paragraph", content: [{ type: "text", text: result.text }] }],
+            });
+          }}
+          renderResult={(r) => <p className="whitespace-pre-wrap">{r.text}</p>}
+          extractPrev={(r) => r.text}
+        />
       </div>
     );
   }
