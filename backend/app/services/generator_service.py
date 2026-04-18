@@ -228,3 +228,43 @@ async def generate_loot(
             raise RuntimeError("AI generation failed — please try again") from exc
 
     return result
+
+
+async def generate_npc_personality(
+    npc: object,      # app.models.npc.Npc
+    campaign: object,
+    req: AIAssistRequest,
+) -> PersonalityResult:
+    """Generate or augment NPC personality + motivation based on user steer."""
+    llm = _get_llm(temperature=1.0)
+    structured_llm = llm.with_structured_output(PersonalityResult)
+
+    context_block = (
+        "## Campaign context\n"
+        f"- Name: {campaign.name}\n"
+        f"- Party level: {campaign.party_level}\n"
+        "\n## This NPC\n"
+        f"- Name: {npc.name}\n"
+        f"- Race: {getattr(npc, 'race', None) or '(unspecified)'}\n"
+        f"- Class / role: {getattr(npc, 'npc_class', None) or '(unspecified)'}\n"
+        f"- Description: {getattr(npc, 'description', None) or '(unspecified)'}\n"
+    )
+
+    prompt = build_ai_assist_prompt(
+        task_description=PERSONALITY_TASK,
+        context_block=context_block,
+        steer=req.steer,
+        existing_content=req.existing_content,
+        previous_output=req.previous_output,
+        feedback=req.feedback,
+        output_schema_hint=PERSONALITY_SCHEMA_HINT,
+    )
+
+    try:
+        result = await structured_llm.ainvoke(prompt)
+    except Exception:
+        try:
+            result = await structured_llm.ainvoke(prompt)
+        except Exception as exc:
+            raise RuntimeError("AI generation failed — please try again") from exc
+    return result
