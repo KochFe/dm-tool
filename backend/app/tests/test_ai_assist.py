@@ -53,3 +53,51 @@ async def test_generate_world_description_404_for_unknown_campaign(client: Async
         headers=auth_headers,
     )
     assert resp.status_code == 404
+
+
+async def _create_campaign_and_phase(client: AsyncClient, auth_headers: dict) -> tuple[str, str]:
+    cid = await _create_campaign(client, auth_headers)
+    resp = await client.post(
+        f"/api/v1/campaigns/{cid}/phases",
+        json={"title": "The Missing Miners", "sort_order": 0},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 201
+    return cid, resp.json()["data"]["id"]
+
+
+async def test_generate_phase_description_happy_path(client: AsyncClient, auth_headers):
+    cid, pid = await _create_campaign_and_phase(client, auth_headers)
+    with patch(
+        "app.routers.phases.generate_phase_description",
+        new_callable=AsyncMock,
+    ) as mock_gen:
+        mock_gen.return_value = TextResult(text="The miners vanished during a blood moon.")
+        resp = await client.post(
+            f"/api/v1/campaigns/{cid}/phases/{pid}/ai/description",
+            json={"steer": "dark horror tone, missing people"},
+            headers=auth_headers,
+        )
+    assert resp.status_code == 200
+    assert resp.json()["data"]["text"].startswith("The miners")
+    mock_gen.assert_awaited_once()
+
+
+async def test_generate_phase_description_augment_mode(client: AsyncClient, auth_headers):
+    """existing_content is passed through to the service."""
+    cid, pid = await _create_campaign_and_phase(client, auth_headers)
+    with patch(
+        "app.routers.phases.generate_phase_description",
+        new_callable=AsyncMock,
+    ) as mock_gen:
+        mock_gen.return_value = TextResult(text="augmented text")
+        await client.post(
+            f"/api/v1/campaigns/{cid}/phases/{pid}/ai/description",
+            json={
+                "steer": "add a brewery scene",
+                "existing_content": "The party arrives in town.",
+            },
+            headers=auth_headers,
+        )
+    _campaign, _phase, _prior, called_req = mock_gen.await_args.args
+    assert called_req.existing_content == "The party arrives in town."
