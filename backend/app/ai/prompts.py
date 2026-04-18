@@ -188,3 +188,143 @@ TEXT_SCHEMA_HINT = 'Return JSON: { "text": "<generated text>" }.'
 PERSONALITY_SCHEMA_HINT = (
     'Return JSON: { "personality": "<...>", "motivation": "<...>" }.'
 )
+
+
+# ---------------------------------------------------------------------------
+# Phase Expander prompts (Track 2 — multi-agent graph)
+# ---------------------------------------------------------------------------
+
+# Shared policy injected into every node. The "zero output is valid" clause is
+# critical to the additive, steer-driven design (see spec §2).
+_EXPANDER_POLICY = (
+    "## Policy\n"
+    "- The user's steer is authoritative. Only produce what the steer asks for.\n"
+    "- Existing entities in the phase/campaign are PRESERVED — never replace "
+    "or remove them. You are ADDING to them.\n"
+    "- Returning an empty list is valid and expected when the steer does not "
+    "request your entity type.\n"
+    "- If an existing entity satisfies the steer, reuse it (set reuse_id) "
+    "instead of inventing a new one.\n"
+)
+
+
+def _expander_context_block(state: dict) -> str:
+    """Build the shared context block shown to every node."""
+    prior_phases = "\n".join(
+        f"  - {p['title']}: {p['excerpt']}" for p in state.get("prior_phases", [])
+    ) or "  (none)"
+    existing_locations = "\n".join(
+        f"  - {loc['id']}: {loc['name']} ({loc.get('region') or 'no region'})"
+        for loc in state.get("existing_locations", [])
+    ) or "  (none)"
+    existing_npcs = "\n".join(
+        f"  - {n['id']}: {n['name']} — {n.get('role') or 'unspecified'}"
+        for n in state.get("existing_npcs", [])
+    ) or "  (none)"
+
+    return (
+        "## Campaign\n"
+        f"- Name: {state['campaign_context']['name']}\n"
+        f"- Description: {state['campaign_context']['description'] or '(none)'}\n"
+        f"- Party level: {state['campaign_context']['party_level']}\n"
+        "\n## This phase\n"
+        f"- Title: {state['phase_title']}\n"
+        f"- Existing description: {state.get('existing_phase_description') or '(none)'}\n"
+        "\n## Prior phases\n"
+        f"{prior_phases}\n"
+        "\n## Locations already in this phase or campaign\n"
+        f"{existing_locations}\n"
+        "\n## NPCs already in this campaign\n"
+        f"{existing_npcs}\n"
+        "\n## User steer\n"
+        f"{state['user_steer']}\n"
+    )
+
+
+DESCRIBE_PHASE_PROMPT = (
+    "You are the Phase Describer in a multi-agent pipeline.\n\n"
+    "{policy}\n\n"
+    "{context}\n\n"
+    "## Your task\n"
+    "Decide whether the user's steer asks you to change the phase description.\n"
+    "- If yes: produce the FULL new description (2-4 paragraphs). Preserve the "
+    "existing description where appropriate — only augment or revise per the steer.\n"
+    "- If no: return null.\n\n"
+    'Return JSON: {{ "phase_description": "<full new text or null>" }}'
+)
+
+PROPOSE_LOCATIONS_PROMPT = (
+    "You are the Location Proposer in a multi-agent pipeline.\n\n"
+    "{policy}\n\n"
+    "{context}\n\n"
+    "## Current phase description (possibly updated by prior node)\n"
+    "{phase_description}\n\n"
+    "## Your task\n"
+    "Propose only locations the steer explicitly requests. For each:\n"
+    "- If the steer matches an existing location listed above, set reuse_id to "
+    "that UUID and copy its name/description.\n"
+    "- Otherwise, invent a new location with a vivid description.\n"
+    "Return [] if the steer does not request any locations.\n\n"
+    'Return JSON: {{ "draft_locations": [ {{ "name": ..., "description": ..., '
+    '"region": ..., "reuse_id": ... }}, ... ] }}'
+)
+
+PROPOSE_NPCS_PROMPT = (
+    "You are the NPC Proposer in a multi-agent pipeline.\n\n"
+    "{policy}\n\n"
+    "{context}\n\n"
+    "## Phase description\n"
+    "{phase_description}\n\n"
+    "## Locations proposed in this bundle (index -> summary)\n"
+    "{draft_locations}\n\n"
+    "## Your task\n"
+    "Propose only NPCs the steer explicitly requests. For each:\n"
+    "- Set location_index to the index in the draft_locations list above if "
+    "the NPC belongs in one of those places. Otherwise leave null.\n"
+    "- If the steer points at an existing NPC (listed in the campaign NPCs "
+    "above), set reuse_id.\n"
+    "Return [] if the steer does not request any NPCs.\n\n"
+    'Return JSON: {{ "draft_npcs": [ {{ "name": ..., "role": ..., "personality": ..., '
+    '"motivation": ..., "location_index": ..., "reuse_id": ... }}, ... ] }}'
+)
+
+PROPOSE_QUESTS_PROMPT = (
+    "You are the Quest Proposer in a multi-agent pipeline.\n\n"
+    "{policy}\n\n"
+    "{context}\n\n"
+    "## Phase description\n"
+    "{phase_description}\n\n"
+    "## Locations proposed in this bundle\n"
+    "{draft_locations}\n\n"
+    "## NPCs proposed in this bundle\n"
+    "{draft_npcs}\n\n"
+    "## Your task\n"
+    "Propose only quests the steer explicitly requests. Each quest may "
+    "reference NPCs and/or locations from this bundle by index.\n"
+    "Return [] if the steer does not request any quests.\n\n"
+    'Return JSON: {{ "draft_quests": [ {{ "title": ..., "description": ..., '
+    '"npc_indices": [...], "location_indices": [...] }}, ... ] }}'
+)
+
+CHECK_CONSISTENCY_PROMPT = (
+    "You are the Consistency Checker in a multi-agent pipeline.\n\n"
+    "Your job is a final sanity pass. Review the proposed bundle for:\n"
+    "- NPC.location_index values that reference missing locations\n"
+    "- Quest.npc_indices / location_indices that reference missing entries\n"
+    "- Contradictions between phase description and proposed entities\n\n"
+    "You MAY edit the draft fields to fix these issues. Add a short note "
+    "to consistency_notes for each fix or warning.\n"
+    "If everything is empty or already consistent, return the bundle "
+    "unchanged with consistency_notes = [].\n\n"
+    "## Current bundle\n"
+    "{bundle_json}\n\n"
+    'Return JSON matching the DraftPhaseBundle shape.'
+)
+
+
+def build_expander_policy() -> str:
+    return _EXPANDER_POLICY
+
+
+def build_expander_context(state: dict) -> str:
+    return _expander_context_block(state)
