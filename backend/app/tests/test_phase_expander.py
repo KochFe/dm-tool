@@ -8,6 +8,8 @@ from app.schemas.phase_expander import (
     DraftQuest,
 )
 
+from httpx import AsyncClient
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -70,3 +72,70 @@ async def test_graph_runs_all_nodes_in_order():
     assert result["draft_locations"][0].name == "Brewery"
     assert result["draft_npcs"][0].name == "Hilda"
     assert result["draft_quests"][0].title == "Find the miner"
+
+
+async def _create_campaign_and_phase(client: AsyncClient, auth_headers: dict) -> tuple[str, str]:
+    cresp = await client.post(
+        "/api/v1/campaigns",
+        json={"name": "Expander Test"},
+        headers=auth_headers,
+    )
+    assert cresp.status_code == 201
+    cid = cresp.json()["data"]["id"]
+    presp = await client.post(
+        f"/api/v1/campaigns/{cid}/phases",
+        json={"title": "Act I", "sort_order": 0},
+        headers=auth_headers,
+    )
+    assert presp.status_code == 201
+    return cid, presp.json()["data"]["id"]
+
+
+async def test_expand_endpoint_happy_path(client: AsyncClient, auth_headers):
+    cid, pid = await _create_campaign_and_phase(client, auth_headers)
+    fake_bundle = DraftPhaseBundle(
+        phase_description="New desc.",
+        draft_locations=[DraftLocation(name="Brewery", description="Hops.")],
+        draft_npcs=[],
+        draft_quests=[],
+        consistency_notes=[],
+    )
+    with patch(
+        "app.routers.phases.run_phase_expander",
+        new_callable=AsyncMock,
+    ) as mock_run:
+        mock_run.return_value = fake_bundle
+        resp = await client.post(
+            f"/api/v1/campaigns/{cid}/phases/{pid}/expand",
+            json={"user_steer": "add a brewery"},
+            headers=auth_headers,
+        )
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data["phase_description"] == "New desc."
+    assert data["draft_locations"][0]["name"] == "Brewery"
+
+
+async def test_expand_endpoint_requires_steer(client: AsyncClient, auth_headers):
+    cid, pid = await _create_campaign_and_phase(client, auth_headers)
+    resp = await client.post(
+        f"/api/v1/campaigns/{cid}/phases/{pid}/expand",
+        json={},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 422
+
+
+async def test_expand_endpoint_404_for_unknown_phase(client: AsyncClient, auth_headers):
+    cresp = await client.post(
+        "/api/v1/campaigns",
+        json={"name": "X"},
+        headers=auth_headers,
+    )
+    cid = cresp.json()["data"]["id"]
+    resp = await client.post(
+        f"/api/v1/campaigns/{cid}/phases/00000000-0000-0000-0000-000000000000/expand",
+        json={"user_steer": "anything"},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 404
