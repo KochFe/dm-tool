@@ -1,13 +1,20 @@
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_current_user, get_db
+from app.models.campaign_phase import CampaignPhase
 from app.models.user import User
+from app.schemas.ai_assist import AIAssistRequest, TextResult
 from app.schemas.campaign_phase import PhaseCreate, PhaseLinksUpdate, PhaseResponse, PhaseUpdate
 from app.schemas.common import APIResponse
 from app.services import campaign_service, phase_service
+from app.services.generator_service import generate_phase_description
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -121,3 +128,43 @@ async def set_phase_locations(
         raise HTTPException(status_code=404, detail="Phase not found")
     updated = await phase_service.set_phase_locations(db, phase, body.ids)
     return APIResponse(data=PhaseResponse.model_validate(updated))
+
+
+@router.post(
+    "/campaigns/{campaign_id}/phases/{phase_id}/ai/description",
+    response_model=APIResponse[TextResult],
+)
+async def ai_phase_description_endpoint(
+    campaign_id: uuid.UUID,
+    phase_id: uuid.UUID,
+    request: AIAssistRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> APIResponse[TextResult]:
+    """Generate or augment the phase description (non-persistent)."""
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+
+    phase = await db.get(CampaignPhase, phase_id)
+    if not phase or phase.campaign_id != campaign_id:
+        raise HTTPException(status_code=404, detail="Phase not found")
+
+    prior_q = (
+        select(CampaignPhase)
+        .where(CampaignPhase.campaign_id == campaign_id)
+        .where(CampaignPhase.sort_order < phase.sort_order)
+        .order_by(CampaignPhase.sort_order)
+    )
+    prior_phases = (await db.execute(prior_q)).scalars().all()
+    prior_summaries = [
+        f"{p.title}: {(p.description or '')[:140]}" for p in prior_phases
+    ]
+
+    try:
+        result = await generate_phase_description(campaign, phase, prior_summaries, request)
+    except RuntimeError:
+        logger.exception("AI phase-description error for phase %s", phase_id)
+        raise HTTPException(status_code=503, detail="AI generation failed")
+
+    return APIResponse(data=result)
