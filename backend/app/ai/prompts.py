@@ -95,3 +95,96 @@ LOOT_GENERATOR_PROMPT = (
     "Be inventive — avoid plain gold coins or generic potions as the only rewards. "
     "Include at least one item with a flavourful name or unusual property."
 )
+
+
+# ---------------------------------------------------------------------------
+# AI Assist prompts (Track 1 — single-shot field generators)
+# ---------------------------------------------------------------------------
+
+# All AI assist prompts follow the same structure:
+#   1. Context block (campaign tone / party level / etc.)
+#   2. Mode instruction (generate-fresh vs. augment-existing)
+#   3. User steer
+#   4. Regeneration block (if previous_output + feedback present)
+#   5. Output schema reminder
+
+_AUGMENT_INSTRUCTION = (
+    "The user has already written content for this field. You MUST preserve "
+    "what should stay and only augment/revise per their steer. Return the full "
+    "new text including preserved portions. Do NOT silently delete content the "
+    "user did not ask to remove."
+)
+
+_FRESH_INSTRUCTION = (
+    "The field is currently empty. Generate content from scratch based on the "
+    "user's steer."
+)
+
+_REGEN_INSTRUCTION = (
+    "Your previous output is included below along with the user's feedback. "
+    "Produce a revised version that addresses the feedback. Do not merely "
+    "apologize or reference the previous attempt — output the new result only."
+)
+
+
+def build_ai_assist_prompt(
+    task_description: str,
+    context_block: str,
+    steer: str,
+    existing_content: str | None,
+    previous_output: str | None,
+    feedback: str | None,
+    output_schema_hint: str,
+) -> str:
+    """Assemble a single-shot AI assist prompt from its parts.
+
+    task_description: one-line statement of what is being generated, e.g.
+        "a 2-3 paragraph campaign world description".
+    context_block: pre-formatted campaign/phase/character context.
+    output_schema_hint: a reminder of the expected JSON shape for structured output.
+    """
+    mode = _AUGMENT_INSTRUCTION if existing_content else _FRESH_INSTRUCTION
+
+    parts = [
+        f"Task: Generate {task_description}.",
+        "",
+        context_block,
+        "",
+        mode,
+    ]
+
+    if existing_content:
+        parts += ["", "## Existing content", existing_content]
+
+    parts += ["", "## User steer", steer]
+
+    if previous_output and feedback:
+        parts += [
+            "",
+            _REGEN_INSTRUCTION,
+            "",
+            "## Previous output",
+            previous_output,
+            "",
+            "## User feedback",
+            feedback,
+        ]
+
+    parts += ["", output_schema_hint]
+    return "\n".join(parts)
+
+
+CAMPAIGN_WORLD_TASK = "a vivid 2-4 paragraph campaign world/setting description"
+PHASE_DESCRIPTION_TASK = (
+    "a 2-4 paragraph phase description covering setup, key beats, and the "
+    "climax hook, grounded in the campaign tone"
+)
+PERSONALITY_TASK = (
+    "personality traits (2-3 sentences) and a motivation (1-2 sentences) for "
+    "this character, consistent with their existing fields"
+)
+
+TEXT_SCHEMA_HINT = 'Return JSON: { "text": "<generated text>" }.'
+PERSONALITY_SCHEMA_HINT = (
+    'Return JSON: { "personality": "<...>", "motivation": "<...>" }.'
+)
