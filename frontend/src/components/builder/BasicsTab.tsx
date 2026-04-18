@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import type { TextResult } from "@/lib/api";
 import type { Campaign, CampaignIdea, IdeaTag } from "@/types";
 import IdeaRow from "./IdeaRow";
+import { AIAssistModal } from "@/components/ai/AIAssistModal";
 
 const CAMPAIGN_LENGTHS: { label: string; value: NonNullable<Campaign["campaign_length"]> }[] = [
   { label: "One-Shot", value: "one_shot" },
@@ -36,6 +38,8 @@ export default function BasicsTab({
 }: BasicsTabProps) {
   const [name, setName] = useState(campaign.name);
   const [partyLevel, setPartyLevel] = useState(String(campaign.party_level));
+  const [worldDescription, setWorldDescription] = useState(campaign.world_description ?? "");
+  const [worldAiOpen, setWorldAiOpen] = useState(false);
   const [newIdeaText, setNewIdeaText] = useState("");
   const [newIdeaTag, setNewIdeaTag] = useState<IdeaTag>("story");
   const [savingIdea, setSavingIdea] = useState(false);
@@ -50,6 +54,10 @@ export default function BasicsTab({
   useEffect(() => {
     setPartyLevel(String(campaign.party_level));
   }, [campaign.party_level]);
+
+  useEffect(() => {
+    setWorldDescription(campaign.world_description ?? "");
+  }, [campaign.world_description]);
 
   // Refocus input after save completes (disabled→enabled transition drops focus)
   useEffect(() => {
@@ -95,6 +103,19 @@ export default function BasicsTab({
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save party level");
       setPartyLevel(String(campaign.party_level));
+    }
+  }
+
+  async function saveWorldDescription() {
+    const trimmed = worldDescription.trim();
+    const current = campaign.world_description ?? "";
+    if (trimmed === current) return;
+    try {
+      const updated = await api.updateCampaign(campaign.id, { world_description: trimmed || null });
+      onCampaignUpdate(updated);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save world description");
+      setWorldDescription(campaign.world_description ?? "");
     }
   }
 
@@ -205,6 +226,31 @@ export default function BasicsTab({
         />
       </section>
 
+      {/* World Description */}
+      <section className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            World Description
+          </label>
+          <button
+            type="button"
+            onClick={() => setWorldAiOpen(true)}
+            aria-label="AI generate world description"
+            className="text-xs text-blue-600 hover:underline"
+          >
+            ✨ AI
+          </button>
+        </div>
+        <textarea
+          value={worldDescription}
+          onChange={(e) => setWorldDescription(e.target.value)}
+          onBlur={saveWorldDescription}
+          rows={4}
+          placeholder="Describe the world, setting, tone, or lore…"
+          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
+        />
+      </section>
+
       {/* Ideas & Notes */}
       <section className="flex flex-col gap-3">
         <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
@@ -257,6 +303,22 @@ export default function BasicsTab({
           </div>
         )}
       </section>
+      <AIAssistModal<TextResult>
+        open={worldAiOpen}
+        onClose={() => setWorldAiOpen(false)}
+        title="Generate world description"
+        existingContent={worldDescription || undefined}
+        placeholder="e.g. 'A shattered realm of floating isles connected by airship lanes.'"
+        onGenerate={(req) => api.ai.generateCampaignWorld(campaign.id, req)}
+        onAccept={(result) => {
+          setWorldDescription(result.text);
+          api.updateCampaign(campaign.id, { world_description: result.text }).then(onCampaignUpdate).catch((err) => {
+            toast.error(err instanceof Error ? err.message : "Failed to save world description");
+          });
+        }}
+        renderResult={(r) => <p className="whitespace-pre-wrap">{r.text}</p>}
+        extractPrev={(r) => r.text}
+      />
     </div>
   );
 }
