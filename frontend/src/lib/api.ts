@@ -1,5 +1,75 @@
 import type { APIResponse, TokenResponse, AuthUser } from "@/types";
 
+// --- AI ---
+
+export interface AIAssistRequest {
+  steer: string;
+  existing_content?: string | null;
+  previous_output?: string | null;
+  feedback?: string | null;
+}
+
+export interface TextResult {
+  text: string;
+}
+
+export interface PersonalityResult {
+  personality: string;
+  motivation: string;
+}
+
+export interface DraftLocation {
+  name: string;
+  description: string;
+  region?: string | null;
+  reuse_id?: string | null;
+}
+
+export interface DraftNpc {
+  name: string;
+  role: string;
+  personality: string;
+  motivation: string;
+  location_index?: number | null;
+  reuse_id?: string | null;
+}
+
+export interface DraftQuest {
+  title: string;
+  description: string;
+  npc_indices: number[];
+  location_indices: number[];
+}
+
+export interface DraftPhaseBundle {
+  phase_description?: string | null;
+  draft_locations: DraftLocation[];
+  draft_npcs: DraftNpc[];
+  draft_quests: DraftQuest[];
+  consistency_notes: string[];
+}
+
+export interface ExpandPhaseRequest {
+  user_steer: string;
+}
+
+export interface ApplyPhaseBundleRequest {
+  phase_description?: string | null;
+  accepted_locations: DraftLocation[];
+  accepted_npcs: DraftNpc[];
+  accepted_quests: DraftQuest[];
+}
+
+export interface ApplyPhaseBundleResponse {
+  phase_id: string;
+  created_location_ids: string[];
+  linked_location_ids: string[];
+  created_npc_ids: string[];
+  created_quest_ids: string[];
+}
+
+// --- end AI ---
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
 // Token storage
@@ -335,6 +405,40 @@ export const api = {
       method: "POST",
       body: JSON.stringify(options ?? {}),
     }),
+
+  // --- AI ---
+  ai: {
+    generateCampaignWorld: (campaignId: string, body: AIAssistRequest) =>
+      request<TextResult>(`/api/v1/campaigns/${campaignId}/ai/world-description`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    generatePhaseDescription: (campaignId: string, phaseId: string, body: AIAssistRequest) =>
+      request<TextResult>(`/api/v1/campaigns/${campaignId}/phases/${phaseId}/ai/description`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    generateNpcPersonality: (npcId: string, body: AIAssistRequest) =>
+      request<PersonalityResult>(`/api/v1/npcs/${npcId}/ai/personality`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    generatePlayerCharacterPersonality: (characterId: string, body: AIAssistRequest) =>
+      request<PersonalityResult>(`/api/v1/characters/${characterId}/ai/personality`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    expandPhase: (campaignId: string, phaseId: string, body: ExpandPhaseRequest) =>
+      request<DraftPhaseBundle>(`/api/v1/campaigns/${campaignId}/phases/${phaseId}/expand`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    applyPhaseBundle: (campaignId: string, phaseId: string, body: ApplyPhaseBundleRequest) =>
+      request<ApplyPhaseBundleResponse>(`/api/v1/campaigns/${campaignId}/phases/${phaseId}/expand/apply`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+  },
 
   // Auth
   async login(email: string, password: string): Promise<TokenResponse> {
