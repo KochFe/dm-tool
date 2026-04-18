@@ -11,9 +11,15 @@ from app.models.user import User
 from app.schemas.ai_assist import AIAssistRequest, TextResult
 from app.schemas.campaign_phase import PhaseCreate, PhaseLinksUpdate, PhaseResponse, PhaseUpdate
 from app.schemas.common import APIResponse
-from app.schemas.phase_expander import DraftPhaseBundle, ExpandPhaseRequest
+from app.schemas.phase_expander import (
+    ApplyPhaseBundleRequest,
+    ApplyPhaseBundleResponse,
+    DraftPhaseBundle,
+    ExpandPhaseRequest,
+)
 from app.services import campaign_service, phase_service
 from app.services.generator_service import generate_phase_description
+from app.services.phase_expander_apply import apply_phase_bundle
 from app.services.phase_expander_service import run_phase_expander
 
 logger = logging.getLogger(__name__)
@@ -199,3 +205,33 @@ async def expand_phase_endpoint(
         raise HTTPException(status_code=503, detail="AI generation failed")
 
     return APIResponse(data=bundle)
+
+
+@router.post(
+    "/campaigns/{campaign_id}/phases/{phase_id}/expand/apply",
+    response_model=APIResponse[ApplyPhaseBundleResponse],
+)
+async def apply_phase_bundle_endpoint(
+    campaign_id: uuid.UUID,
+    phase_id: uuid.UUID,
+    request: ApplyPhaseBundleRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> APIResponse[ApplyPhaseBundleResponse]:
+    """Persist the accepted subset of a DraftPhaseBundle in a single transaction."""
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+
+    phase = await db.get(CampaignPhase, phase_id)
+    if not phase or phase.campaign_id != campaign_id:
+        raise HTTPException(status_code=404, detail="Phase not found")
+
+    try:
+        result = await apply_phase_bundle(db, campaign_id, phase, request)
+    except Exception:
+        await db.rollback()
+        logger.exception("apply_phase_bundle failed for phase %s", phase_id)
+        raise HTTPException(status_code=500, detail="Failed to apply phase bundle")
+
+    return APIResponse(data=result)
