@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { api, type PersonalityResult } from "@/lib/api";
 import type { Npc, NpcCreate, Location } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
 import { CardListSkeleton } from "@/components/skeletons/CardSkeleton";
 import LocationHoverCard from "@/components/LocationHoverCard";
+import { AIAssistModal } from "@/components/ai/AIAssistModal";
 
 const EMPTY_FORM = {
   name: "",
@@ -81,6 +82,7 @@ export default function NPCSection({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
 
   const loadNpcs = async () => {
     try {
@@ -234,13 +236,28 @@ export default function NPCSection({
           />
 
           {/* Personality */}
-          <textarea
-            placeholder="Personality (optional)"
-            value={form.personality}
-            onChange={(e) => setForm({ ...form, personality: e.target.value })}
-            className={TEXTAREA_CLS}
-            rows={2}
-          />
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs text-muted-foreground">Personality</label>
+              {editId && (
+                <button
+                  type="button"
+                  onClick={() => setAiOpen(true)}
+                  aria-label="AI generate NPC personality"
+                  className="text-xs text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+                >
+                  ✨ AI personality
+                </button>
+              )}
+            </div>
+            <textarea
+              placeholder="Personality (optional)"
+              value={form.personality}
+              onChange={(e) => setForm({ ...form, personality: e.target.value })}
+              className={TEXTAREA_CLS}
+              rows={2}
+            />
+          </div>
 
           {/* Motivation */}
           <textarea
@@ -323,6 +340,40 @@ export default function NPCSection({
           >
             {submitting ? "Saving…" : editId ? "Update" : "Create"}
           </button>
+
+          {/* AI personality modal — only mounted when editing an existing NPC */}
+          {editId && (
+            <AIAssistModal<PersonalityResult>
+              open={aiOpen}
+              onClose={() => setAiOpen(false)}
+              title="Generate NPC personality + motivation"
+              existingContent={
+                [
+                  form.personality.trim() && `Personality: ${form.personality.trim()}`,
+                  form.motivation.trim() && `Motivation: ${form.motivation.trim()}`,
+                ]
+                  .filter(Boolean)
+                  .join("\n\n") || undefined
+              }
+              placeholder="e.g. 'Haunted by his past, secretly hopes for redemption.'"
+              onGenerate={(req) => api.ai.generateNpcPersonality(editId, req)}
+              onAccept={(result) => {
+                setForm((prev) => ({
+                  ...prev,
+                  personality: result.personality,
+                  motivation: result.motivation,
+                }));
+                setAiOpen(false);
+              }}
+              renderResult={(r) => (
+                <div className="space-y-2 text-sm">
+                  <p><strong>Personality:</strong> {r.personality}</p>
+                  <p><strong>Motivation:</strong> {r.motivation}</p>
+                </div>
+              )}
+              extractPrev={(r) => `${r.personality}\n\n${r.motivation}`}
+            />
+          )}
         </form>
       )}
 
