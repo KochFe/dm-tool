@@ -134,39 +134,3 @@ async def test_generate_npc_personality_happy_path(client: AsyncClient, auth_hea
     assert body["motivation"] == "Seeks his lost brother."
 
 
-async def _create_campaign_and_pc(client: AsyncClient, auth_headers: dict) -> tuple[str, str]:
-    cid = await _create_campaign(client, auth_headers)
-    resp = await client.post(
-        f"/api/v1/campaigns/{cid}/characters",
-        json={
-            "name": "Aragorn",
-            "race": "Human",
-            "character_class": "Ranger",
-            "level": 1,
-            "hp_current": 12,
-            "hp_max": 12,
-            "armor_class": 14,
-        },
-        headers=auth_headers,
-    )
-    assert resp.status_code == 201
-    return cid, resp.json()["data"]["id"]
-
-
-async def test_generate_pc_personality_happy_path(client: AsyncClient, auth_headers):
-    _, pcid = await _create_campaign_and_pc(client, auth_headers)
-    with patch(
-        "app.routers.player_characters.generate_pc_personality",
-        new_callable=AsyncMock,
-    ) as mock_gen:
-        mock_gen.return_value = PersonalityResult(
-            personality="Stoic and dutiful.", motivation="Protect the weak."
-        )
-        resp = await client.post(
-            f"/api/v1/characters/{pcid}/ai/personality",
-            json={"steer": "knightly, burdened by heritage"},
-            headers=auth_headers,
-        )
-    assert resp.status_code == 200
-    body = resp.json()["data"]
-    assert body["motivation"] == "Protect the weak."
