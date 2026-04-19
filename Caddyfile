@@ -11,3 +11,28 @@
         reverse_proxy frontend:3000
     }
 }
+
+dev.kochfe.de {
+    @tailnet remote_ip 100.64.0.0/10 fd7a:115c:a1e0::/48
+    handle @tailnet {
+        header X-Robots-Tag "noindex, nofollow, noarchive"
+        header Referrer-Policy "no-referrer"
+
+        handle /api/* {
+            reverse_proxy dev-backend:8000
+        }
+
+        handle /health* {
+            reverse_proxy dev-backend:8000
+        }
+
+        handle {
+            reverse_proxy dev-frontend:3000
+        }
+    }
+    handle {
+        respond "Not available" 403 {
+            close
+        }
+    }
+}
