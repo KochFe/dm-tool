@@ -3,12 +3,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { api, type PersonalityResult } from "@/lib/api";
+import { api } from "@/lib/api";
 import { hpColor, hpBarColor } from "@/lib/utils";
 import type { PlayerCharacter } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
 import DDBImportModal from "@/components/DDBImportModal";
-import { AIAssistModal } from "@/components/ai/AIAssistModal";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -83,8 +82,6 @@ interface CharacterFormState {
   skill_proficiencies: string[];
   // Spell slots are edited as a list of {level, slots} pairs in the form
   spellSlotPairs: Array<{ level: string; slots: string }>;
-  personality: string;
-  motivation: string;
 }
 
 const EMPTY_CHAR: CharacterFormState = {
@@ -107,8 +104,6 @@ const EMPTY_CHAR: CharacterFormState = {
   saving_throw_proficiencies: [],
   skill_proficiencies: [],
   spellSlotPairs: [],
-  personality: "",
-  motivation: "",
 };
 
 function pcToForm(pc: PlayerCharacter): CharacterFormState {
@@ -135,8 +130,6 @@ function pcToForm(pc: PlayerCharacter): CharacterFormState {
     saving_throw_proficiencies: pc.saving_throw_proficiencies ?? [],
     skill_proficiencies: pc.skill_proficiencies ?? [],
     spellSlotPairs,
-    personality: pc.personality ?? "",
-    motivation: pc.motivation ?? "",
   };
 }
 
@@ -169,8 +162,6 @@ function formToPayload(form: CharacterFormState): Record<string, unknown> {
     saving_throw_proficiencies: form.saving_throw_proficiencies,
     skill_proficiencies: form.skill_proficiencies,
     spell_slots,
-    personality: form.personality.trim() || null,
-    motivation: form.motivation.trim() || null,
   };
 }
 
@@ -375,7 +366,6 @@ export default function CharacterSection({
   const [formError, setFormError] = useState<string | null>(null);
   const [showImport, setShowImport] = useState(false);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
-  const [aiOpen, setAiOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -562,42 +552,6 @@ export default function CharacterSection({
             </label>
           </div>
 
-          {/* Personality */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs text-muted-foreground">Personality</label>
-              {editId && (
-                <button
-                  type="button"
-                  onClick={() => setAiOpen(true)}
-                  aria-label="AI generate character personality"
-                  className="text-xs text-blue-400 hover:text-blue-300 hover:underline transition-colors"
-                >
-                  ✨ AI personality
-                </button>
-              )}
-            </div>
-            <textarea
-              placeholder="Traits, bonds, flaws... (optional)"
-              value={form.personality}
-              onChange={(e) => setForm({ ...form, personality: e.target.value })}
-              className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors resize-none"
-              rows={2}
-            />
-          </div>
-
-          {/* Motivation */}
-          <div>
-            <label className="text-xs text-muted-foreground">Motivation</label>
-            <textarea
-              placeholder="What does this character want? (optional)"
-              value={form.motivation}
-              onChange={(e) => setForm({ ...form, motivation: e.target.value })}
-              className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full mt-1 focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors resize-none"
-              rows={2}
-            />
-          </div>
-
           {/* ── Advanced Stats collapsible ── */}
           <div className="border-t border-border/50 pt-3">
             <button
@@ -690,40 +644,6 @@ export default function CharacterSection({
           >
             {editId ? "Update" : "Create"}
           </button>
-
-          {/* AI personality modal — only mounted when editing an existing character */}
-          {editId && (
-            <AIAssistModal<PersonalityResult>
-              open={aiOpen}
-              onClose={() => setAiOpen(false)}
-              title="Generate character personality + motivation"
-              existingContent={
-                [
-                  form.personality.trim() && `Personality: ${form.personality.trim()}`,
-                  form.motivation.trim() && `Motivation: ${form.motivation.trim()}`,
-                ]
-                  .filter(Boolean)
-                  .join("\n\n") || undefined
-              }
-              placeholder="e.g. 'A reformed thief seeking redemption through heroism.'"
-              onGenerate={(req) => api.ai.generatePlayerCharacterPersonality(editId, req)}
-              onAccept={(result) => {
-                setForm((prev) => ({
-                  ...prev,
-                  personality: result.personality,
-                  motivation: result.motivation,
-                }));
-                setAiOpen(false);
-              }}
-              renderResult={(r) => (
-                <div className="space-y-2 text-sm">
-                  <p><strong>Personality:</strong> {r.personality}</p>
-                  <p><strong>Motivation:</strong> {r.motivation}</p>
-                </div>
-              )}
-              extractPrev={(r) => `${r.personality}\n\n${r.motivation}`}
-            />
-          )}
         </form>
       )}
 
