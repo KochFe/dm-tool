@@ -33,6 +33,7 @@ app.include_router(ideas.router, prefix="/api/v1", tags=["ideas"])
 
 @app.get("/health")
 async def health():
+    # Liveness probe — used by docker healthcheck and deploy smoketests.
     return {"status": "healthy"}
 
 
