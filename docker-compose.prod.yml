@@ -9,6 +9,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    networks: [default, shared]
     depends_on:
       frontend:
         condition: service_healthy
@@ -73,6 +74,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+networks:
+  default:
+  shared:
+    name: dmtool_shared
+    external: true
 
 volumes:
   pgdata:
