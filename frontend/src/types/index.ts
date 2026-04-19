@@ -35,6 +35,8 @@ export interface PlayerCharacter {
   saving_throw_proficiencies: string[];
   skill_proficiencies: string[];
   spell_slots: Record<string, number>;
+  personality: string | null;
+  motivation: string | null;
   ddb_id: number | null;
   inventory: unknown[];
   created_at: string;
