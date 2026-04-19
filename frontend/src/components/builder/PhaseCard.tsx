@@ -11,6 +11,7 @@ import RichTextEditor, {
   extractPlainText,
 } from "@/components/ui/tiptap/rich-text-editor";
 import { AIAssistModal } from "@/components/ai/AIAssistModal";
+import { PhaseExpanderDrawer } from "@/components/ai/PhaseExpanderDrawer";
 import {
   Dialog,
   DialogContent,
@@ -66,6 +67,7 @@ export default function PhaseCard({
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [aiDescOpen, setAiDescOpen] = useState(false);
+  const [expanderOpen, setExpanderOpen] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   // Promise-based dialog for nested location deletion
@@ -442,6 +444,14 @@ export default function PhaseCard({
             &#8595;
           </button>
           <button
+            type="button"
+            onClick={() => setExpanderOpen(true)}
+            aria-label="AI expand this phase"
+            className="text-xs text-purple-400 hover:text-purple-300 hover:underline transition-colors"
+          >
+            ✨ AI Expand Phase
+          </button>
+          <button
             onClick={enterEdit}
             className="text-sm text-primary hover:text-primary px-2 py-0.5 rounded transition-colors"
           >
@@ -481,6 +491,16 @@ export default function PhaseCard({
         </span>
       </div>
       {nestedLocationDialog}
+      <PhaseExpanderDrawer
+        open={expanderOpen}
+        onClose={() => setExpanderOpen(false)}
+        campaignId={phase.campaign_id}
+        phaseId={phase.id}
+        onApplied={() => {
+          setExpanderOpen(false);
+          onUpdate();
+        }}
+      />
     </div>
   );
 }
