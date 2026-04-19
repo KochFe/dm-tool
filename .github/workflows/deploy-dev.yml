@@ -1,0 +1,48 @@
+name: Deploy Dev
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [dev, "feat/**"]
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: true
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Deploy to VPS (dev stack)
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        env:
+          REF: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_DEV_USER }}
+          key: ${{ secrets.DEPLOY_DEV_SSH_KEY }}
+          command_timeout: 10m
+          envs: REF,SHA
+          script: |
+            set -euo pipefail
+            echo "Deploying dev stack: ref=$REF sha=$SHA"
+            case "$REF" in
+              dev|feat/*) ;;
+              *) echo "Refused ref: $REF"; exit 2;;
+            esac
+            cd ~/dm-tool-dev
+            git fetch --prune origin
+            git checkout -B deploy-current "origin/${REF}"
+            docker compose -f docker-compose.dev.yml build
+            docker compose -f docker-compose.dev.yml up -d
+            for i in $(seq 1 24); do
+              if docker compose -f docker-compose.dev.yml exec -T dev-backend \
+                   python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" 2>/dev/null; then
+                echo "Healthy after ${i} attempt(s)"; exit 0
+              fi
+              sleep 5
+            done
+            echo "Dev stack failed health check after 120s"; exit 1
