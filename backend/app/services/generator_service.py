@@ -190,46 +190,6 @@ async def generate_phase_description(
     return result
 
 
-async def generate_pc_personality(
-    pc: object,        # app.models.player_character.PlayerCharacter
-    campaign: object,
-    req: AIAssistRequest,
-) -> PersonalityResult:
-    """Generate or augment PC personality + motivation based on user steer."""
-    llm = _get_llm(temperature=1.0)
-    structured_llm = llm.with_structured_output(PersonalityResult)
-
-    context_block = (
-        "## Campaign context\n"
-        f"- Name: {campaign.name}\n"
-        f"- Party level: {campaign.party_level}\n"
-        "\n## This player character\n"
-        f"- Name: {pc.name}\n"
-        f"- Race: {getattr(pc, 'race', None) or '(unspecified)'}\n"
-        f"- Class: {getattr(pc, 'character_class', None) or '(unspecified)'}\n"
-        f"- Level: {getattr(pc, 'level', None) or '(unspecified)'}\n"
-    )
-
-    prompt = build_ai_assist_prompt(
-        task_description=PERSONALITY_TASK,
-        context_block=context_block,
-        steer=req.steer,
-        existing_content=req.existing_content,
-        previous_output=req.previous_output,
-        feedback=req.feedback,
-        output_schema_hint=PERSONALITY_SCHEMA_HINT,
-    )
-
-    try:
-        result = await structured_llm.ainvoke(prompt)
-    except Exception:
-        try:
-            result = await structured_llm.ainvoke(prompt)
-        except Exception as exc:
-            raise RuntimeError("AI generation failed — please try again") from exc
-    return result
-
-
 async def generate_loot(
     campaign_context: dict,
     context: str | None = None,

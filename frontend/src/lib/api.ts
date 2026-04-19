@@ -423,11 +423,6 @@ export const api = {
         method: "POST",
         body: JSON.stringify(body),
       }),
-    generatePlayerCharacterPersonality: (characterId: string, body: AIAssistRequest) =>
-      request<PersonalityResult>(`/api/v1/characters/${characterId}/ai/personality`, {
-        method: "POST",
-        body: JSON.stringify(body),
-      }),
     expandPhase: (campaignId: string, phaseId: string, body: ExpandPhaseRequest) =>
       request<DraftPhaseBundle>(`/api/v1/campaigns/${campaignId}/phases/${phaseId}/expand`, {
         method: "POST",
