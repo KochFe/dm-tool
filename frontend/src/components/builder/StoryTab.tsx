@@ -20,8 +20,8 @@ export default function StoryTab({
   ideas,
   onToggleIdea,
 }: StoryTabProps) {
-  const [worldDescription, setWorldDescription] = useState(
-    campaign.world_description ?? ""
+  const [description, setDescription] = useState(
+    campaign.description ?? ""
   );
   const [phases, setPhases] = useState<CampaignPhase[]>([]);
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -33,10 +33,10 @@ export default function StoryTab({
   const [isNewPhase, setIsNewPhase] = useState(false);
   const editingPhaseRef = useRef<HTMLDivElement>(null);
 
-  // Keep world description in sync if campaign prop changes externally
+  // Keep description in sync if campaign prop changes externally
   useEffect(() => {
-    setWorldDescription(campaign.world_description ?? "");
-  }, [campaign.world_description]);
+    setDescription(campaign.description ?? "");
+  }, [campaign.description]);
 
   const loadPhases = useCallback(async () => {
     try {
@@ -74,19 +74,19 @@ export default function StoryTab({
     }
   }, [editingPhaseId]);
 
-  async function saveWorldDescription() {
-    const trimmed = worldDescription.trim();
-    if (trimmed === (campaign.world_description ?? "")) return;
+  async function saveDescription() {
+    const trimmed = description.trim();
+    if (trimmed === (campaign.description ?? "")) return;
     try {
       const updated = await api.updateCampaign(campaign.id, {
-        world_description: trimmed || null,
+        description: trimmed || null,
       });
       onCampaignUpdate(updated);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to save world description"
+        err instanceof Error ? err.message : "Failed to save description"
       );
-      setWorldDescription(campaign.world_description ?? "");
+      setDescription(campaign.description ?? "");
     }
   }
 
@@ -148,23 +148,23 @@ export default function StoryTab({
     <div className="flex gap-6">
       {/* Main content */}
       <div className="flex-1 flex flex-col gap-8 min-w-0">
-        {/* World Description */}
+        {/* Campaign Description */}
         <section className="flex flex-col gap-2">
           <div>
             <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              World Description
+              Campaign description
             </label>
             <p className="text-xs text-muted-foreground/60 mt-0.5">
               (the setting — region, politics, lore)
             </p>
           </div>
           <textarea
-            value={worldDescription}
-            onChange={(e) => setWorldDescription(e.target.value)}
-            onBlur={saveWorldDescription}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            onBlur={saveDescription}
             rows={5}
             className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
-            placeholder="Describe the world your campaign takes place in..."
+            placeholder="Describe the story, hook, and background…"
           />
         </section>
 
