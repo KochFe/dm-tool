@@ -1,7 +1,7 @@
 from langchain_groq import ChatGroq
 
 from app.ai.prompts import (
-    CAMPAIGN_WORLD_TASK,
+    CAMPAIGN_DESCRIPTION_TASK,
     ENCOUNTER_GENERATOR_PROMPT,
     LOOT_GENERATOR_PROMPT,
     NPC_GENERATOR_PROMPT,
@@ -69,11 +69,11 @@ async def generate_encounter(
     return result
 
 
-async def generate_world_description(
+async def generate_campaign_description(
     campaign: object,  # app.models.campaign.Campaign
     req: AIAssistRequest,
 ) -> TextResult:
-    """Generate or augment a campaign world description based on user steer."""
+    """Generate or augment a campaign description (premise/hook/background)."""
     llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(TextResult)
 
@@ -84,7 +84,7 @@ async def generate_world_description(
     )
 
     prompt = build_ai_assist_prompt(
-        task_description=CAMPAIGN_WORLD_TASK,
+        task_description=CAMPAIGN_DESCRIPTION_TASK,
         context_block=context_block,
         steer=req.steer,
         existing_content=req.existing_content,
