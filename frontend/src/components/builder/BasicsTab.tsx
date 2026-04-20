@@ -38,8 +38,8 @@ export default function BasicsTab({
 }: BasicsTabProps) {
   const [name, setName] = useState(campaign.name);
   const [partyLevel, setPartyLevel] = useState(String(campaign.party_level));
-  const [worldDescription, setWorldDescription] = useState(campaign.world_description ?? "");
-  const [worldAiOpen, setWorldAiOpen] = useState(false);
+  const [description, setDescription] = useState(campaign.description ?? "");
+  const [descriptionAiOpen, setDescriptionAiOpen] = useState(false);
   const [newIdeaText, setNewIdeaText] = useState("");
   const [newIdeaTag, setNewIdeaTag] = useState<IdeaTag>("story");
   const [savingIdea, setSavingIdea] = useState(false);
@@ -56,8 +56,8 @@ export default function BasicsTab({
   }, [campaign.party_level]);
 
   useEffect(() => {
-    setWorldDescription(campaign.world_description ?? "");
-  }, [campaign.world_description]);
+    setDescription(campaign.description ?? "");
+  }, [campaign.description]);
 
   // Refocus input after save completes (disabled→enabled transition drops focus)
   useEffect(() => {
@@ -106,16 +106,16 @@ export default function BasicsTab({
     }
   }
 
-  async function saveWorldDescription() {
-    const trimmed = worldDescription.trim();
-    const current = campaign.world_description ?? "";
+  async function saveDescription() {
+    const trimmed = description.trim();
+    const current = campaign.description ?? "";
     if (trimmed === current) return;
     try {
-      const updated = await api.updateCampaign(campaign.id, { world_description: trimmed || null });
+      const updated = await api.updateCampaign(campaign.id, { description: trimmed || null });
       onCampaignUpdate(updated);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save world description");
-      setWorldDescription(campaign.world_description ?? "");
+      toast.error(err instanceof Error ? err.message : "Failed to save description");
+      setDescription(campaign.description ?? "");
     }
   }
 
@@ -226,16 +226,16 @@ export default function BasicsTab({
         />
       </section>
 
-      {/* World Description */}
+      {/* Campaign Description */}
       <section className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-            World Description
+            Campaign Description
           </label>
           <button
             type="button"
-            onClick={() => setWorldAiOpen(true)}
-            aria-label="AI generate world description"
+            onClick={() => setDescriptionAiOpen(true)}
+            aria-label="AI generate campaign description"
             className="inline-flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 hover:border-blue-500/40 px-2 py-0.5 rounded-md transition-colors"
           >
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -245,11 +245,11 @@ export default function BasicsTab({
           </button>
         </div>
         <textarea
-          value={worldDescription}
-          onChange={(e) => setWorldDescription(e.target.value)}
-          onBlur={saveWorldDescription}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          onBlur={saveDescription}
           rows={4}
-          placeholder="Describe the world, setting, tone, or lore…"
+          placeholder="Describe the story, hook, and background…"
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
         />
       </section>
@@ -307,16 +307,16 @@ export default function BasicsTab({
         )}
       </section>
       <AIAssistModal<TextResult>
-        open={worldAiOpen}
-        onClose={() => setWorldAiOpen(false)}
-        title="Generate world description"
-        existingContent={worldDescription || undefined}
+        open={descriptionAiOpen}
+        onClose={() => setDescriptionAiOpen(false)}
+        title="Generate campaign description"
+        existingContent={description || undefined}
         placeholder="e.g. 'A shattered realm of floating isles connected by airship lanes.'"
-        onGenerate={(req) => api.ai.generateCampaignWorld(campaign.id, req)}
+        onGenerate={(req) => api.ai.generateCampaignDescription(campaign.id, req)}
         onAccept={(result) => {
-          setWorldDescription(result.text);
-          api.updateCampaign(campaign.id, { world_description: result.text }).then(onCampaignUpdate).catch((err) => {
-            toast.error(err instanceof Error ? err.message : "Failed to save world description");
+          setDescription(result.text);
+          api.updateCampaign(campaign.id, { description: result.text }).then(onCampaignUpdate).catch((err) => {
+            toast.error(err instanceof Error ? err.message : "Failed to save description");
           });
         }}
         renderResult={(r) => <p className="whitespace-pre-wrap">{r.text}</p>}
