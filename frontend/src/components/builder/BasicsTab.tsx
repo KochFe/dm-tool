@@ -230,7 +230,7 @@ export default function BasicsTab({
       <section className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-            Campaign Description
+            Campaign description
           </label>
           <button
             type="button"

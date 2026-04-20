@@ -155,7 +155,7 @@ export default function StoryTab({
               Campaign description
             </label>
             <p className="text-xs text-muted-foreground/60 mt-0.5">
-              (the setting — region, politics, lore)
+              (the story, hook, and background)
             </p>
           </div>
           <textarea
