@@ -311,7 +311,7 @@ export default function BasicsTab({
         onClose={() => setDescriptionAiOpen(false)}
         title="Generate campaign description"
         existingContent={description || undefined}
-        placeholder="e.g. 'A shattered realm of floating isles connected by airship lanes.'"
+        placeholder="e.g. 'A heist against a corrupt merchant prince who's hiring adventurers to retrieve a stolen relic.'"
         onGenerate={(req) => api.ai.generateCampaignDescription(campaign.id, req)}
         onAccept={(result) => {
           setDescription(result.text);

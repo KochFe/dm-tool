@@ -24,15 +24,15 @@ async def test_generate_campaign_description_happy_path(client: AsyncClient, aut
         "app.routers.campaigns.generate_campaign_description",
         new_callable=AsyncMock,
     ) as mock_gen:
-        mock_gen.return_value = TextResult(text="A shattered realm of floating isles.")
+        mock_gen.return_value = TextResult(text="A heist against a corrupt merchant prince.")
         resp = await client.post(
             f"/api/v1/campaigns/{cid}/ai/campaign-description",
-            json={"steer": "floating islands, air pirates"},
+            json={"steer": "political heist, stolen relic"},
             headers=auth_headers,
         )
     assert resp.status_code == 200
     body = resp.json()
-    assert body["data"]["text"] == "A shattered realm of floating isles."
+    assert body["data"]["text"] == "A heist against a corrupt merchant prince."
     mock_gen.assert_awaited_once()
 
 
