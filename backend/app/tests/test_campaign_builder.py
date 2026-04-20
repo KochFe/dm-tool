@@ -28,7 +28,7 @@ async def _create_location(client: AsyncClient, campaign_id: str, auth_headers: 
 
 
 async def test_create_draft_campaign(client: AsyncClient, auth_headers):
-    """Creating a campaign with status='draft' sets status=draft, campaign_length=null, world_description=null."""
+    """Creating a campaign with status='draft' sets status=draft, campaign_length=null."""
     resp = await client.post(
         "/api/v1/campaigns",
         json={"name": "Draft Campaign", "status": "draft"},
@@ -40,23 +40,22 @@ async def test_create_draft_campaign(client: AsyncClient, auth_headers):
     data = body["data"]
     assert data["status"] == "draft"
     assert data["campaign_length"] is None
-    assert data["world_description"] is None
 
 
-async def test_update_campaign_builder_fields(client: AsyncClient, auth_headers):
-    """PATCH campaign_length and world_description persists both fields."""
+async def test_patch_campaign_length_and_description(client: AsyncClient, auth_headers):
+    """PATCH campaign_length and description persists both fields."""
     campaign = await _create_campaign(client, auth_headers, status="draft")
     cid = campaign["id"]
 
     resp = await client.patch(
         f"/api/v1/campaigns/{cid}",
-        json={"campaign_length": "short", "world_description": "A world of endless forests."},
+        json={"campaign_length": "short", "description": "A world of endless forests."},
         headers=auth_headers,
     )
     assert resp.status_code == 200
     data = resp.json()["data"]
     assert data["campaign_length"] == "short"
-    assert data["world_description"] == "A world of endless forests."
+    assert data["description"] == "A world of endless forests."
     # Name must be unchanged
     assert data["name"] == "Builder Test Campaign"
 
