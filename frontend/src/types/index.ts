@@ -8,7 +8,6 @@ export interface Campaign {
   notes: string | null;
   status: "draft" | "active";
   campaign_length: "one_shot" | "short" | "medium" | "long" | null;
-  world_description: string | null;
   created_at: string;
   updated_at: string;
 }

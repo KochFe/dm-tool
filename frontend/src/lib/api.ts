@@ -408,8 +408,8 @@ export const api = {
 
   // --- AI ---
   ai: {
-    generateCampaignWorld: (campaignId: string, body: AIAssistRequest) =>
-      request<TextResult>(`/api/v1/campaigns/${campaignId}/ai/world-description`, {
+    generateCampaignDescription: (campaignId: string, body: AIAssistRequest) =>
+      request<TextResult>(`/api/v1/campaigns/${campaignId}/ai/campaign-description`, {
         method: "POST",
         body: JSON.stringify(body),
       }),
