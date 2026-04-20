@@ -11,7 +11,6 @@ class CampaignCreate(BaseModel):
     party_level: int = Field(default=1, ge=1, le=20)
     status: str = "active"
     campaign_length: str | None = None
-    world_description: str | None = None
 
 
 class CampaignUpdate(BaseModel):
@@ -23,7 +22,6 @@ class CampaignUpdate(BaseModel):
     notes: str | None = None
     status: str | None = None
     campaign_length: str | None = None
-    world_description: str | None = None
 
 
 class CampaignResponse(BaseModel):
@@ -36,7 +34,6 @@ class CampaignResponse(BaseModel):
     notes: str | None
     status: str
     campaign_length: str | None
-    world_description: str | None
     created_at: datetime
     updated_at: datetime
 
