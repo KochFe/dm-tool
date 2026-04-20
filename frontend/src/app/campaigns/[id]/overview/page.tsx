@@ -144,26 +144,26 @@ export default function OverviewPage() {
   const activeQuests = quests.filter((q) => q.status === "in_progress");
   const base = `/campaigns/${campaign.id}`;
 
-  // ── world description ────────────────────────────────────────────────────────
-  const [worldDesc, setWorldDesc] = useState(campaign.world_description ?? "");
-  const worldDescSavedRef = useRef(campaign.world_description ?? "");
+  // ── description ──────────────────────────────────────────────────────────────
+  const [description, setDescription] = useState(campaign.description ?? "");
+  const descriptionSavedRef = useRef(campaign.description ?? "");
 
   // Keep in sync if campaign reloads
   useEffect(() => {
-    setWorldDesc(campaign.world_description ?? "");
-    worldDescSavedRef.current = campaign.world_description ?? "";
-  }, [campaign.world_description]);
+    setDescription(campaign.description ?? "");
+    descriptionSavedRef.current = campaign.description ?? "";
+  }, [campaign.description]);
 
-  const handleWorldDescBlur = useCallback(async () => {
-    if (worldDesc === worldDescSavedRef.current) return;
+  const saveDescription = useCallback(async () => {
+    if (description === descriptionSavedRef.current) return;
     try {
-      await api.updateCampaign(campaign.id, { world_description: worldDesc || null });
-      worldDescSavedRef.current = worldDesc;
+      await api.updateCampaign(campaign.id, { description: description || null });
+      descriptionSavedRef.current = description;
       await reload();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save world description");
+      toast.error(err instanceof Error ? err.message : "Failed to save description");
     }
-  }, [worldDesc, campaign.id, reload]);
+  }, [description, campaign.id, reload]);
 
   // ── phases ───────────────────────────────────────────────────────────────────
   const [phases, setPhases] = useState<CampaignPhase[]>([]);
@@ -314,28 +314,13 @@ export default function OverviewPage() {
         </div>
 
         {/* 2. Description */}
-        {campaign.description ? (
-          <p className="text-muted-foreground text-sm leading-relaxed">{campaign.description}</p>
-        ) : (
-          <p className="text-muted-foreground text-sm italic">
-            No description yet.{" "}
-            <Link href={`${base}/settings`} className="text-primary hover:text-primary">
-              Add one in Settings
-            </Link>
-          </p>
-        )}
-      </div>
-
-      {/* 3. World Description */}
-      <div className="bg-card border border-border/50 rounded-xl p-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">World Description</p>
         <textarea
-          value={worldDesc}
-          onChange={(e) => setWorldDesc(e.target.value)}
-          onBlur={handleWorldDescBlur}
-          placeholder="Add a world description — setting, tone, key themes…"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          onBlur={saveDescription}
+          placeholder="Add a campaign description — story, hook, background…"
           rows={3}
-          className="w-full bg-transparent text-sm text-foreground/80 placeholder:text-muted-foreground outline-none resize-none leading-relaxed"
+          className="w-full bg-transparent text-sm text-muted-foreground leading-relaxed placeholder:text-muted-foreground/60 outline-none resize-none"
         />
       </div>
 

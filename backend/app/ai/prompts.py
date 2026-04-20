@@ -174,7 +174,13 @@ def build_ai_assist_prompt(
     return "\n".join(parts)
 
 
-CAMPAIGN_WORLD_TASK = "a vivid 2-4 paragraph campaign world/setting description"
+CAMPAIGN_DESCRIPTION_TASK = (
+    "a vivid 2-4 paragraph campaign description covering the central premise, "
+    "the player hook (why the party is involved), the core conflict or stakes, "
+    "and any recent background that frames the opening. Focus on story, not "
+    "world lore — avoid pantheon/geography/setting exposition unless directly "
+    "relevant to the hook."
+)
 PHASE_DESCRIPTION_TASK = (
     "a 2-4 paragraph phase description covering setup, key beats, and the "
     "climax hook, grounded in the campaign tone"
