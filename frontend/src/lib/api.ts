@@ -18,6 +18,21 @@ export interface PersonalityResult {
   motivation: string;
 }
 
+export interface PhasePrepSection {
+  heading:
+    | "Hook"
+    | "Key Beats"
+    | "DM Secrets"
+    | "Climax / Exit"
+    | "Tone & Atmosphere"
+    | "Complications";
+  bullets: string[];
+}
+
+export interface PhasePrepResult {
+  sections: PhasePrepSection[];
+}
+
 export interface DraftLocation {
   name: string;
   description: string;
@@ -414,7 +429,7 @@ export const api = {
         body: JSON.stringify(body),
       }),
     generatePhaseDescription: (campaignId: string, phaseId: string, body: AIAssistRequest) =>
-      request<TextResult>(`/api/v1/campaigns/${campaignId}/phases/${phaseId}/ai/description`, {
+      request<PhasePrepResult>(`/api/v1/campaigns/${campaignId}/phases/${phaseId}/ai/description`, {
         method: "POST",
         body: JSON.stringify(body),
       }),
