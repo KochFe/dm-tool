@@ -3,7 +3,9 @@
 import { useState, useRef, useCallback } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import type { TextResult } from "@/lib/api";
+import type { PhasePrepResult } from "@/lib/api";
+import { phasePrepToTiptap, phasePrepToMarkdown } from "@/lib/ai/phasePrepToTiptap";
+import { PhasePrepPreview } from "@/components/ai/PhasePrepPreview";
 import type { CampaignPhase, Quest, Location } from "@/types";
 import type { JSONContent } from "@tiptap/react";
 import RichTextEditor, {
@@ -396,23 +398,20 @@ export default function PhaseCard({
           </button>
         </div>
         {nestedLocationDialog}
-        <AIAssistModal<TextResult>
+        <AIAssistModal<PhasePrepResult>
           open={aiDescOpen}
           onClose={() => setAiDescOpen(false)}
-          title="Generate phase description"
+          title="Generate phase prep sheet"
           existingContent={
             richContent ? extractPlainText(richContent).trim() || undefined : undefined
           }
-          placeholder="e.g. 'The party infiltrates a corrupt merchant guild, gathering evidence across three districts.'"
+          placeholder="e.g. 'The party gets a hint from an old friend in a tavern about a mysterious lighthouse on the Sword Coast, shrouded in mist.'"
           onGenerate={(req) => api.ai.generatePhaseDescription(campaignId, phase.id, req)}
           onAccept={(result) => {
-            setRichContent({
-              type: "doc",
-              content: [{ type: "paragraph", content: [{ type: "text", text: result.text }] }],
-            });
+            setRichContent(phasePrepToTiptap(result));
           }}
-          renderResult={(r) => <p className="whitespace-pre-wrap">{r.text}</p>}
-          extractPrev={(r) => r.text}
+          renderResult={(r) => <PhasePrepPreview result={r} />}
+          extractPrev={(r) => phasePrepToMarkdown(r)}
         />
       </div>
     );

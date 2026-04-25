@@ -107,8 +107,7 @@ export default function RichTextEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        heading: false,
-        bulletList: false,
+        heading: { levels: [3] },
         orderedList: false,
         blockquote: false,
         codeBlock: false,
@@ -140,6 +139,18 @@ export default function RichTextEditor({
     const el = editor.view.dom;
     el.setAttribute("data-placeholder", placeholder);
   }, [editor, placeholder]);
+
+  // Sync external content updates (e.g. AI generation accept) into the editor.
+  // useEditor's `content` is set-once; without this, parent setState never reaches the view.
+  // Skip no-op writes (avoids feedback loops with onUpdate) and pass emitUpdate:false so the
+  // imperative write doesn't re-emit through onChange.
+  useEffect(() => {
+    if (!editor || !initialContent) return;
+    const current = JSON.stringify(editor.getJSON());
+    const next = JSON.stringify(initialContent);
+    if (current === next) return;
+    editor.commands.setContent(initialContent, { emitUpdate: false });
+  }, [editor, initialContent]);
 
   // Auto-tag known location names (from DB + already tagged in this doc) as user types.
   // The timer ref lives outside the effect so re-renders don't cancel it.
@@ -301,6 +312,27 @@ export default function RichTextEditor({
         }
         .ProseMirror:focus {
           outline: none;
+        }
+        .ProseMirror h3 {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: var(--color-foreground, inherit);
+          margin-top: 0.85rem;
+          margin-bottom: 0.25rem;
+        }
+        .ProseMirror h3:first-child {
+          margin-top: 0;
+        }
+        .ProseMirror ul {
+          list-style: disc;
+          padding-left: 1.25rem;
+          margin: 0.25rem 0 0.5rem;
+        }
+        .ProseMirror ul li {
+          margin: 0.15rem 0;
+        }
+        .ProseMirror ul li > p {
+          margin: 0;
         }
       `}</style>
     </div>

@@ -1,4 +1,5 @@
 # backend/app/schemas/ai_assist.py
+from typing import Literal
 from pydantic import BaseModel, Field
 
 
@@ -28,3 +29,31 @@ class PersonalityResult(BaseModel):
 
     personality: str
     motivation: str
+
+
+PhasePrepHeading = Literal[
+    "Hook",
+    "Key Beats",
+    "DM Secrets",
+    "Climax / Exit",
+    "Tone & Atmosphere",
+    "Complications",
+]
+
+
+class PhasePrepSection(BaseModel):
+    """One section of the phase prep sheet: a fixed-enum heading plus 1–6 bullets."""
+
+    heading: PhasePrepHeading
+    bullets: list[str] = Field(min_length=1, max_length=6)
+
+
+class PhasePrepResult(BaseModel):
+    """Structured AI output for the phase-description generator.
+
+    sections: 1–6 sections. The model omits any section it has nothing
+    useful for. Section order reflects the model's choice and is preserved
+    by the frontend renderer (no re-sort).
+    """
+
+    sections: list[PhasePrepSection] = Field(min_length=1, max_length=6)

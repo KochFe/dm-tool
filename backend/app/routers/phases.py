@@ -4,11 +4,13 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.dependencies import get_current_user, get_db
 from app.models.campaign_phase import CampaignPhase
+from app.models.location import Location
 from app.models.user import User
-from app.schemas.ai_assist import AIAssistRequest, TextResult
+from app.schemas.ai_assist import AIAssistRequest, PhasePrepResult
 from app.schemas.campaign_phase import PhaseCreate, PhaseLinksUpdate, PhaseResponse, PhaseUpdate
 from app.schemas.common import APIResponse
 from app.schemas.phase_expander import (
@@ -140,7 +142,7 @@ async def set_phase_locations(
 
 @router.post(
     "/campaigns/{campaign_id}/phases/{phase_id}/ai/description",
-    response_model=APIResponse[TextResult],
+    response_model=APIResponse[PhasePrepResult],
 )
 async def ai_phase_description_endpoint(
     campaign_id: uuid.UUID,
@@ -148,13 +150,18 @@ async def ai_phase_description_endpoint(
     request: AIAssistRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> APIResponse[TextResult]:
-    """Generate or augment the phase description (non-persistent)."""
+) -> APIResponse[PhasePrepResult]:
+    """Generate a structured DM prep sheet for a phase (non-persistent)."""
     campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
 
-    phase = await db.get(CampaignPhase, phase_id)
+    phase_q = (
+        select(CampaignPhase)
+        .where(CampaignPhase.id == phase_id)
+        .options(selectinload(CampaignPhase.locations).selectinload(Location.npcs))
+    )
+    phase = (await db.execute(phase_q)).scalar_one_or_none()
     if not phase or phase.campaign_id != campaign_id:
         raise HTTPException(status_code=404, detail="Phase not found")
 

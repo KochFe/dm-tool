@@ -334,3 +334,100 @@ def build_expander_policy() -> str:
 
 def build_expander_context(state: dict) -> str:
     return _expander_context_block(state)
+
+
+# ---------------------------------------------------------------------------
+# Phase Prep Sheet prompts (Track 3 — structured prep-sheet generator)
+# ---------------------------------------------------------------------------
+
+PHASE_PREP_TASK = (
+    "a DM prep sheet for a campaign phase, organized as scannable sections "
+    "with short bullet lists. This is read by the DM at the table — it is NOT "
+    "read-aloud text for players. Prefer concrete verbs and named specifics "
+    "over atmosphere."
+)
+
+PHASE_PREP_SCHEMA_HINT = (
+    'Return JSON: { "sections": [{ "heading": "<one of: Hook, Key Beats, '
+    'DM Secrets, Climax / Exit, Tone & Atmosphere, Complications>", '
+    '"bullets": ["<string>", ...] }] }. '
+    'Include a section only if you have genuine content for it. '
+    'Each section must have at least one bullet (1–6 bullets per section). '
+    'Return between 1 and 6 sections total.'
+)
+
+PHASE_PREP_RESTRUCTURE_ADDENDUM = (
+    "You are RESTRUCTURING the existing description into the section format "
+    "above. Preserve concrete facts (names, places, specific events). "
+    "Reorganize as sections. Drop filler adjectives and repetition. Add new "
+    "beats only if the user's steer asks for them."
+)
+
+
+def build_phase_prep_sections_block() -> str:
+    """Return the static section-semantics + bullet-style block for the prep-sheet prompt."""
+    return (
+        "## Sections (include only those you have real content for — omit the rest)\n"
+        "- Hook — how this phase kicks off for the party. 1–2 bullets.\n"
+        "- Key Beats — 3–5 bullets, plot points you want to land during this phase, "
+        "in roughly the order they'd occur. Each bullet = one concrete event or scene.\n"
+        "- DM Secrets — 2–4 bullets of information the players do NOT know yet "
+        "(hidden motives, true identities, what's really going on).\n"
+        "- Climax / Exit — 1–2 bullets. How the phase ends and what transitions to "
+        "the next phase.\n"
+        "- Tone & Atmosphere — 1–2 bullets. Tonal notes for the DM (pacing, mood, "
+        "recurring imagery). Skip if it doesn't add anything beyond the campaign tone.\n"
+        "- Complications — 2–3 bullets. \"If the party does X / if Y goes sideways\" "
+        "contingencies.\n"
+        "\n"
+        "## Bullet style\n"
+        "- 1–2 sentences, ~20–40 words per bullet.\n"
+        "- Lead with the concrete *what*, then the DM-facing *why it matters* if needed.\n"
+        "- Do NOT start every bullet with \"The party...\" — vary sentence openings."
+    )
+
+
+def build_phase_entity_context(phase) -> str:
+    """Return the linked-locations + NPCs-at-those-locations block, or ''
+    when the phase has no linked locations.
+
+    Arg:
+        phase: a CampaignPhase with `.locations` eagerly loaded. Each location
+            is expected to have `.npcs` eagerly loaded as well.
+
+    The constraints at the end of the block tell the model it may reference
+    these entities by name but must not invent new named entities.
+    """
+    locations = list(getattr(phase, "locations", []) or [])
+    if not locations:
+        return ""
+
+    lines = ["## Locations linked to this phase"]
+    for loc in locations:
+        desc = (loc.description or "").strip().replace("\n", " ")
+        short = (desc[:140] + "…") if len(desc) > 140 else desc
+        lines.append(f"- {loc.name}: {short or '(no description)'}")
+
+    npc_lines: list[str] = []
+    for loc in locations:
+        for npc in list(getattr(loc, "npcs", []) or []):
+            role = npc.npc_class or "resident"
+            desc = (npc.description or "").strip().replace("\n", " ")
+            short = (desc[:100] + "…") if len(desc) > 100 else desc
+            npc_lines.append(
+                f"- {npc.name} ({npc.race}, {role} at {loc.name})"
+                + (f": {short}" if short else "")
+            )
+
+    if npc_lines:
+        lines.append("")
+        lines.append("## NPCs at those locations")
+        lines.extend(npc_lines)
+
+    lines.append("")
+    lines.append(
+        "You MAY reference these by name when a bullet naturally belongs there. "
+        "You MUST NOT invent new named locations or NPCs. Generic roles are fine "
+        "(\"a smuggler contact\", \"a coastal shrine\") when no named entity fits."
+    )
+    return "\n".join(lines)

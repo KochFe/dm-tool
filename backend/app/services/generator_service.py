@@ -6,13 +6,22 @@ from app.ai.prompts import (
     LOOT_GENERATOR_PROMPT,
     NPC_GENERATOR_PROMPT,
     PERSONALITY_TASK,
-    PHASE_DESCRIPTION_TASK,
     PERSONALITY_SCHEMA_HINT,
+    PHASE_PREP_RESTRUCTURE_ADDENDUM,
+    PHASE_PREP_SCHEMA_HINT,
+    PHASE_PREP_TASK,
     TEXT_SCHEMA_HINT,
     build_ai_assist_prompt,
+    build_phase_entity_context,
+    build_phase_prep_sections_block,
 )
 from app.config import settings
-from app.schemas.ai_assist import AIAssistRequest, PersonalityResult, TextResult
+from app.schemas.ai_assist import (
+    AIAssistRequest,
+    PersonalityResult,
+    PhasePrepResult,
+    TextResult,
+)
 from app.schemas.generators import GeneratedEncounter, GeneratedLoot, GeneratedNpc
 
 
@@ -145,21 +154,27 @@ async def generate_npc(
 
 async def generate_phase_description(
     campaign: object,
-    phase: object,  # app.models.campaign_phase.CampaignPhase
+    phase: object,  # app.models.campaign_phase.CampaignPhase with .locations eagerly loaded
     prior_phase_summaries: list[str],
     req: AIAssistRequest,
-) -> TextResult:
-    """Generate or augment a phase description based on user steer.
+) -> PhasePrepResult:
+    """Generate a structured DM prep sheet for a campaign phase.
+
+    Returns a PhasePrepResult with 1–6 sections, each containing 1–6 bullets.
+    The model may reference locations and NPCs already linked to the phase by
+    name, but must not invent new named entities.
 
     prior_phase_summaries: list of 'Title: description-excerpt' for phases
         with lower sort_order than this one. Used for arc continuity.
+    phase: must have .locations eagerly loaded; each location should have
+        .npcs eagerly loaded.
     """
     llm = _get_llm(temperature=1.0)
-    structured_llm = llm.with_structured_output(TextResult)
+    structured_llm = llm.with_structured_output(PhasePrepResult)
 
     prior_block = "\n".join(f"- {s}" for s in prior_phase_summaries) or "- (none)"
 
-    context_block = (
+    base_context = (
         "## Campaign context\n"
         f"- Name: {campaign.name}\n"
         f"- Party level: {campaign.party_level}\n"
@@ -170,14 +185,24 @@ async def generate_phase_description(
         f"{prior_block}\n"
     )
 
+    entity_block = build_phase_entity_context(phase)
+    sections_block = build_phase_prep_sections_block()
+
+    pieces = [base_context, sections_block]
+    if entity_block:
+        pieces.append(entity_block)
+    if req.existing_content:
+        pieces.append(PHASE_PREP_RESTRUCTURE_ADDENDUM)
+    context_block = "\n\n".join(pieces)
+
     prompt = build_ai_assist_prompt(
-        task_description=PHASE_DESCRIPTION_TASK,
+        task_description=PHASE_PREP_TASK,
         context_block=context_block,
         steer=req.steer,
         existing_content=req.existing_content,
         previous_output=req.previous_output,
         feedback=req.feedback,
-        output_schema_hint=TEXT_SCHEMA_HINT,
+        output_schema_hint=PHASE_PREP_SCHEMA_HINT,
     )
 
     try:
