@@ -2,7 +2,7 @@ import pytest
 from httpx import AsyncClient
 from unittest.mock import patch, AsyncMock
 
-from app.schemas.ai_assist import TextResult, PersonalityResult
+from app.schemas.ai_assist import PersonalityResult, PhasePrepResult, TextResult
 
 pytestmark = pytest.mark.asyncio
 
@@ -67,8 +67,6 @@ async def _create_campaign_and_phase(client: AsyncClient, auth_headers: dict) ->
 
 
 async def test_generate_phase_description_happy_path(client: AsyncClient, auth_headers):
-    from app.schemas.ai_assist import PhasePrepResult
-
     cid, pid = await _create_campaign_and_phase(client, auth_headers)
     with patch(
         "app.routers.phases.generate_phase_description",
@@ -103,8 +101,6 @@ async def test_generate_phase_description_happy_path(client: AsyncClient, auth_h
 
 async def test_generate_phase_description_augment_mode(client: AsyncClient, auth_headers):
     """existing_content is passed through to the service (return type: PhasePrepResult)."""
-    from app.schemas.ai_assist import PhasePrepResult
-
     cid, pid = await _create_campaign_and_phase(client, auth_headers)
     with patch(
         "app.routers.phases.generate_phase_description",
@@ -159,7 +155,6 @@ async def test_generate_npc_personality_happy_path(client: AsyncClient, auth_hea
 # --- PhasePrepResult schema ---
 
 def test_phase_prep_result_rejects_invalid_heading():
-    from app.schemas.ai_assist import PhasePrepResult
     import pydantic
     with pytest.raises(pydantic.ValidationError):
         PhasePrepResult.model_validate(
@@ -168,7 +163,6 @@ def test_phase_prep_result_rejects_invalid_heading():
 
 
 def test_phase_prep_result_rejects_empty_bullets():
-    from app.schemas.ai_assist import PhasePrepResult
     import pydantic
     with pytest.raises(pydantic.ValidationError):
         PhasePrepResult.model_validate(
@@ -177,14 +171,12 @@ def test_phase_prep_result_rejects_empty_bullets():
 
 
 def test_phase_prep_result_rejects_no_sections():
-    from app.schemas.ai_assist import PhasePrepResult
     import pydantic
     with pytest.raises(pydantic.ValidationError):
         PhasePrepResult.model_validate({"sections": []})
 
 
 def test_phase_prep_result_accepts_valid_shape():
-    from app.schemas.ai_assist import PhasePrepResult
     result = PhasePrepResult.model_validate(
         {
             "sections": [

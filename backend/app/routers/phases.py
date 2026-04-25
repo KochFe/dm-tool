@@ -4,9 +4,11 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.dependencies import get_current_user, get_db
 from app.models.campaign_phase import CampaignPhase
+from app.models.location import Location
 from app.models.user import User
 from app.schemas.ai_assist import AIAssistRequest, PhasePrepResult
 from app.schemas.campaign_phase import PhaseCreate, PhaseLinksUpdate, PhaseResponse, PhaseUpdate
@@ -150,9 +152,6 @@ async def ai_phase_description_endpoint(
     current_user: User = Depends(get_current_user),
 ) -> APIResponse[PhasePrepResult]:
     """Generate a structured DM prep sheet for a phase (non-persistent)."""
-    from sqlalchemy.orm import selectinload
-    from app.models.location import Location
-
     campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
