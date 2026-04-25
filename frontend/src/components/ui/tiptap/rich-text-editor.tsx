@@ -313,6 +313,27 @@ export default function RichTextEditor({
         .ProseMirror:focus {
           outline: none;
         }
+        .ProseMirror h3 {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: var(--color-foreground, inherit);
+          margin-top: 0.85rem;
+          margin-bottom: 0.25rem;
+        }
+        .ProseMirror h3:first-child {
+          margin-top: 0;
+        }
+        .ProseMirror ul {
+          list-style: disc;
+          padding-left: 1.25rem;
+          margin: 0.25rem 0 0.5rem;
+        }
+        .ProseMirror ul li {
+          margin: 0.15rem 0;
+        }
+        .ProseMirror ul li > p {
+          margin: 0;
+        }
       `}</style>
     </div>
   );
