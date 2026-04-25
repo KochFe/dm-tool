@@ -134,3 +134,47 @@ async def test_generate_npc_personality_happy_path(client: AsyncClient, auth_hea
     assert body["motivation"] == "Seeks his lost brother."
 
 
+# --- PhasePrepResult schema ---
+
+def test_phase_prep_result_rejects_invalid_heading():
+    from app.schemas.ai_assist import PhasePrepResult
+    import pydantic
+    with pytest.raises(pydantic.ValidationError):
+        PhasePrepResult.model_validate(
+            {"sections": [{"heading": "Conclusion", "bullets": ["x"]}]}
+        )
+
+
+def test_phase_prep_result_rejects_empty_bullets():
+    from app.schemas.ai_assist import PhasePrepResult
+    import pydantic
+    with pytest.raises(pydantic.ValidationError):
+        PhasePrepResult.model_validate(
+            {"sections": [{"heading": "Hook", "bullets": []}]}
+        )
+
+
+def test_phase_prep_result_rejects_no_sections():
+    from app.schemas.ai_assist import PhasePrepResult
+    import pydantic
+    with pytest.raises(pydantic.ValidationError):
+        PhasePrepResult.model_validate({"sections": []})
+
+
+def test_phase_prep_result_accepts_valid_shape():
+    from app.schemas.ai_assist import PhasePrepResult
+    result = PhasePrepResult.model_validate(
+        {
+            "sections": [
+                {"heading": "Hook", "bullets": ["An old friend slips them a map."]},
+                {
+                    "heading": "Key Beats",
+                    "bullets": ["Beat 1.", "Beat 2."],
+                },
+            ]
+        }
+    )
+    assert result.sections[0].heading == "Hook"
+    assert result.sections[1].bullets == ["Beat 1.", "Beat 2."]
+
+
