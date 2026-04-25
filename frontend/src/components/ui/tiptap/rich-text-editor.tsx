@@ -107,8 +107,7 @@ export default function RichTextEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        heading: false,
-        bulletList: false,
+        heading: { levels: [3] },
         orderedList: false,
         blockquote: false,
         codeBlock: false,
