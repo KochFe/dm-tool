@@ -67,30 +67,52 @@ async def _create_campaign_and_phase(client: AsyncClient, auth_headers: dict) ->
 
 
 async def test_generate_phase_description_happy_path(client: AsyncClient, auth_headers):
+    from app.schemas.ai_assist import PhasePrepResult
+
     cid, pid = await _create_campaign_and_phase(client, auth_headers)
     with patch(
         "app.routers.phases.generate_phase_description",
         new_callable=AsyncMock,
     ) as mock_gen:
-        mock_gen.return_value = TextResult(text="The miners vanished during a blood moon.")
+        mock_gen.return_value = PhasePrepResult.model_validate(
+            {
+                "sections": [
+                    {"heading": "Hook", "bullets": ["An old friend slips them a map."]},
+                    {
+                        "heading": "Key Beats",
+                        "bullets": ["The lighthouse hums at dusk.", "Mist rolls in."],
+                    },
+                ]
+            }
+        )
         resp = await client.post(
             f"/api/v1/campaigns/{cid}/phases/{pid}/ai/description",
-            json={"steer": "dark horror tone, missing people"},
+            json={"steer": "lighthouse shrouded in mist"},
             headers=auth_headers,
         )
     assert resp.status_code == 200
-    assert resp.json()["data"]["text"].startswith("The miners")
+    body = resp.json()["data"]
+    assert isinstance(body["sections"], list)
+    assert body["sections"][0]["heading"] == "Hook"
+    assert body["sections"][1]["bullets"] == [
+        "The lighthouse hums at dusk.",
+        "Mist rolls in.",
+    ]
     mock_gen.assert_awaited_once()
 
 
 async def test_generate_phase_description_augment_mode(client: AsyncClient, auth_headers):
-    """existing_content is passed through to the service."""
+    """existing_content is passed through to the service (return type: PhasePrepResult)."""
+    from app.schemas.ai_assist import PhasePrepResult
+
     cid, pid = await _create_campaign_and_phase(client, auth_headers)
     with patch(
         "app.routers.phases.generate_phase_description",
         new_callable=AsyncMock,
     ) as mock_gen:
-        mock_gen.return_value = TextResult(text="augmented text")
+        mock_gen.return_value = PhasePrepResult.model_validate(
+            {"sections": [{"heading": "Hook", "bullets": ["augmented"]}]}
+        )
         await client.post(
             f"/api/v1/campaigns/{cid}/phases/{pid}/ai/description",
             json={
