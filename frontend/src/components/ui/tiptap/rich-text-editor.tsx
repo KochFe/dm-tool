@@ -141,6 +141,18 @@ export default function RichTextEditor({
     el.setAttribute("data-placeholder", placeholder);
   }, [editor, placeholder]);
 
+  // Sync external content updates (e.g. AI generation accept) into the editor.
+  // useEditor's `content` is set-once; without this, parent setState never reaches the view.
+  // Skip no-op writes (avoids feedback loops with onUpdate) and pass emitUpdate:false so the
+  // imperative write doesn't re-emit through onChange.
+  useEffect(() => {
+    if (!editor || !initialContent) return;
+    const current = JSON.stringify(editor.getJSON());
+    const next = JSON.stringify(initialContent);
+    if (current === next) return;
+    editor.commands.setContent(initialContent, { emitUpdate: false });
+  }, [editor, initialContent]);
+
   // Auto-tag known location names (from DB + already tagged in this doc) as user types.
   // The timer ref lives outside the effect so re-renders don't cancel it.
   const isAutoTagging = useRef(false);
