@@ -10,6 +10,7 @@ import {
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { api, setTokens, clearTokens } from "@/lib/api";
+import { setLocaleCookie } from "@/lib/locale";
 import { AuthUser } from "@/types";
 
 interface AuthContextType {
@@ -22,10 +23,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const PUBLIC_PATHS = ["/", "/login"];
-
-function setLocaleCookie(locale: "en" | "de") {
-  document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);

@@ -79,6 +79,17 @@
   "builder": {
     "loading": "Loading…"
   },
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "areYouSure": "Are you sure?"
+  },
+  "themeToggle": {
+    "toggleTheme": "Toggle theme"
+  },
+  "languageToggle": {
+    "saveError": "Could not save language preference. Reverted."
+  },
   "campaigns": {
     "pageTitle": "Campaigns",
     "newButton": "Create New Campaign",

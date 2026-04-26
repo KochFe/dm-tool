@@ -4,10 +4,12 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const t = useTranslations("themeToggle");
 
   useEffect(() => setMounted(true), []);
 
@@ -21,7 +23,7 @@ export function ThemeToggle() {
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-accent transition-colors"
-      aria-label="Toggle theme"
+      aria-label={t("toggleTheme")}
     >
       <AnimatePresence mode="wait" initial={false}>
         {isDark ? (

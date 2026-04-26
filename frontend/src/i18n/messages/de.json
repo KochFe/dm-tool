@@ -79,6 +79,17 @@
   "builder": {
     "loading": "Wird geladen…"
   },
+  "common": {
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen",
+    "areYouSure": "Bist du sicher?"
+  },
+  "themeToggle": {
+    "toggleTheme": "Design umschalten"
+  },
+  "languageToggle": {
+    "saveError": "Spracheinstellung konnte nicht gespeichert werden. Zurückgesetzt."
+  },
   "campaigns": {
     "pageTitle": "Kampagnen",
     "newButton": "Neue Kampagne erstellen",

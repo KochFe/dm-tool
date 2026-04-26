@@ -6,33 +6,29 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { api } from "@/lib/api";
-
-const NEXT_LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
-
-function setCookie(value: "en" | "de") {
-  document.cookie =
-    `NEXT_LOCALE=${value}; path=/; max-age=${NEXT_LOCALE_COOKIE_MAX_AGE}; SameSite=Lax`;
-}
+import { setLocaleCookie } from "@/lib/locale";
+import { useTranslations } from "next-intl";
 
 export function LanguageToggle() {
   const locale = useLocale() as "en" | "de";
   const pathname = usePathname();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("languageToggle");
 
   if (pathname.startsWith("/login")) return null;
 
   async function switchTo(next: "en" | "de") {
     if (next === locale || isPending) return;
     const previous = locale;
-    setCookie(next);
+    setLocaleCookie(next);
     startTransition(() => router.refresh());
     try {
       await api.updateMe({ language: next });
     } catch {
-      setCookie(previous);
+      setLocaleCookie(previous);
       router.refresh();
-      toast.error("Could not save language preference. Reverted.");
+      toast.error(t("saveError"));
     }
   }
 
