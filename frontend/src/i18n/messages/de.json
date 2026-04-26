@@ -2,6 +2,7 @@
   "header": {
     "appName": "DM Co-Pilot",
     "campaigns": "Kampagnen",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "skipToContent": "Zum Inhalt springen"
   }
 }

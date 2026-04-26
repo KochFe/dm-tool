@@ -9,7 +9,7 @@ import { ThemeProvider } from "next-themes";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +33,7 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const t = await getTranslations("header");
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -46,7 +47,7 @@ export default async function RootLayout({
               href="#main-content"
               className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-semibold"
             >
-              Skip to content
+              {t("skipToContent")}
             </a>
             <nav className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
               <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-6">
@@ -54,14 +55,14 @@ export default async function RootLayout({
                   href="/"
                   className="text-lg font-bold text-primary hover:text-primary/80 transition-colors duration-150 tracking-wide"
                 >
-                  DM Co-Pilot
+                  {t("appName")}
                 </Link>
                 <Link
                   href="/campaigns"
                   prefetch={false}
                   className="text-foreground/80 hover:text-primary transition-colors duration-150 text-sm font-medium"
                 >
-                  Campaigns
+                  {t("campaigns")}
                 </Link>
                 <div className="ml-auto flex items-center gap-4">
                   <ThemeToggle />
