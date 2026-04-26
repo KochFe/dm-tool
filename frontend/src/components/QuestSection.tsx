@@ -3,18 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { api } from "@/lib/api";
 import type { Quest, QuestCreate, QuestStatus, Location } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
 import { CardListSkeleton } from "@/components/skeletons/CardSkeleton";
 import LocationHoverCard from "@/components/LocationHoverCard";
-
-const STATUS_LABELS: Record<QuestStatus, string> = {
-  not_started: "Not Started",
-  in_progress: "In Progress",
-  completed: "Completed",
-  failed: "Failed",
-};
 
 const STATUS_BADGE: Record<QuestStatus, string> = {
   not_started: "bg-accent text-foreground/80",
@@ -48,6 +42,15 @@ export default function QuestSection({
   locations: Location[];
   partyLevel: number;
 }) {
+  const t = useTranslations("questSection");
+
+  const STATUS_LABELS: Record<QuestStatus, string> = {
+    not_started: t("statusNotStarted"),
+    in_progress: t("statusInProgress"),
+    completed: t("statusCompleted"),
+    failed: t("statusFailed"),
+  };
+
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +68,7 @@ export default function QuestSection({
       const data = await api.getQuests(campaignId);
       setQuests(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load quests.");
+      setError(err instanceof Error ? err.message : t("loadError"));
     } finally {
       setLoading(false);
     }
@@ -93,10 +96,10 @@ export default function QuestSection({
     try {
       if (editId) {
         await api.updateQuest(editId, payload);
-        toast.success("Quest updated");
+        toast.success(t("toastUpdated"));
       } else {
         await api.createQuest(campaignId, payload);
-        toast.success("Quest created");
+        toast.success(t("toastCreated"));
       }
       setForm(EMPTY_FORM);
       setShowForm(false);
@@ -104,7 +107,7 @@ export default function QuestSection({
       await loadQuests();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Save failed.";
-      setSubmitError(msg.startsWith("[object") ? "Validation error — check all fields." : msg);
+      setSubmitError(msg.startsWith("[object") ? t("validationError") : msg);
     }
   };
 
@@ -126,11 +129,11 @@ export default function QuestSection({
     setDeleteError(null);
     try {
       await api.deleteQuest(id);
-      toast.success("Quest deleted");
+      toast.success(t("toastDeleted"));
       await loadQuests();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Delete failed.";
-      toast.error(`Failed to delete quest: ${msg}`);
+      const msg = err instanceof Error ? err.message : t("deleteFailed");
+      toast.error(t("toastDeleteFailed", { message: msg }));
       setDeleteError(msg);
     }
   };
@@ -145,7 +148,7 @@ export default function QuestSection({
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-foreground">Quests</h2>
+        <h2 className="text-xl font-semibold text-foreground">{t("heading")}</h2>
         <button
           onClick={() => {
             if (showForm) {
@@ -159,7 +162,7 @@ export default function QuestSection({
           }}
           className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1.5 rounded-lg transition-colors"
         >
-          {showForm ? "Cancel" : "+ Add"}
+          {showForm ? t("cancel") : t("addButton")}
         </button>
       </div>
 
@@ -169,14 +172,14 @@ export default function QuestSection({
           className="bg-muted/50 border border-border rounded-xl p-4 mb-4 space-y-3"
         >
           <input
-            placeholder="Quest title"
+            placeholder={t("titlePlaceholder")}
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
             required
           />
           <textarea
-            placeholder="Description (optional)"
+            placeholder={t("descriptionPlaceholder")}
             value={form.description ?? ""}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={3}
@@ -184,7 +187,7 @@ export default function QuestSection({
           />
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-muted-foreground block mb-1">Status</label>
+              <label className="text-xs text-muted-foreground block mb-1">{t("statusLabel")}</label>
               <select
                 value={form.status ?? "not_started"}
                 onChange={(e) =>
@@ -200,7 +203,7 @@ export default function QuestSection({
               </select>
             </div>
             <div>
-              <label className="text-xs text-muted-foreground block mb-1">Location (optional)</label>
+              <label className="text-xs text-muted-foreground block mb-1">{t("locationLabel")}</label>
               <select
                 value={form.location_id ?? ""}
                 onChange={(e) =>
@@ -211,7 +214,7 @@ export default function QuestSection({
                 }
                 className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
               >
-                <option value="">— None —</option>
+                <option value="">{t("locationNone")}</option>
                 {locations.map((loc) => (
                   <option key={loc.id} value={loc.id}>
                     {loc.name}
@@ -222,9 +225,9 @@ export default function QuestSection({
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-muted-foreground block mb-1">Reward (optional)</label>
+              <label className="text-xs text-muted-foreground block mb-1">{t("rewardLabel")}</label>
               <input
-                placeholder="e.g. 500 gp, Magic Sword"
+                placeholder={t("rewardPlaceholder")}
                 value={form.reward ?? ""}
                 onChange={(e) => setForm({ ...form, reward: e.target.value })}
                 className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
@@ -232,7 +235,7 @@ export default function QuestSection({
             </div>
             <div>
               <label className="text-xs text-muted-foreground block mb-1">
-                Recommended Level (optional)
+                {t("levelLabel")}
               </label>
               <input
                 type="number"
@@ -259,7 +262,7 @@ export default function QuestSection({
             type="submit"
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-colors"
           >
-            {editId ? "Update Quest" : "Create Quest"}
+            {editId ? t("submitUpdate") : t("submitCreate")}
           </button>
         </form>
       )}
@@ -277,7 +280,7 @@ export default function QuestSection({
           {error}
         </p>
       ) : quests.length === 0 ? (
-        <p className="text-muted-foreground text-sm">No quests yet.</p>
+        <p className="text-muted-foreground text-sm">{t("empty")}</p>
       ) : (
         <div className="space-y-2">
           <AnimatePresence>
@@ -305,10 +308,10 @@ export default function QuestSection({
                           className={`text-xs font-medium ${levelIndicatorClass(quest.level, partyLevel)}`}
                           title={
                             quest.level > partyLevel
-                              ? `Quest Level ${quest.level} - Above party level (${partyLevel}), may be dangerous`
+                              ? t("levelAbove", { level: quest.level, partyLevel })
                               : quest.level === partyLevel
-                              ? `Quest Level ${quest.level} - Appropriate for party level`
-                              : `Quest Level ${quest.level} - Below party level (${partyLevel})`
+                              ? t("levelEqual", { level: quest.level })
+                              : t("levelBelow", { level: quest.level, partyLevel })
                           }
                         >
                           Lv.{quest.level}
@@ -329,7 +332,7 @@ export default function QuestSection({
                       })()}
                       {quest.reward && (
                         <span className="text-xs text-primary/80">
-                          Reward: {quest.reward}
+                          {t("rewardPrefix", { reward: quest.reward })}
                         </span>
                       )}
                     </div>
@@ -345,13 +348,13 @@ export default function QuestSection({
                         onClick={() => startEdit(quest)}
                         className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1 rounded-lg transition-colors"
                       >
-                        Edit
+                        {t("editButton")}
                       </button>
                     )}
                     <ConfirmButton
                       onConfirm={() => handleDelete(quest.id)}
-                      label="Delete"
-                      confirmLabel="Are you sure?"
+                      label={t("deleteButton")}
+                      confirmLabel={t("deleteConfirm")}
                       className="text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-700/50 dark:hover:bg-red-700 dark:text-red-200 px-3 py-1 rounded-lg transition-colors"
                       onConfirmingChange={(c) => setConfirmingId(c ? quest.id : null)}
                     />
