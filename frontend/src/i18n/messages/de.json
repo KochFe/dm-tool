@@ -14,5 +14,21 @@
     "invalidCredentials": "Ungültige E-Mail oder Passwort",
     "loginFailed": "Anmeldung fehlgeschlagen",
     "backToHome": "Zurück zur Startseite"
+  },
+  "campaigns": {
+    "pageTitle": "Kampagnen",
+    "newButton": "Neue Kampagne erstellen",
+    "creating": "Wird erstellt…",
+    "loading": "Kampagnen werden geladen…",
+    "emptyTitle": "Noch keine Kampagnen.",
+    "emptyHint": "Klicke auf \"Neue Kampagne erstellen\", um zu beginnen.",
+    "notActivated": "Noch nicht aktiviert",
+    "draft": "ENTWURF",
+    "continueButton": "Weiter",
+    "deleteButton": "Löschen",
+    "deleteConfirm": "Bist du sicher?",
+    "deleteSuccess": "Kampagne gelöscht",
+    "deleteError": "Kampagne konnte nicht gelöscht werden: {message}",
+    "createError": "Kampagne konnte nicht erstellt werden: {message}"
   }
 }

@@ -14,5 +14,21 @@
     "invalidCredentials": "Invalid email or password",
     "loginFailed": "Login failed",
     "backToHome": "Back to home"
+  },
+  "campaigns": {
+    "pageTitle": "Campaigns",
+    "newButton": "Create New Campaign",
+    "creating": "Creating…",
+    "loading": "Loading campaigns…",
+    "emptyTitle": "No campaigns yet.",
+    "emptyHint": "Click \"Create New Campaign\" to get started.",
+    "notActivated": "Not yet activated",
+    "draft": "DRAFT",
+    "continueButton": "Continue",
+    "deleteButton": "Delete",
+    "deleteConfirm": "Are you sure?",
+    "deleteSuccess": "Campaign deleted",
+    "deleteError": "Failed to delete campaign: {message}",
+    "createError": "Failed to create campaign: {message}"
   }
 }
