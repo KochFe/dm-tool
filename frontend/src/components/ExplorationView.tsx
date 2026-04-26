@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import { Badge } from "@/components/ui/badge";
 import SmartPrompts from "@/components/SmartPrompts";
@@ -16,6 +17,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 export default function ExplorationView() {
+  const t = useTranslations("explorationView");
   const { campaign, currentLocation, npcs, quests, characters, reload } = useCampaign();
   const [generatorResult, setGeneratorResult] = useState<{
     type: "encounter" | "npc" | "loot";
@@ -33,7 +35,7 @@ export default function ExplorationView() {
   if (!currentLocation) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-muted-foreground text-sm">Set a current location to see location-specific info.</p>
+        <p className="text-muted-foreground text-sm">{t("noLocation")}</p>
       </div>
     );
   }
@@ -54,7 +56,7 @@ export default function ExplorationView() {
       {/* NPCs at this location */}
       {locationNpcs.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-foreground/80 mb-2">NPCs Here</h4>
+          <h4 className="text-sm font-semibold text-foreground/80 mb-2">{t("npcsHere")}</h4>
           <div className="space-y-2">
             {locationNpcs.map((npc) => (
               <div key={npc.id} className="bg-card border border-border rounded-lg p-3">
@@ -64,7 +66,7 @@ export default function ExplorationView() {
                     {npc.race}{npc.npc_class ? ` · ${npc.npc_class}` : ""}
                   </span>
                   {!npc.is_alive && (
-                    <Badge variant="destructive" className="text-xs">Dead</Badge>
+                    <Badge variant="destructive" className="text-xs">{t("dead")}</Badge>
                   )}
                 </div>
                 {npc.description && (
@@ -79,7 +81,7 @@ export default function ExplorationView() {
       {/* Active quests at this location */}
       {locationQuests.length > 0 && (
         <div>
-          <h4 className="text-sm font-semibold text-foreground/80 mb-2">Quests Here</h4>
+          <h4 className="text-sm font-semibold text-foreground/80 mb-2">{t("questsHere")}</h4>
           <div className="space-y-2">
             {locationQuests.map((q) => (
               <div key={q.id} className="bg-card border border-border rounded-lg p-3">
@@ -88,7 +90,7 @@ export default function ExplorationView() {
                   <span
                     className={`text-xs px-1.5 py-0.5 rounded-full ${STATUS_BADGE[q.status] ?? ""}`}
                   >
-                    {q.status.replace("_", " ")}
+                    {t(`questStatus.${q.status as "not_started" | "in_progress" | "completed" | "failed"}`)}
                   </span>
                 </div>
                 {q.description && (

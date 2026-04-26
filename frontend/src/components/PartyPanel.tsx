@@ -1,20 +1,23 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { hpColor, hpBarColor } from "@/lib/utils";
 import type { PlayerCharacter } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function PartyPanel({ characters }: { characters: PlayerCharacter[] }) {
+  const t = useTranslations("partyPanel");
+
   if (characters.length === 0) {
     return (
-      <div className="p-3 text-xs text-muted-foreground">No characters in this campaign.</div>
+      <div className="p-3 text-xs text-muted-foreground">{t("empty")}</div>
     );
   }
 
   return (
     <ScrollArea className="h-full">
       <div className="p-3 space-y-2">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Party</h3>
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("heading")}</h3>
         {characters.map((pc) => (
           <div key={pc.id} className="bg-muted/50 border border-border rounded-lg p-2.5">
             <p className="text-sm font-medium text-foreground truncate">{pc.name}</p>

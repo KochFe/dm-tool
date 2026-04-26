@@ -250,5 +250,22 @@
     "deleteSuccess": "Campaign deleted",
     "deleteError": "Failed to delete campaign: {message}",
     "createError": "Failed to create campaign: {message}"
+  },
+  "combatView": {},
+  "partyPanel": {
+    "heading": "Party",
+    "empty": "No characters in this campaign."
+  },
+  "explorationView": {
+    "noLocation": "Set a current location to see location-specific info.",
+    "npcsHere": "NPCs Here",
+    "questsHere": "Quests Here",
+    "dead": "Dead",
+    "questStatus": {
+      "not_started": "not started",
+      "in_progress": "in progress",
+      "completed": "completed",
+      "failed": "failed"
+    }
   }
 }

@@ -250,5 +250,22 @@
     "deleteSuccess": "Kampagne gelöscht",
     "deleteError": "Kampagne konnte nicht gelöscht werden: {message}",
     "createError": "Kampagne konnte nicht erstellt werden: {message}"
+  },
+  "combatView": {},
+  "partyPanel": {
+    "heading": "Party",
+    "empty": "Keine Charaktere in dieser Kampagne."
+  },
+  "explorationView": {
+    "noLocation": "Setze einen aktuellen Ort, um ortsspezifische Informationen zu sehen.",
+    "npcsHere": "NSCs hier",
+    "questsHere": "Quests hier",
+    "dead": "Tot",
+    "questStatus": {
+      "not_started": "nicht begonnen",
+      "in_progress": "in Bearbeitung",
+      "completed": "abgeschlossen",
+      "failed": "gescheitert"
+    }
   }
 }
