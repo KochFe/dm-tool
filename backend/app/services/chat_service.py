@@ -8,6 +8,7 @@ from app.ai.agent import create_lore_oracle
 from app.ai.prompts import build_oracle_system_prompt
 from app.ai.tools import create_campaign_tools
 from app.schemas.chat import ChatMessage, ChatResponse
+from app.schemas.language import Language
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,8 @@ async def process_chat(
     messages: list[ChatMessage],
     campaign_context: dict,
     session_factory: async_sessionmaker,
+    *,
+    language: Language = Language.EN,
 ) -> ChatResponse:
     """Invoke the Lore Oracle agent with campaign context and return its reply.
 
@@ -26,9 +29,9 @@ async def process_chat(
     a malformed tool call (a known Groq/LLama intermittent issue).
     """
     tools = create_campaign_tools(campaign_id, session_factory)
-    graph = create_lore_oracle(campaign_context, tools)
+    graph = create_lore_oracle(campaign_context, tools, language=language)
 
-    system_prompt = build_oracle_system_prompt(campaign_context)
+    system_prompt = build_oracle_system_prompt(campaign_context, language=language)
     langchain_messages: list = [SystemMessage(content=system_prompt)]
     for msg in messages:
         if msg.role == "user":

@@ -7,11 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 logger = logging.getLogger(__name__)
 
 from app.database import async_session
-from app.dependencies import get_current_user, get_db
+from app.dependencies import get_current_user, get_db, get_language
 from app.models.user import User
 from app.models.location import Location
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.schemas.common import APIResponse
+from app.schemas.language import Language
 from app.services import campaign_service
 from app.services.chat_service import process_chat
 
@@ -27,6 +28,7 @@ async def chat(
     request: ChatRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    language: Language = Depends(get_language),
 ) -> APIResponse[ChatResponse]:
     """Send a chat message to the Lore Oracle agent scoped to a campaign.
 
@@ -58,7 +60,8 @@ async def chat(
 
     try:
         result = await process_chat(
-            campaign_id, request.messages, campaign_context, async_session
+            campaign_id, request.messages, campaign_context, async_session,
+            language=language,
         )
     except RuntimeError as exc:
         if "GROQ_API_KEY" in str(exc):

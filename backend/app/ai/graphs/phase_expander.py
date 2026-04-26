@@ -13,15 +13,12 @@ from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel
 
 from app.ai.prompts import (
-    CHECK_CONSISTENCY_PROMPT,
-    DESCRIBE_PHASE_PROMPT,
-    PROPOSE_LOCATIONS_PROMPT,
-    PROPOSE_NPCS_PROMPT,
-    PROPOSE_QUESTS_PROMPT,
     build_expander_context,
     build_expander_policy,
+    get_prompt,
 )
 from app.config import settings
+from app.schemas.language import Language
 from app.schemas.phase_expander import (
     DraftLocation,
     DraftNpc,
@@ -40,6 +37,7 @@ class PhaseExpanderState(TypedDict, total=False):
     existing_phase_description: str | None
     existing_locations: list[dict]
     existing_npcs: list[dict]
+    language: Language
 
     # Progressive outputs
     phase_description: str | None
@@ -107,18 +105,20 @@ class _QuestsOut(BaseModel):
 
 
 async def describe_phase_node(state: PhaseExpanderState) -> dict:
-    prompt = DESCRIBE_PHASE_PROMPT.format(
-        policy=build_expander_policy(),
-        context=build_expander_context(state),
+    language = state.get("language", Language.EN)
+    prompt = get_prompt("DESCRIBE_PHASE_PROMPT", language).format(
+        policy=build_expander_policy(language=language),
+        context=build_expander_context(state, language=language),
     )
     out: _DescribeOut = await _call_structured(prompt, _DescribeOut)
     return {"phase_description": out.phase_description}
 
 
 async def propose_locations_node(state: PhaseExpanderState) -> dict:
-    prompt = PROPOSE_LOCATIONS_PROMPT.format(
-        policy=build_expander_policy(),
-        context=build_expander_context(state),
+    language = state.get("language", Language.EN)
+    prompt = get_prompt("PROPOSE_LOCATIONS_PROMPT", language).format(
+        policy=build_expander_policy(language=language),
+        context=build_expander_context(state, language=language),
         phase_description=state.get("phase_description") or "(unchanged)",
     )
     out: _LocationsOut = await _call_structured(prompt, _LocationsOut)
@@ -126,14 +126,15 @@ async def propose_locations_node(state: PhaseExpanderState) -> dict:
 
 
 async def propose_npcs_node(state: PhaseExpanderState) -> dict:
+    language = state.get("language", Language.EN)
     drafts = state.get("draft_locations") or []
     draft_loc_block = "\n".join(
         f"  {i}: {loc.name} — {loc.description[:60]}" for i, loc in enumerate(drafts)
     ) or "  (none)"
 
-    prompt = PROPOSE_NPCS_PROMPT.format(
-        policy=build_expander_policy(),
-        context=build_expander_context(state),
+    prompt = get_prompt("PROPOSE_NPCS_PROMPT", language).format(
+        policy=build_expander_policy(language=language),
+        context=build_expander_context(state, language=language),
         phase_description=state.get("phase_description") or "(unchanged)",
         draft_locations=draft_loc_block,
     )
@@ -142,6 +143,7 @@ async def propose_npcs_node(state: PhaseExpanderState) -> dict:
 
 
 async def propose_quests_node(state: PhaseExpanderState) -> dict:
+    language = state.get("language", Language.EN)
     drafts_l = state.get("draft_locations") or []
     drafts_n = state.get("draft_npcs") or []
     draft_loc_block = "\n".join(
@@ -151,9 +153,9 @@ async def propose_quests_node(state: PhaseExpanderState) -> dict:
         f"  {i}: {npc.name} ({npc.role})" for i, npc in enumerate(drafts_n)
     ) or "  (none)"
 
-    prompt = PROPOSE_QUESTS_PROMPT.format(
-        policy=build_expander_policy(),
-        context=build_expander_context(state),
+    prompt = get_prompt("PROPOSE_QUESTS_PROMPT", language).format(
+        policy=build_expander_policy(language=language),
+        context=build_expander_context(state, language=language),
         phase_description=state.get("phase_description") or "(unchanged)",
         draft_locations=draft_loc_block,
         draft_npcs=draft_npc_block,
@@ -163,6 +165,7 @@ async def propose_quests_node(state: PhaseExpanderState) -> dict:
 
 
 async def check_consistency_node(state: PhaseExpanderState) -> dict:
+    language = state.get("language", Language.EN)
     current = DraftPhaseBundle(
         phase_description=state.get("phase_description"),
         draft_locations=state.get("draft_locations") or [],
@@ -172,7 +175,7 @@ async def check_consistency_node(state: PhaseExpanderState) -> dict:
     )
     bundle_json = json.dumps(current.model_dump(mode="json"), indent=2, default=str)
 
-    prompt = CHECK_CONSISTENCY_PROMPT.format(bundle_json=bundle_json)
+    prompt = get_prompt("CHECK_CONSISTENCY_PROMPT", language).format(bundle_json=bundle_json)
     out: DraftPhaseBundle = await _call_structured(prompt, DraftPhaseBundle)
     return {
         "phase_description": out.phase_description,

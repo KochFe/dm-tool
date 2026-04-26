@@ -6,10 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
-from app.dependencies import get_current_user, get_db
+from app.dependencies import get_current_user, get_db, get_language
 from app.models.location import Location
 from app.models.user import User
 from app.schemas.common import APIResponse
+from app.schemas.language import Language
 from app.schemas.generators import (
     GenerateEncounterRequest,
     GenerateLootRequest,
@@ -81,6 +82,7 @@ async def generate_encounter_endpoint(
     request: GenerateEncounterRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    language: Language = Depends(get_language),
 ) -> APIResponse[GeneratedEncounter]:
     """Generate a D&D 5e encounter scaled to the campaign's party level and location.
 
@@ -93,7 +95,7 @@ async def generate_encounter_endpoint(
     _, context = await _build_campaign_context(campaign_id, db, current_user.id)
 
     try:
-        result = await generate_encounter(context, difficulty=request.difficulty)
+        result = await generate_encounter(context, difficulty=request.difficulty, language=language)
     except RuntimeError as exc:
         logger.exception("Generator error for campaign %s", campaign_id)
         raise HTTPException(status_code=503, detail="AI generation failed")
@@ -110,6 +112,7 @@ async def generate_npc_endpoint(
     request: GenerateNpcRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    language: Language = Depends(get_language),
 ) -> APIResponse[GeneratedNpc]:
     """Generate a D&D 5e NPC grounded in the campaign's location and party level.
 
@@ -124,7 +127,7 @@ async def generate_npc_endpoint(
     )
 
     try:
-        result = await generate_npc(context, role=request.role)
+        result = await generate_npc(context, role=request.role, language=language)
     except RuntimeError as exc:
         logger.exception("Generator error for campaign %s", campaign_id)
         raise HTTPException(status_code=503, detail="AI generation failed")
@@ -141,6 +144,7 @@ async def generate_loot_endpoint(
     request: GenerateLootRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    language: Language = Depends(get_language),
 ) -> APIResponse[GeneratedLoot]:
     """Generate a D&D 5e loot collection scaled to the campaign's party level and location.
 

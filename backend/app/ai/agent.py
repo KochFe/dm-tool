@@ -7,11 +7,14 @@ from langgraph.prebuilt import ToolNode
 
 from app.ai.prompts import build_oracle_system_prompt
 from app.config import settings
+from app.schemas.language import Language
 
 
 def create_lore_oracle(
     campaign_context: dict,
     tools: list[BaseTool] | None = None,
+    *,
+    language: Language = Language.EN,
 ) -> CompiledStateGraph:
     """Build and compile the Lore Oracle LangGraph agent with ReAct tool calling.
 
@@ -41,7 +44,7 @@ def create_lore_oracle(
     if tools:
         llm = llm.bind_tools(tools)
 
-    system_prompt = build_oracle_system_prompt(campaign_context)
+    system_prompt = build_oracle_system_prompt(campaign_context, language=language)
 
     async def oracle_node(state: MessagesState) -> MessagesState:
         """Invoke the LLM with the current message history."""

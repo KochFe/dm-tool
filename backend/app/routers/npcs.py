@@ -4,10 +4,11 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_current_user, get_db
+from app.dependencies import get_current_user, get_db, get_language
 from app.models.npc import Npc
 from app.models.user import User
 from app.schemas.ai_assist import AIAssistRequest, PersonalityResult
+from app.schemas.language import Language
 from app.schemas.npc import NpcCreate, NpcUpdate, NpcResponse
 from app.schemas.common import APIResponse
 from app.services import campaign_service, npc_service
@@ -105,6 +106,7 @@ async def ai_npc_personality_endpoint(
     request: AIAssistRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    language: Language = Depends(get_language),
 ) -> APIResponse[PersonalityResult]:
     """Generate or augment the NPC's personality + motivation (non-persistent)."""
     npc = await db.get(Npc, npc_id)
@@ -116,7 +118,7 @@ async def ai_npc_personality_endpoint(
         raise HTTPException(status_code=404, detail="Campaign not found")
 
     try:
-        result = await generate_npc_personality(npc, campaign, request)
+        result = await generate_npc_personality(npc, campaign, request, language=language)
     except RuntimeError:
         logger.exception("AI npc-personality error for npc %s", npc_id)
         raise HTTPException(status_code=503, detail="AI generation failed")

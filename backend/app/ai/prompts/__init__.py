@@ -1,16 +1,8 @@
 """Prompt registry — language-aware accessors over per-language prompt modules.
 
-This package exposes both:
-
-1. Language-aware accessors (`get_prompt`, `build_oracle_system_prompt`, ...)
-   that take a `language` argument and dispatch to the right module.
-2. Backwards-compatible re-exports of the English constants and builders at
-   the package level, so existing imports of the form
-   `from app.ai.prompts import ENCOUNTER_GENERATOR_PROMPT` keep working until
-   every caller has been migrated to `get_prompt(...)`.
-
-The re-exports are TEMPORARY and will be removed once all callers route
-through the language-aware accessors.
+Callers ask for prompts by name + `Language`; the accessors below dispatch to
+the matching module (`en`, `de`, ...). Each language module exposes the same
+public surface; a parity test enforces that.
 """
 
 from __future__ import annotations
@@ -25,11 +17,6 @@ except ImportError:  # pragma: no cover
     de = None  # type: ignore[assignment]
 
 
-# ---------------------------------------------------------------------------
-# Module dispatch
-# ---------------------------------------------------------------------------
-
-
 def _module_for(language: Language):
     """Return the prompt module for the requested language, falling back to EN."""
     if language == Language.EN:
@@ -37,41 +24,6 @@ def _module_for(language: Language):
     if language == Language.DE and de is not None:
         return de
     return en
-
-
-# ---------------------------------------------------------------------------
-# Backwards-compatible re-exports (English).
-# Remove after every caller has been migrated to `get_prompt(...)`.
-# ---------------------------------------------------------------------------
-
-_REEXPORT_NAMES = (
-    "LORE_ORACLE_SYSTEM_PROMPT",
-    "ENCOUNTER_GENERATOR_PROMPT",
-    "NPC_GENERATOR_PROMPT",
-    "LOOT_GENERATOR_PROMPT",
-    "DESCRIBE_PHASE_PROMPT",
-    "PROPOSE_LOCATIONS_PROMPT",
-    "PROPOSE_NPCS_PROMPT",
-    "PROPOSE_QUESTS_PROMPT",
-    "CHECK_CONSISTENCY_PROMPT",
-    "CAMPAIGN_DESCRIPTION_TASK",
-    "PHASE_DESCRIPTION_TASK",
-    "PERSONALITY_TASK",
-    "TEXT_SCHEMA_HINT",
-    "PERSONALITY_SCHEMA_HINT",
-    "PHASE_PREP_TASK",
-    "PHASE_PREP_SCHEMA_HINT",
-    "PHASE_PREP_RESTRUCTURE_ADDENDUM",
-)
-
-for _name in _REEXPORT_NAMES:
-    globals()[_name] = getattr(en, _name)
-del _name
-
-
-# ---------------------------------------------------------------------------
-# Language-aware accessors
-# ---------------------------------------------------------------------------
 
 
 def get_prompt(name: str, language: Language = Language.EN) -> str:
@@ -139,5 +91,4 @@ __all__ = (
     "build_expander_context",
     "build_phase_prep_sections_block",
     "build_phase_entity_context",
-    *_REEXPORT_NAMES,
 )

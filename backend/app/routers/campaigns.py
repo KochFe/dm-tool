@@ -4,11 +4,12 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_current_user, get_db
+from app.dependencies import get_current_user, get_db, get_language
 from app.models.user import User
 from app.schemas.ai_assist import AIAssistRequest, TextResult
 from app.schemas.campaign import CampaignCreate, CampaignUpdate, CampaignResponse
 from app.schemas.common import APIResponse
+from app.schemas.language import Language
 from app.services import campaign_service
 from app.services.generator_service import generate_campaign_description
 
@@ -83,6 +84,7 @@ async def ai_campaign_description_endpoint(
     request: AIAssistRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    language: Language = Depends(get_language),
 ) -> APIResponse[TextResult]:
     """Generate or augment the campaign description (non-persistent)."""
     campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
@@ -90,7 +92,7 @@ async def ai_campaign_description_endpoint(
         raise HTTPException(status_code=404, detail="Campaign not found")
 
     try:
-        result = await generate_campaign_description(campaign, request)
+        result = await generate_campaign_description(campaign, request, language=language)
     except RuntimeError:
         logger.exception("AI campaign-description error for campaign %s", campaign_id)
         raise HTTPException(status_code=503, detail="AI generation failed")

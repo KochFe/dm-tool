@@ -1,19 +1,10 @@
 from langchain_groq import ChatGroq
 
 from app.ai.prompts import (
-    CAMPAIGN_DESCRIPTION_TASK,
-    ENCOUNTER_GENERATOR_PROMPT,
-    LOOT_GENERATOR_PROMPT,
-    NPC_GENERATOR_PROMPT,
-    PERSONALITY_TASK,
-    PERSONALITY_SCHEMA_HINT,
-    PHASE_PREP_RESTRUCTURE_ADDENDUM,
-    PHASE_PREP_SCHEMA_HINT,
-    PHASE_PREP_TASK,
-    TEXT_SCHEMA_HINT,
     build_ai_assist_prompt,
     build_phase_entity_context,
     build_phase_prep_sections_block,
+    get_prompt,
 )
 from app.config import settings
 from app.schemas.ai_assist import (
@@ -23,6 +14,7 @@ from app.schemas.ai_assist import (
     TextResult,
 )
 from app.schemas.generators import GeneratedEncounter, GeneratedLoot, GeneratedNpc
+from app.schemas.language import Language
 
 
 def _get_llm(temperature: float = 1.0) -> ChatGroq:
@@ -42,6 +34,8 @@ def _get_llm(temperature: float = 1.0) -> ChatGroq:
 async def generate_encounter(
     campaign_context: dict,
     difficulty: str = "medium",
+    *,
+    language: Language = Language.EN,
 ) -> GeneratedEncounter:
     """Generate a D&D 5e encounter scaled to the campaign context.
 
@@ -60,7 +54,7 @@ async def generate_encounter(
     """
     llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(GeneratedEncounter)
-    prompt = ENCOUNTER_GENERATOR_PROMPT.format(
+    prompt = get_prompt("ENCOUNTER_GENERATOR_PROMPT", language).format(
         party_level=campaign_context["party_level"],
         location_name=campaign_context["location_name"],
         biome=campaign_context["biome"],
@@ -81,6 +75,8 @@ async def generate_encounter(
 async def generate_campaign_description(
     campaign: object,  # app.models.campaign.Campaign
     req: AIAssistRequest,
+    *,
+    language: Language = Language.EN,
 ) -> TextResult:
     """Generate or augment a campaign description (premise/hook/background)."""
     llm = _get_llm(temperature=1.0)
@@ -93,13 +89,14 @@ async def generate_campaign_description(
     )
 
     prompt = build_ai_assist_prompt(
-        task_description=CAMPAIGN_DESCRIPTION_TASK,
+        task_description=get_prompt("CAMPAIGN_DESCRIPTION_TASK", language),
         context_block=context_block,
         steer=req.steer,
         existing_content=req.existing_content,
         previous_output=req.previous_output,
         feedback=req.feedback,
-        output_schema_hint=TEXT_SCHEMA_HINT,
+        output_schema_hint=get_prompt("TEXT_SCHEMA_HINT", language),
+        language=language,
     )
 
     try:
@@ -115,6 +112,8 @@ async def generate_campaign_description(
 async def generate_npc(
     campaign_context: dict,
     role: str | None = None,
+    *,
+    language: Language = Language.EN,
 ) -> GeneratedNpc:
     """Generate a D&D 5e NPC scaled to the campaign context.
 
@@ -134,7 +133,7 @@ async def generate_npc(
     """
     llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(GeneratedNpc)
-    prompt = NPC_GENERATOR_PROMPT.format(
+    prompt = get_prompt("NPC_GENERATOR_PROMPT", language).format(
         party_level=campaign_context["party_level"],
         location_name=campaign_context["location_name"],
         biome=campaign_context["biome"],
@@ -157,6 +156,8 @@ async def generate_phase_description(
     phase: object,  # app.models.campaign_phase.CampaignPhase with .locations eagerly loaded
     prior_phase_summaries: list[str],
     req: AIAssistRequest,
+    *,
+    language: Language = Language.EN,
 ) -> PhasePrepResult:
     """Generate a structured DM prep sheet for a campaign phase.
 
@@ -185,24 +186,25 @@ async def generate_phase_description(
         f"{prior_block}\n"
     )
 
-    entity_block = build_phase_entity_context(phase)
-    sections_block = build_phase_prep_sections_block()
+    entity_block = build_phase_entity_context(phase, language=language)
+    sections_block = build_phase_prep_sections_block(language=language)
 
     pieces = [base_context, sections_block]
     if entity_block:
         pieces.append(entity_block)
     if req.existing_content:
-        pieces.append(PHASE_PREP_RESTRUCTURE_ADDENDUM)
+        pieces.append(get_prompt("PHASE_PREP_RESTRUCTURE_ADDENDUM", language))
     context_block = "\n\n".join(pieces)
 
     prompt = build_ai_assist_prompt(
-        task_description=PHASE_PREP_TASK,
+        task_description=get_prompt("PHASE_PREP_TASK", language),
         context_block=context_block,
         steer=req.steer,
         existing_content=req.existing_content,
         previous_output=req.previous_output,
         feedback=req.feedback,
-        output_schema_hint=PHASE_PREP_SCHEMA_HINT,
+        output_schema_hint=get_prompt("PHASE_PREP_SCHEMA_HINT", language),
+        language=language,
     )
 
     try:
@@ -218,6 +220,8 @@ async def generate_phase_description(
 async def generate_loot(
     campaign_context: dict,
     context: str | None = None,
+    *,
+    language: Language = Language.EN,
 ) -> GeneratedLoot:
     """Generate a D&D 5e loot collection scaled to the campaign context.
 
@@ -237,7 +241,7 @@ async def generate_loot(
     """
     llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(GeneratedLoot)
-    prompt = LOOT_GENERATOR_PROMPT.format(
+    prompt = get_prompt("LOOT_GENERATOR_PROMPT", language).format(
         party_level=campaign_context["party_level"],
         location_name=campaign_context["location_name"],
         biome=campaign_context["biome"],
@@ -259,6 +263,8 @@ async def generate_npc_personality(
     npc: object,      # app.models.npc.Npc
     campaign: object,
     req: AIAssistRequest,
+    *,
+    language: Language = Language.EN,
 ) -> PersonalityResult:
     """Generate or augment NPC personality + motivation based on user steer."""
     llm = _get_llm(temperature=1.0)
@@ -276,13 +282,14 @@ async def generate_npc_personality(
     )
 
     prompt = build_ai_assist_prompt(
-        task_description=PERSONALITY_TASK,
+        task_description=get_prompt("PERSONALITY_TASK", language),
         context_block=context_block,
         steer=req.steer,
         existing_content=req.existing_content,
         previous_output=req.previous_output,
         feedback=req.feedback,
-        output_schema_hint=PERSONALITY_SCHEMA_HINT,
+        output_schema_hint=get_prompt("PERSONALITY_SCHEMA_HINT", language),
+        language=language,
     )
 
     try:
