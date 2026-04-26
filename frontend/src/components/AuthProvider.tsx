@@ -23,6 +23,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const PUBLIC_PATHS = ["/", "/login"];
 
+function setLocaleCookie(locale: "en" | "de") {
+  document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkAuth = async () => {
       try {
         const me = await api.getMe();
+        setLocaleCookie(me.language);
         setUser(me);
       } catch {
         // Try refresh
@@ -47,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const tokens = await api.refreshToken();
           setTokens(tokens.access_token, tokens.refresh_token);
           const me = await api.getMe();
+          setLocaleCookie(me.language);
           setUser(me);
         } catch {
           clearTokens();
@@ -70,6 +76,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     const tokens = await api.login(email, password);
     setTokens(tokens.access_token, tokens.refresh_token);
+    // Fetch user to sync locale cookie before hard navigation so the
+    // very first request after redirect uses the correct Accept-Language.
+    const me = await api.getMe();
+    setLocaleCookie(me.language);
     // Hard navigation clears the client-side Router Cache, which may
     // hold stale redirects from before the user was authenticated
     window.location.href = "/campaigns";

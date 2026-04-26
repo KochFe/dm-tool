@@ -87,6 +87,13 @@ export interface ApplyPhaseBundleResponse {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
+function getLocaleFromCookie(): "en" | "de" {
+  if (typeof document === "undefined") return "en";
+  const m = document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]+)/);
+  const v = m?.[1];
+  return v === "de" ? "de" : "en";
+}
+
 // Token storage
 function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -142,6 +149,7 @@ async function request<T>(
 ): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "Accept-Language": getLocaleFromCookie(),
   };
   const token = getAccessToken();
   if (token) {
@@ -383,7 +391,10 @@ export const api = {
 
   // Chat / Lore Oracle
   sendChatMessage: async (campaignId: string, messages: import("@/types").ChatMessage[]): Promise<import("@/types").ChatMessage> => {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Accept-Language": getLocaleFromCookie(),
+    };
     const token = getAccessToken();
     if (token) headers["Authorization"] = `Bearer ${token}`;
     const res = await fetch(`${API_BASE}/api/v1/campaigns/${campaignId}/chat`, {
@@ -481,5 +492,12 @@ export const api = {
 
   async getMe(): Promise<AuthUser> {
     return request<AuthUser>("/api/v1/auth/me");
+  },
+
+  async updateMe(patch: { language?: "en" | "de" }): Promise<AuthUser> {
+    return request<AuthUser>("/api/v1/auth/me", {
+      method: "PATCH",
+      body: JSON.stringify(patch),
+    });
   },
 };
