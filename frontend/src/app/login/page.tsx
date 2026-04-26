@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/AuthProvider";
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const t = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -18,7 +20,13 @@ export default function LoginPage() {
     try {
       await login(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      const msg = err instanceof Error ? err.message : "";
+      // Map backend "Invalid credentials" to catalogue key; fall back for everything else
+      if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("credentials") || msg.toLowerCase().includes("401")) {
+        setError(t("invalidCredentials"));
+      } else {
+        setError(t("loginFailed"));
+      }
     } finally {
       setLoading(false);
     }
@@ -29,7 +37,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-[80vh]">
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-bold text-primary text-center mb-8">
-          Sign In
+          {t("loginTitle")}
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -44,7 +52,7 @@ export default function LoginPage() {
               htmlFor="email"
               className="block text-sm text-muted-foreground mb-1"
             >
-              Email
+              {t("emailLabel")}
             </label>
             <input
               id="email"
@@ -62,7 +70,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="block text-sm text-muted-foreground mb-1"
             >
-              Password
+              {t("passwordLabel")}
             </label>
             <input
               id="password"
@@ -79,13 +87,13 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-semibold rounded-lg transition-colors"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? t("submitting") : t("submit")}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground/60 mt-6">
           <Link href="/" className="hover:text-muted-foreground transition-colors">
-            Back to home
+            {t("backToHome")}
           </Link>
         </p>
       </div>

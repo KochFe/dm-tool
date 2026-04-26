@@ -4,5 +4,15 @@
     "campaigns": "Campaigns",
     "logout": "Log out",
     "skipToContent": "Skip to content"
+  },
+  "auth": {
+    "loginTitle": "Sign In",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submit": "Sign In",
+    "submitting": "Signing in…",
+    "invalidCredentials": "Invalid email or password",
+    "loginFailed": "Login failed",
+    "backToHome": "Back to home"
   }
 }

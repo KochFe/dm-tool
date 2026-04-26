@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
@@ -16,8 +16,11 @@ function setCookie(value: "en" | "de") {
 
 export function LanguageToggle() {
   const locale = useLocale() as "en" | "de";
+  const pathname = usePathname();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
+  if (pathname.startsWith("/login")) return null;
 
   async function switchTo(next: "en" | "de") {
     if (next === locale || isPending) return;

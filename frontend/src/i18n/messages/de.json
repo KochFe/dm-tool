@@ -4,5 +4,15 @@
     "campaigns": "Kampagnen",
     "logout": "Abmelden",
     "skipToContent": "Zum Inhalt springen"
+  },
+  "auth": {
+    "loginTitle": "Anmelden",
+    "emailLabel": "E-Mail",
+    "passwordLabel": "Passwort",
+    "submit": "Anmelden",
+    "submitting": "Wird angemeldet…",
+    "invalidCredentials": "Ungültige E-Mail oder Passwort",
+    "loginFailed": "Anmeldung fehlgeschlagen",
+    "backToHome": "Zurück zur Startseite"
   }
 }
