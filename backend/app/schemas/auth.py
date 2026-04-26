@@ -3,6 +3,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.schemas.language import Language
+
 
 class LoginRequest(BaseModel):
     email: str = Field(..., min_length=1, max_length=255)
@@ -25,7 +27,14 @@ class UserResponse(BaseModel):
     display_name: str
     role: str
     is_active: bool
+    language: Language
     created_at: datetime
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class UserUpdateRequest(BaseModel):
+    """PATCH body for /auth/me — only provided fields are updated."""
+
+    language: Language | None = None

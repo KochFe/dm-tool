@@ -97,3 +97,32 @@ async def test_protected_route_with_auth(client: AsyncClient, auth_headers):
 async def test_health_no_auth_required(client: AsyncClient):
     response = await client.get("/health")
     assert response.status_code == 200
+
+
+async def test_get_me_returns_language(client: AsyncClient, auth_headers):
+    res = await client.get("/api/v1/auth/me", headers=auth_headers)
+    assert res.status_code == 200
+    body = res.json()["data"]
+    assert body["language"] == "en"
+
+
+async def test_patch_me_updates_language(client: AsyncClient, auth_headers):
+    res = await client.patch(
+        "/api/v1/auth/me",
+        headers=auth_headers,
+        json={"language": "de"},
+    )
+    assert res.status_code == 200
+    assert res.json()["data"]["language"] == "de"
+
+    follow = await client.get("/api/v1/auth/me", headers=auth_headers)
+    assert follow.json()["data"]["language"] == "de"
+
+
+async def test_patch_me_rejects_invalid_language(client: AsyncClient, auth_headers):
+    res = await client.patch(
+        "/api/v1/auth/me",
+        headers=auth_headers,
+        json={"language": "fr"},
+    )
+    assert res.status_code == 422

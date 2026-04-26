@@ -10,6 +10,7 @@ from app.schemas.auth import (
     RefreshRequest,
     TokenResponse,
     UserResponse,
+    UserUpdateRequest,
 )
 from app.schemas.common import APIResponse
 from app.services.auth_service import (
@@ -88,4 +89,23 @@ async def refresh(request: RefreshRequest, db: AsyncSession = Depends(get_db)):
 @router.get("/me", response_model=APIResponse[UserResponse])
 async def get_me(current_user: User = Depends(get_current_user)):
     """Return the authenticated user's profile."""
+    return APIResponse(data=UserResponse.model_validate(current_user))
+
+
+@router.patch("/me", response_model=APIResponse[UserResponse])
+async def update_me(
+    request: UserUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update the authenticated user's mutable profile fields.
+
+    Currently only `language` is settable. PATCH semantics —
+    only provided fields update.
+    """
+    data = request.model_dump(exclude_unset=True)
+    for field, value in data.items():
+        setattr(current_user, field, value.value if hasattr(value, "value") else value)
+    await db.commit()
+    await db.refresh(current_user)
     return APIResponse(data=UserResponse.model_validate(current_user))
