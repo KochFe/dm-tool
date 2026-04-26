@@ -52,6 +52,12 @@
     "deleteIdeaError": "Failed to delete idea",
     "addIdeaError": "Failed to add idea"
   },
+  "locations": {
+    "crossRefsHeading": "Location Cross-References",
+    "currentBadge": "Current",
+    "npcsLabel": "NPCs: ",
+    "questsLabel": "Quests: "
+  },
   "builder": {
     "loading": "Loading…"
   },

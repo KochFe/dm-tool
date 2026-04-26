@@ -52,6 +52,12 @@
     "deleteIdeaError": "Idee konnte nicht gelöscht werden",
     "addIdeaError": "Idee konnte nicht hinzugefügt werden"
   },
+  "locations": {
+    "crossRefsHeading": "Orts-Querverweise",
+    "currentBadge": "Aktuell",
+    "npcsLabel": "NPCs: ",
+    "questsLabel": "Quests: "
+  },
   "builder": {
     "loading": "Wird geladen…"
   },
