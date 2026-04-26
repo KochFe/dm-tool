@@ -52,6 +52,24 @@
     "deleteIdeaError": "Idee konnte nicht gelöscht werden",
     "addIdeaError": "Idee konnte nicht hinzugefügt werden"
   },
+  "session": {
+    "tabExploration": "Erkundung",
+    "tabCombat": "Kampf",
+    "hideOracle": "Orakel ausblenden",
+    "showOracle": "Orakel anzeigen"
+  },
+  "settings": {
+    "pageTitle": "Kampagnen-Einstellungen",
+    "nameLabel": "Kampagnenname",
+    "descriptionLabel": "Beschreibung",
+    "descriptionPlaceholder": "Kampagnenbeschreibung (optional)",
+    "partyLevelLabel": "Partylevel",
+    "inGameTimeLabel": "Spielweltzeit",
+    "saveButton": "Änderungen speichern",
+    "saving": "Wird gespeichert…",
+    "updateSuccess": "Kampagne aktualisiert",
+    "updateError": "Kampagne konnte nicht aktualisiert werden"
+  },
   "locations": {
     "crossRefsHeading": "Orts-Querverweise",
     "currentBadge": "Aktuell",

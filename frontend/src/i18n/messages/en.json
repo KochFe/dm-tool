@@ -52,6 +52,24 @@
     "deleteIdeaError": "Failed to delete idea",
     "addIdeaError": "Failed to add idea"
   },
+  "session": {
+    "tabExploration": "Exploration",
+    "tabCombat": "Combat",
+    "hideOracle": "Hide Oracle",
+    "showOracle": "Show Oracle"
+  },
+  "settings": {
+    "pageTitle": "Campaign Settings",
+    "nameLabel": "Campaign Name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Campaign description (optional)",
+    "partyLevelLabel": "Party Level",
+    "inGameTimeLabel": "In-Game Time",
+    "saveButton": "Save Changes",
+    "saving": "Saving…",
+    "updateSuccess": "Campaign updated",
+    "updateError": "Failed to update campaign"
+  },
   "locations": {
     "crossRefsHeading": "Location Cross-References",
     "currentBadge": "Current",
