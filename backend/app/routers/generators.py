@@ -157,7 +157,7 @@ async def generate_loot_endpoint(
     _, context = await _build_campaign_context(campaign_id, db, current_user.id)
 
     try:
-        result = await generate_loot(context, context=request.context)
+        result = await generate_loot(context, context=request.context, language=language)
     except RuntimeError as exc:
         logger.exception("Generator error for campaign %s", campaign_id)
         raise HTTPException(status_code=503, detail="AI generation failed")
