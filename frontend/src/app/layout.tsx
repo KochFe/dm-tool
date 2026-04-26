@@ -7,6 +7,7 @@ import { NavUser } from "@/components/NavUser";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 
@@ -64,6 +65,7 @@ export default async function RootLayout({
                 </Link>
                 <div className="ml-auto flex items-center gap-4">
                   <ThemeToggle />
+                  <LanguageToggle />
                   <NavUser />
                 </div>
               </div>
