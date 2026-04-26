@@ -251,6 +251,16 @@
     "deleteError": "Kampagne konnte nicht gelöscht werden: {message}",
     "createError": "Kampagne konnte nicht erstellt werden: {message}"
   },
+  "dice": {
+    "heading": "Würfelroller",
+    "rollButton": "Würfeln",
+    "lastRoll": "Letzter Wurf",
+    "history": "Verlauf",
+    "historyCount": "Verlauf ({count})",
+    "invalidNotation": "Ungültige Würfelnotation. Format wie 2d6+3 oder 1d20 verwenden.",
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+    "rollFailed": "Wurf fehlgeschlagen"
+  },
   "combatView": {},
   "partyPanel": {
     "heading": "Party",

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import type { DiceRollResponse } from '@/types';
 
@@ -15,20 +16,8 @@ interface RollHistoryEntry {
   timestamp: Date;
 }
 
-function formatError(err: unknown): string {
-  if (err instanceof Error) {
-    // FastAPI 422 detail arrays arrive as "[object Object]" if not handled upstream.
-    // Catch both cases: plain string message or a stringified object.
-    const msg = err.message;
-    if (msg.startsWith('[object')) {
-      return 'Invalid dice notation. Use format like 2d6+3 or 1d20.';
-    }
-    return msg;
-  }
-  return 'An unexpected error occurred.';
-}
-
 export default function DiceRoller({ className }: { className?: string }) {
+  const t = useTranslations('dice');
   const [notation, setNotation] = useState('');
   const [lastRoll, setLastRoll] = useState<DiceRollResponse | null>(null);
   const [history, setHistory] = useState<RollHistoryEntry[]>([]);
@@ -56,7 +45,11 @@ export default function DiceRoller({ className }: { className?: string }) {
         return [entry, ...prev].slice(0, MAX_HISTORY);
       });
     } catch (err) {
-      setError(formatError(err));
+      if (err instanceof Error) {
+        setError(err.message.startsWith('[object') ? t('invalidNotation') : err.message);
+      } else {
+        setError(t('unexpectedError'));
+      }
     } finally {
       setRolling(false);
     }
@@ -76,7 +69,7 @@ export default function DiceRoller({ className }: { className?: string }) {
 
   return (
     <div className={`bg-card border border-border rounded-xl p-5 space-y-4 ${className ?? ''}`}>
-      <h2 className="text-xl font-semibold text-foreground">Dice Roller</h2>
+      <h2 className="text-xl font-semibold text-foreground">{t('heading')}</h2>
 
       {/* Quick-roll buttons */}
       <div className="flex flex-wrap gap-2">
@@ -113,7 +106,7 @@ export default function DiceRoller({ className }: { className?: string }) {
           disabled={rolling || !notation.trim()}
           className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          Roll
+          {t('rollButton')}
         </button>
       </form>
 
@@ -125,7 +118,7 @@ export default function DiceRoller({ className }: { className?: string }) {
       {/* Last roll result */}
       {lastRoll && (
         <div className="bg-muted/50 border border-border rounded-lg p-3 space-y-1">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide">Last Roll</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('lastRoll')}</p>
           <p className="text-sm text-foreground/80">
             <span className="font-medium text-foreground">{lastRoll.notation}</span>
             {' — '}
@@ -145,7 +138,7 @@ export default function DiceRoller({ className }: { className?: string }) {
       {/* Roll history */}
       {history.length > 0 && (
         <div className="space-y-1">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide">History</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('history')}</p>
           <ul className="space-y-0.5">
             {history.map((entry, idx) => (
               <li

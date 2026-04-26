@@ -251,6 +251,16 @@
     "deleteError": "Failed to delete campaign: {message}",
     "createError": "Failed to create campaign: {message}"
   },
+  "dice": {
+    "heading": "Dice Roller",
+    "rollButton": "Roll",
+    "lastRoll": "Last Roll",
+    "history": "History",
+    "historyCount": "History ({count})",
+    "invalidNotation": "Invalid dice notation. Use format like 2d6+3 or 1d20.",
+    "unexpectedError": "An unexpected error occurred.",
+    "rollFailed": "Roll failed"
+  },
   "combatView": {},
   "partyPanel": {
     "heading": "Party",
