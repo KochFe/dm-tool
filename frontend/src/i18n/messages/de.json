@@ -90,6 +90,32 @@
   "languageToggle": {
     "saveError": "Spracheinstellung konnte nicht gespeichert werden. Zurückgesetzt."
   },
+  "sidebar": {
+    "overview": "Übersicht",
+    "characters": "Charaktere",
+    "locations": "Orte",
+    "npcs": "NPCs",
+    "quests": "Quests",
+    "session": "Session",
+    "settings": "Einstellungen",
+    "allCampaigns": "Alle Kampagnen",
+    "openNavMenu": "Navigationsmenü öffnen"
+  },
+  "statusBar": {
+    "level": "Level {level}"
+  },
+  "commandPalette": {
+    "placeholder": "Kampagnen, NPCs, Orte suchen… oder Würfelnotation wie 2d6+3 eingeben",
+    "noResults": "Keine Ergebnisse gefunden.",
+    "headingNavigation": "Navigation",
+    "headingActions": "Aktionen",
+    "headingCharacters": "Charaktere",
+    "headingNpcs": "NPCs",
+    "headingLocations": "Orte",
+    "headingQuests": "Quests",
+    "rollDice": "Roll {notation}",
+    "keyboardShortcuts": "Tastaturkürzel"
+  },
   "campaigns": {
     "pageTitle": "Kampagnen",
     "newButton": "Neue Kampagne erstellen",

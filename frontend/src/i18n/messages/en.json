@@ -90,6 +90,32 @@
   "languageToggle": {
     "saveError": "Could not save language preference. Reverted."
   },
+  "sidebar": {
+    "overview": "Overview",
+    "characters": "Characters",
+    "locations": "Locations",
+    "npcs": "NPCs",
+    "quests": "Quests",
+    "session": "Session",
+    "settings": "Settings",
+    "allCampaigns": "All Campaigns",
+    "openNavMenu": "Open navigation menu"
+  },
+  "statusBar": {
+    "level": "Level {level}"
+  },
+  "commandPalette": {
+    "placeholder": "Search campaigns, NPCs, locations… or type dice like 2d6+3",
+    "noResults": "No results found.",
+    "headingNavigation": "Navigation",
+    "headingActions": "Actions",
+    "headingCharacters": "Characters",
+    "headingNpcs": "NPCs",
+    "headingLocations": "Locations",
+    "headingQuests": "Quests",
+    "rollDice": "Roll {notation}",
+    "keyboardShortcuts": "Keyboard Shortcuts"
+  },
   "campaigns": {
     "pageTitle": "Campaigns",
     "newButton": "Create New Campaign",
