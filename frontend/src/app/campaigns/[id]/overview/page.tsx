@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
@@ -30,6 +31,7 @@ interface PhaseCardProps {
 }
 
 function PhaseCard({ phase, onSave, onDelete }: PhaseCardProps) {
+  const t = useTranslations("campaignDetail");
   const [expanded, setExpanded] = useState(false);
   const [editTitle, setEditTitle] = useState(phase.title);
   const [editDesc, setEditDesc] = useState(phase.description ?? "");
@@ -79,15 +81,15 @@ function PhaseCard({ phase, onSave, onDelete }: PhaseCardProps) {
         <div className="flex items-center gap-2 flex-shrink-0">
           {phase.quest_ids.length > 0 && (
             <span className="text-xs text-muted-foreground">
-              {phase.quest_ids.length} quest{phase.quest_ids.length !== 1 ? "s" : ""}
+              {t("phaseQuests", { count: phase.quest_ids.length })}
             </span>
           )}
           {phase.location_ids.length > 0 && (
             <span className="text-xs text-muted-foreground">
-              {phase.location_ids.length} loc{phase.location_ids.length !== 1 ? "s" : ""}
+              {t("phaseLocs", { count: phase.location_ids.length })}
             </span>
           )}
-          {saving && <span className="text-xs text-muted-foreground/60">saving…</span>}
+          {saving && <span className="text-xs text-muted-foreground/60">{t("phaseSaving")}</span>}
           {!confirmDelete ? (
             <button
               onClick={(e) => {
@@ -106,13 +108,13 @@ function PhaseCard({ phase, onSave, onDelete }: PhaseCardProps) {
                 onClick={() => onDelete(phase.id)}
                 className="text-xs text-red-400 hover:text-red-300 px-1"
               >
-                Confirm
+                {t("phaseConfirm")}
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
                 className="text-xs text-muted-foreground hover:text-foreground/80 px-1"
               >
-                Cancel
+                {t("phaseCancel")}
               </button>
             </span>
           )}
@@ -125,7 +127,7 @@ function PhaseCard({ phase, onSave, onDelete }: PhaseCardProps) {
             value={editDesc}
             onChange={(e) => setEditDesc(e.target.value)}
             onBlur={handleDescBlur}
-            placeholder="Phase description…"
+            placeholder={t("phaseDescPlaceholder")}
             rows={3}
             className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-ring resize-none transition-colors"
           />
@@ -138,6 +140,7 @@ function PhaseCard({ phase, onSave, onDelete }: PhaseCardProps) {
 // ── main page ─────────────────────────────────────────────────────────────────
 
 export default function OverviewPage() {
+  const t = useTranslations("campaignDetail");
   const { campaign, characters, locations, npcs, quests, currentLocation, reload } =
     useCampaign();
 
@@ -161,9 +164,9 @@ export default function OverviewPage() {
       descriptionSavedRef.current = description;
       await reload();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save description");
+      toast.error(err instanceof Error ? err.message : t("saveDescriptionError"));
     }
-  }, [description, campaign.id, reload]);
+  }, [description, campaign.id, reload, t]);
 
   // ── phases ───────────────────────────────────────────────────────────────────
   const [phases, setPhases] = useState<CampaignPhase[]>([]);
@@ -177,11 +180,11 @@ export default function OverviewPage() {
       const data = await api.getPhases(campaign.id);
       setPhases(data);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load phases");
+      toast.error(err instanceof Error ? err.message : t("loadPhasesError"));
     } finally {
       setPhasesLoading(false);
     }
-  }, [campaign.id]);
+  }, [campaign.id, t]);
 
   useEffect(() => {
     loadPhases();
@@ -193,10 +196,10 @@ export default function OverviewPage() {
         const updated = await api.updatePhase(id, { title, description: description || undefined });
         setPhases((prev) => prev.map((p) => (p.id === id ? updated : p)));
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to save phase");
+        toast.error(err instanceof Error ? err.message : t("savePhaseError"));
       }
     },
-    []
+    [t]
   );
 
   const handleDeletePhase = useCallback(async (id: string) => {
@@ -204,9 +207,9 @@ export default function OverviewPage() {
       await api.deletePhase(id);
       setPhases((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete phase");
+      toast.error(err instanceof Error ? err.message : t("deletePhaseError"));
     }
-  }, []);
+  }, [t]);
 
   const handleAddPhase = useCallback(async () => {
     const title = newPhaseTitle.trim();
@@ -220,11 +223,11 @@ export default function OverviewPage() {
       setPhases((prev) => [...prev, created]);
       setNewPhaseTitle("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add phase");
+      toast.error(err instanceof Error ? err.message : t("addPhaseError"));
     } finally {
       setAddingPhase(false);
     }
-  }, [campaign.id, newPhaseTitle, phases.length]);
+  }, [campaign.id, newPhaseTitle, phases.length, t]);
 
   // ── ideas ────────────────────────────────────────────────────────────────────
   const [ideas, setIdeas] = useState<CampaignIdea[]>([]);
@@ -239,11 +242,11 @@ export default function OverviewPage() {
       const data = await api.getIdeas(campaign.id);
       setIdeas(data);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load ideas");
+      toast.error(err instanceof Error ? err.message : t("loadIdeasError"));
     } finally {
       setIdeasLoading(false);
     }
-  }, [campaign.id]);
+  }, [campaign.id, t]);
 
   useEffect(() => {
     loadIdeas();
@@ -254,30 +257,30 @@ export default function OverviewPage() {
     try {
       await api.updateIdea(id, { is_done: isDone });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update idea");
+      toast.error(err instanceof Error ? err.message : t("updateIdeaError"));
       setIdeas((prev) => prev.map((i) => (i.id === id ? { ...i, is_done: !isDone } : i)));
     }
-  }, []);
+  }, [t]);
 
   const handleChangeIdeaTag = useCallback(async (id: string, tag: IdeaTag) => {
     setIdeas((prev) => prev.map((i) => (i.id === id ? { ...i, tag } : i)));
     try {
       await api.updateIdea(id, { tag });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update idea tag");
+      toast.error(err instanceof Error ? err.message : t("updateIdeaTagError"));
       await loadIdeas();
     }
-  }, [loadIdeas]);
+  }, [loadIdeas, t]);
 
   const handleDeleteIdea = useCallback(async (id: string) => {
     setIdeas((prev) => prev.filter((i) => i.id !== id));
     try {
       await api.deleteIdea(id);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete idea");
+      toast.error(err instanceof Error ? err.message : t("deleteIdeaError"));
       await loadIdeas();
     }
-  }, [loadIdeas]);
+  }, [loadIdeas, t]);
 
   const handleAddIdea = useCallback(async () => {
     const text = newIdeaText.trim();
@@ -292,11 +295,11 @@ export default function OverviewPage() {
       setIdeas((prev) => [...prev, created]);
       setNewIdeaText("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add idea");
+      toast.error(err instanceof Error ? err.message : t("addIdeaError"));
     } finally {
       setAddingIdea(false);
     }
-  }, [campaign.id, newIdeaText, newIdeaTag, ideas.length]);
+  }, [campaign.id, newIdeaText, newIdeaTag, ideas.length, t]);
 
   // ── render ────────────────────────────────────────────────────────────────────
 
@@ -305,7 +308,7 @@ export default function OverviewPage() {
       {/* 1. Title + campaign length badge */}
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <h2 className="text-xl font-semibold text-foreground">Overview</h2>
+          <h2 className="text-xl font-semibold text-foreground">{t("overview")}</h2>
           {campaign.campaign_length && (
             <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/20">
               {formatCampaignLength(campaign.campaign_length)}
@@ -318,7 +321,7 @@ export default function OverviewPage() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           onBlur={saveDescription}
-          placeholder="Add a campaign description — story, hook, background…"
+          placeholder={t("descriptionPlaceholder")}
           rows={3}
           className="w-full bg-transparent text-sm text-muted-foreground leading-relaxed placeholder:text-muted-foreground/60 outline-none resize-none"
         />
@@ -327,7 +330,7 @@ export default function OverviewPage() {
       {/* 4. Current Location */}
       {currentLocation && (
         <div className="bg-card border border-border/50 rounded-xl p-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Current Location</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t("currentLocation")}</p>
           <p className="text-foreground font-medium">{currentLocation.name}</p>
           <p className="text-sm text-muted-foreground capitalize">{currentLocation.biome}</p>
           {currentLocation.description && (
@@ -339,10 +342,10 @@ export default function OverviewPage() {
       {/* 5. Stats grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Characters", count: characters.length, href: `${base}/characters` },
-          { label: "Locations", count: locations.length, href: `${base}/locations` },
-          { label: "NPCs", count: npcs.length, href: `${base}/npcs` },
-          { label: "Quests", count: quests.length, href: `${base}/quests` },
+          { label: t("statsCharacters"), count: characters.length, href: `${base}/characters` },
+          { label: t("statsLocations"), count: locations.length, href: `${base}/locations` },
+          { label: t("statsNpcs"), count: npcs.length, href: `${base}/npcs` },
+          { label: t("statsQuests"), count: quests.length, href: `${base}/quests` },
         ].map((item) => (
           <Link
             key={item.label}
@@ -365,7 +368,7 @@ export default function OverviewPage() {
         >
           <span className="text-muted-foreground text-sm">{phasesOpen ? "▾" : "▸"}</span>
           <h3 className="text-sm font-semibold text-foreground/80 group-hover:text-foreground transition-colors">
-            Phases
+            {t("phasesHeading")}
           </h3>
           {phases.length > 0 && (
             <span className="text-xs text-muted-foreground/60">({phases.length})</span>
@@ -375,10 +378,10 @@ export default function OverviewPage() {
         {phasesOpen && (
           <div className="space-y-2">
             {phasesLoading ? (
-              <p className="text-xs text-muted-foreground/60 px-1">Loading phases…</p>
+              <p className="text-xs text-muted-foreground/60 px-1">{t("phasesLoading")}</p>
             ) : phases.length === 0 ? (
               <p className="text-xs text-muted-foreground/60 italic px-1">
-                No phases yet. Phases help you plan your campaign arc.
+                {t("phasesEmpty")}
               </p>
             ) : (
               phases.map((phase) => (
@@ -399,7 +402,7 @@ export default function OverviewPage() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleAddPhase();
                 }}
-                placeholder="New phase title…"
+                placeholder={t("newPhasePlaceholder")}
                 className="flex-1 bg-card border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-ring transition-colors"
               />
               <button
@@ -407,7 +410,7 @@ export default function OverviewPage() {
                 disabled={!newPhaseTitle.trim() || addingPhase}
                 className="px-3 py-2 rounded-lg text-sm bg-muted border border-border/50 text-foreground/80 hover:text-primary hover:border-primary/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                + Add Phase
+                {t("addPhase")}
               </button>
             </div>
           </div>
@@ -417,7 +420,7 @@ export default function OverviewPage() {
       {/* 7. Active Quests */}
       {activeQuests.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-foreground/80 mb-3">Active Quests</h3>
+          <h3 className="text-sm font-semibold text-foreground/80 mb-3">{t("activeQuestsHeading")}</h3>
           <div className="space-y-2">
             {activeQuests.map((q) => (
               <div
@@ -431,7 +434,7 @@ export default function OverviewPage() {
                   )}
                 </div>
                 <Badge variant="secondary" className="text-xs">
-                  In Progress
+                  {t("questInProgress")}
                 </Badge>
               </div>
             ))}
@@ -447,7 +450,7 @@ export default function OverviewPage() {
         >
           <span className="text-muted-foreground text-sm">{ideasOpen ? "▾" : "▸"}</span>
           <h3 className="text-sm font-semibold text-foreground/80 group-hover:text-foreground transition-colors">
-            Ideas
+            {t("ideasHeading")}
           </h3>
           {ideas.length > 0 && (
             <span className="text-xs text-muted-foreground/60">({ideas.length})</span>
@@ -457,10 +460,10 @@ export default function OverviewPage() {
         {ideasOpen && (
           <div className="bg-card border border-border/50 rounded-xl p-4 space-y-1">
             {ideasLoading ? (
-              <p className="text-xs text-muted-foreground/60">Loading ideas…</p>
+              <p className="text-xs text-muted-foreground/60">{t("ideasLoading")}</p>
             ) : ideas.length === 0 ? (
               <p className="text-xs text-muted-foreground/60 italic">
-                No ideas yet. Capture story hooks, location concepts, and character seeds here.
+                {t("ideasEmpty")}
               </p>
             ) : (
               ideas.map((idea) => (
@@ -482,7 +485,7 @@ export default function OverviewPage() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleAddIdea();
                 }}
-                placeholder="New idea…"
+                placeholder={t("newIdeaPlaceholder")}
                 className="flex-1 bg-muted border border-border/50 rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-ring transition-colors"
               />
               <select
@@ -499,7 +502,7 @@ export default function OverviewPage() {
                 disabled={!newIdeaText.trim() || addingIdea}
                 className="px-3 py-1.5 rounded-lg text-sm bg-muted border border-border/50 text-foreground/80 hover:text-primary hover:border-primary/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                + Add
+                {t("addIdea")}
               </button>
             </div>
           </div>
