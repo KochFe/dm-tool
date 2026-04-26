@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { api } from "@/lib/api";
 import { hpColor, hpBarColor } from "@/lib/utils";
 import type { PlayerCharacter } from "@/types";
@@ -286,6 +287,8 @@ function SpellSlotsEditor({
   pairs: Array<{ level: string; slots: string }>;
   onChange: (next: Array<{ level: string; slots: string }>) => void;
 }) {
+  const t = useTranslations("characterSection");
+
   function updatePair(
     index: number,
     field: "level" | "slots",
@@ -307,12 +310,12 @@ function SpellSlotsEditor({
 
   return (
     <div>
-      <p className="text-xs text-muted-foreground mb-1.5">Spell Slots</p>
+      <p className="text-xs text-muted-foreground mb-1.5">{t("spellSlots")}</p>
       <div className="space-y-1.5">
         {pairs.map((pair, i) => (
           <div key={i} className="flex gap-2 items-center">
             <input
-              placeholder="Level (e.g. 1)"
+              placeholder={t("spellLevelPlaceholder")}
               value={pair.level}
               onChange={(e) => updatePair(i, "level", e.target.value)}
               className="bg-muted border border-border text-foreground rounded-lg px-2 py-1 w-28 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors placeholder:text-muted-foreground/60"
@@ -320,7 +323,7 @@ function SpellSlotsEditor({
             <input
               type="number"
               min={0}
-              placeholder="Slots"
+              placeholder={t("slotsPlaceholder")}
               value={pair.slots}
               onChange={(e) => updatePair(i, "slots", e.target.value)}
               className="bg-muted border border-border text-foreground rounded-lg px-2 py-1 w-20 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
@@ -329,7 +332,7 @@ function SpellSlotsEditor({
               type="button"
               onClick={() => removePair(i)}
               className="text-muted-foreground hover:text-red-400 transition-colors text-sm px-1"
-              aria-label="Remove spell slot row"
+              aria-label={t("removeSpellSlotRow")}
             >
               ✕
             </button>
@@ -340,7 +343,7 @@ function SpellSlotsEditor({
           onClick={addPair}
           className="text-xs text-primary hover:text-primary/80 transition-colors"
         >
-          + Add level
+          {t("addLevel")}
         </button>
       </div>
     </div>
@@ -358,6 +361,8 @@ export default function CharacterSection({
   characters: PlayerCharacter[];
   onUpdate: () => void;
 }) {
+  const t = useTranslations("characterSection");
+  const tc = useTranslations("common");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<CharacterFormState>(EMPTY_CHAR);
   const [editId, setEditId] = useState<string | null>(null);
@@ -373,10 +378,10 @@ export default function CharacterSection({
     try {
       if (editId) {
         await api.updateCharacter(editId, formToPayload(form));
-        toast.success("Character updated");
+        toast.success(t("toastUpdated"));
       } else {
         await api.createCharacter(campaignId, formToPayload(form));
-        toast.success("Character created");
+        toast.success(t("toastCreated"));
       }
       setForm(EMPTY_CHAR);
       setShowForm(false);
@@ -387,7 +392,7 @@ export default function CharacterSection({
       const message = err instanceof Error ? err.message : "An error occurred";
       // FastAPI 422 detail arrays render as [object Object] — detect and label cleanly
       setFormError(
-        message.startsWith("[object") ? "Validation error — check all fields." : message
+        message.startsWith("[object") ? tc("validationError") : message
       );
     }
   };
@@ -403,11 +408,11 @@ export default function CharacterSection({
   const handleDelete = async (id: string, name: string) => {
     try {
       await api.deleteCharacter(id);
-      toast.success("Character deleted");
+      toast.success(t("toastDeleted"));
       onUpdate();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "An error occurred";
-      toast.error(`Failed to delete ${name}: ${message}`);
+      const message = err instanceof Error ? err.message : t("errorOccurred");
+      toast.error(t("toastDeleteFailed", { name, message }));
     }
   };
 
@@ -423,13 +428,13 @@ export default function CharacterSection({
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-foreground">Characters</h2>
+        <h2 className="text-xl font-semibold text-foreground">{t("heading")}</h2>
         <div className="flex gap-2">
           <button
             onClick={() => setShowImport(true)}
             className="text-sm bg-indigo-700/60 hover:bg-indigo-600 text-indigo-100 px-3 py-1.5 rounded-lg transition-colors"
           >
-            Import from D&D Beyond
+            {t("importDDB")}
           </button>
           <button
             onClick={() => {
@@ -444,7 +449,7 @@ export default function CharacterSection({
             }}
             className="text-sm bg-accent hover:bg-accent text-foreground/80 px-3 py-1.5 rounded-lg transition-colors"
           >
-            {showForm ? "Cancel" : "+ Add"}
+            {showForm ? tc("cancel") : tc("add")}
           </button>
         </div>
       </div>
@@ -464,7 +469,7 @@ export default function CharacterSection({
 
           {/* ── Basic Fields ── */}
           <input
-            placeholder="Name"
+            placeholder={t("namePlaceholder")}
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             className={INPUT_CLS}
@@ -472,14 +477,14 @@ export default function CharacterSection({
           />
           <div className="grid grid-cols-2 gap-2">
             <input
-              placeholder="Race"
+              placeholder={t("racePlaceholder")}
               value={form.race}
               onChange={(e) => setForm({ ...form, race: e.target.value })}
               className={INPUT_CLS}
               required
             />
             <input
-              placeholder="Class"
+              placeholder={t("classPlaceholder")}
               value={form.character_class}
               onChange={(e) =>
                 setForm({ ...form, character_class: e.target.value })
@@ -490,7 +495,7 @@ export default function CharacterSection({
           </div>
           <div className="grid grid-cols-4 gap-2">
             <label className="text-xs text-muted-foreground">
-              Level
+              {t("labelLevel")}
               <input
                 type="number"
                 min={1}
@@ -501,7 +506,7 @@ export default function CharacterSection({
               />
             </label>
             <label className="text-xs text-muted-foreground">
-              HP
+              {t("labelHp")}
               <input
                 type="number"
                 value={form.hp_current}
@@ -512,7 +517,7 @@ export default function CharacterSection({
               />
             </label>
             <label className="text-xs text-muted-foreground">
-              Max HP
+              {t("labelMaxHp")}
               <input
                 type="number"
                 min={1}
@@ -522,7 +527,7 @@ export default function CharacterSection({
               />
             </label>
             <label className="text-xs text-muted-foreground">
-              AC
+              {t("labelAc")}
               <input
                 type="number"
                 min={0}
@@ -538,7 +543,7 @@ export default function CharacterSection({
           {/* Passive Perception (Known Gap #1 fix) */}
           <div className="grid grid-cols-4 gap-2">
             <label className="text-xs text-muted-foreground">
-              Passive Perc.
+              {t("labelPassivePerc")}
               <input
                 type="number"
                 min={1}
@@ -564,21 +569,21 @@ export default function CharacterSection({
               >
                 ▶
               </span>
-              Advanced Stats
+              {t("advancedStats")}
             </button>
 
             {showAdvanced && (
               <div className="mt-3 space-y-4">
                 {/* Ability Scores */}
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1.5">Ability Scores</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("abilityScores")}</p>
                   <AbilityScoreInputs form={form} setForm={setForm} />
                 </div>
 
                 {/* Proficiency Bonus + Speed */}
                 <div className="grid grid-cols-4 gap-2">
                   <label className="text-xs text-muted-foreground">
-                    Prof. Bonus
+                    {t("labelProfBonus")}
                     <input
                       type="number"
                       min={2}
@@ -591,7 +596,7 @@ export default function CharacterSection({
                     />
                   </label>
                   <label className="text-xs text-muted-foreground">
-                    Speed (ft)
+                    {t("labelSpeed")}
                     <input
                       type="number"
                       min={0}
@@ -607,7 +612,7 @@ export default function CharacterSection({
 
                 {/* Saving Throw Proficiencies */}
                 <ProficiencyCheckboxes
-                  label="Saving Throw Proficiencies"
+                  label={t("savingThrowProficiencies")}
                   options={SAVING_THROWS}
                   selected={form.saving_throw_proficiencies}
                   onChange={(next) =>
@@ -618,7 +623,7 @@ export default function CharacterSection({
 
                 {/* Skill Proficiencies */}
                 <ProficiencyCheckboxes
-                  label="Skill Proficiencies"
+                  label={t("skillProficiencies")}
                   options={SKILLS}
                   selected={form.skill_proficiencies}
                   onChange={(next) =>
@@ -642,14 +647,14 @@ export default function CharacterSection({
             type="submit"
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-colors"
           >
-            {editId ? "Update" : "Create"}
+            {editId ? tc("update") : tc("create")}
           </button>
         </form>
       )}
 
       {/* Character List */}
       {characters.length === 0 ? (
-        <p className="text-muted-foreground text-sm">No characters yet.</p>
+        <p className="text-muted-foreground text-sm">{t("empty")}</p>
       ) : (
         <div className="space-y-2">
           <AnimatePresence>
@@ -673,7 +678,7 @@ export default function CharacterSection({
                     <p className="font-medium text-foreground">
                       {pc.name}{" "}
                       <span className="text-sm text-muted-foreground">
-                        {pc.race} {pc.character_class} (Lv {pc.level})
+                          {pc.race} {pc.character_class} ({t("cardLevel", { level: pc.level })})
                       </span>
                     </p>
                     <div className="mt-1">
@@ -681,17 +686,17 @@ export default function CharacterSection({
                         <span
                           className={`font-semibold ${hpColor(pc.hp_current, pc.hp_max)}`}
                         >
-                          HP {pc.hp_current}/{pc.hp_max}
+                          {t("cardHp", { current: pc.hp_current, max: pc.hp_max })}
                         </span>
                         {" "}
                         <span className="text-muted-foreground">&middot;</span>
                         {" "}
-                        AC {pc.armor_class}
+                        {t("cardAc", { ac: pc.armor_class })}
                         {" "}
                         <span className="text-muted-foreground">&middot;</span>
                         {" "}
                         <span className="text-muted-foreground">
-                          Speed {pc.speed}ft &middot; Prof +{pc.proficiency_bonus}
+                          {t("cardSpeed", { speed: pc.speed, profBonus: pc.proficiency_bonus })}
                         </span>
                       </p>
                       {/* HP bar */}
