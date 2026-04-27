@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { hpColor } from '@/lib/utils';
 import { CardListSkeleton } from '@/components/skeletons/CardSkeleton';
@@ -70,6 +71,7 @@ interface HpEditorProps {
 }
 
 function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorProps) {
+  const t = useTranslations('initiative');
   const [delta, setDelta] = useState<number | ''>('');
   const [busy, setBusy] = useState(false);
   const [flash, setFlash] = useState<'damage' | 'heal' | null>(null);
@@ -86,7 +88,7 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
       setTimeout(() => setFlash(null), 600);
       setDelta('');
     } catch (err) {
-      onError(err instanceof Error ? err.message : 'Failed to update HP');
+      onError(err instanceof Error ? err.message : t('errUpdateHp'));
     } finally {
       setBusy(false);
     }
@@ -109,7 +111,7 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
         min={0}
         value={delta}
         onChange={(e) => setDelta(e.target.value === '' ? '' : Math.abs(+e.target.value))}
-        placeholder="amt"
+        placeholder={t('amount')}
         className="bg-muted border border-border text-foreground rounded px-1.5 py-0.5 w-16 text-xs text-center focus:border-ring focus:outline-none transition-colors"
         disabled={busy}
       />
@@ -117,7 +119,7 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
         onClick={() => apply(-1)}
         disabled={busy || delta === '' || delta === 0}
         className="text-xs bg-red-700 text-white px-2 py-0.5 rounded hover:bg-red-600 disabled:opacity-40 transition-colors"
-        title="Damage"
+        title={t('damage')}
       >
         -
       </button>
@@ -125,7 +127,7 @@ function HpEditor({ combatant, index, sessionId, onUpdate, onError }: HpEditorPr
         onClick={() => apply(1)}
         disabled={busy || delta === '' || delta === 0}
         className="text-xs bg-green-700 text-white px-2 py-0.5 rounded hover:bg-green-600 disabled:opacity-40 transition-colors"
-        title="Heal"
+        title={t('heal')}
       >
         +
       </button>
@@ -145,6 +147,7 @@ interface CombatantRowProps {
 }
 
 function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onError }: CombatantRowProps) {
+  const t = useTranslations('initiative');
   const [removing, setRemoving] = useState(false);
 
   const handleRemove = async () => {
@@ -153,7 +156,7 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
       const updated = await api.removeCombatant(sessionId, index);
       onUpdate(updated);
     } catch (err) {
-      onError(err instanceof Error ? err.message : 'Failed to remove combatant');
+      onError(err instanceof Error ? err.message : t('errRemoveCombatant'));
       setRemoving(false);
     }
   };
@@ -173,7 +176,7 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
 
       {/* Initiative */}
       <div className="w-8 text-center shrink-0">
-        <span className="text-xs text-muted-foreground">Init</span>
+        <span className="text-xs text-muted-foreground">{t('labelInit')}</span>
         <div className="font-mono font-semibold text-sm text-foreground">{combatant.initiative}</div>
       </div>
 
@@ -184,14 +187,14 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
             {combatant.name}
           </span>
           {combatant.type === 'pc' ? (
-            <span className="shrink-0 text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded">PC</span>
+            <span className="shrink-0 text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded">{t('typePc')}</span>
           ) : (
-            <span className="shrink-0 text-xs bg-red-700 text-white px-1.5 py-0.5 rounded">Monster</span>
+            <span className="shrink-0 text-xs bg-red-700 text-white px-1.5 py-0.5 rounded">{t('typeMonster')}</span>
           )}
           <Popover>
             <PopoverTrigger asChild>
-              <button className="shrink-0 text-xs text-muted-foreground hover:text-primary transition-colors" title="Toggle conditions">
-                +Cond
+              <button className="shrink-0 text-xs text-muted-foreground hover:text-primary transition-colors" title={t('toggleConditions')}>
+                {t('addCondition')}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-48 p-2 bg-card border-border" align="start">
@@ -210,7 +213,7 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
                           const updated = await api.updateCombatant(sessionId, index, { conditions: next });
                           onUpdate(updated);
                         } catch (err) {
-                          onError(err instanceof Error ? err.message : 'Failed to update conditions');
+                          onError(err instanceof Error ? err.message : t('errUpdateConditions'));
                         }
                       }}
                       className={`w-full text-left text-xs px-2 py-1 rounded transition-colors ${
@@ -256,7 +259,7 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
 
       {/* AC */}
       <div className="w-12 text-center shrink-0">
-        <span className="text-xs text-muted-foreground">AC</span>
+        <span className="text-xs text-muted-foreground">{t('labelAc')}</span>
         <div className="font-mono text-sm text-foreground">{combatant.armor_class}</div>
       </div>
 
@@ -264,7 +267,7 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
       <ConfirmButton
         onConfirm={handleRemove}
         label="✕"
-        confirmLabel="Remove?"
+        confirmLabel={t('remove')}
         disabled={removing}
         className="shrink-0 text-muted-foreground hover:text-red-400 disabled:opacity-40 text-sm leading-none px-1 transition-colors"
       />
@@ -281,6 +284,7 @@ interface AddCombatantFormProps {
 }
 
 function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormProps) {
+  const t = useTranslations('initiative');
   const [form, setForm] = useState<StagedCombatant>(EMPTY_STAGED);
 
   const quickAddPc = (pc: PlayerCharacter) => {
@@ -313,7 +317,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
     <div className="bg-muted/50 border border-border rounded-xl p-3 space-y-2.5">
       {availablePcs.length > 0 && (
         <div>
-          <p className="text-xs text-muted-foreground mb-1.5">Quick-add PC:</p>
+          <p className="text-xs text-muted-foreground mb-1.5">{t('quickAddPc')}</p>
           <div className="flex flex-wrap gap-1.5">
             {availablePcs.map((pc) => (
               <button
@@ -330,13 +334,13 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
 
       <div className="grid grid-cols-2 gap-2">
         <input
-          placeholder="Name *"
+          placeholder={t('fieldName')}
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           className={`${inputClass} col-span-2`}
         />
         <label className="text-xs text-muted-foreground">
-          Initiative *
+          {t('fieldInitiative')}
           <input
             type="number"
             value={form.initiative}
@@ -347,7 +351,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
           />
         </label>
         <label className="text-xs text-muted-foreground">
-          Type
+          {t('fieldType')}
           <select
             value={form.type}
             onChange={(e) =>
@@ -355,12 +359,12 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
             }
             className={`${inputClass} mt-1`}
           >
-            <option value="monster">Monster</option>
-            <option value="pc">PC</option>
+            <option value="monster">{t('typeMonster')}</option>
+            <option value="pc">{t('typePc')}</option>
           </select>
         </label>
         <label className="text-xs text-muted-foreground">
-          Current HP *
+          {t('fieldHpCurrent')}
           <input
             type="number"
             min={0}
@@ -372,7 +376,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
           />
         </label>
         <label className="text-xs text-muted-foreground">
-          Max HP *
+          {t('fieldHpMax')}
           <input
             type="number"
             min={1}
@@ -384,7 +388,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
           />
         </label>
         <label className="text-xs text-muted-foreground">
-          AC *
+          {t('fieldAc')}
           <input
             type="number"
             min={0}
@@ -408,7 +412,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
         }
         className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1.5 rounded-lg disabled:opacity-40 transition-colors"
       >
-        Add to List
+        {t('addToList')}
       </button>
     </div>
   );
@@ -417,6 +421,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
 // ---- Main component ----
 
 export default function InitiativeTracker({ campaignId, characters, refreshKey = 0, onCombatEnd }: InitiativeTrackerProps) {
+  const t = useTranslations('initiative');
   const [sessions, setSessions] = useState<CombatSession[]>([]);
   const [activeSession, setActiveSession] = useState<CombatSession | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -439,7 +444,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
       const active = all.find((s) => s.status === 'active') ?? null;
       setActiveSession(active);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load combat sessions');
+      setError(err instanceof Error ? err.message : t('errLoadSessions'));
     } finally {
       setLoading(false);
     }
@@ -480,7 +485,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   // Begin combat
   const handleBeginCombat = async () => {
     if (staged.length === 0) {
-      setError('Add at least one combatant before starting combat.');
+      setError(t('errAtLeastOne'));
       return;
     }
     setBusy(true);
@@ -505,9 +510,9 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
       setIsCreating(false);
       setSessionName('');
       setStaged([]);
-      toast.success('Combat started');
+      toast.success(t('toastCombatStarted'));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to start combat');
+      setError(err instanceof Error ? err.message : t('errStartCombat'));
     } finally {
       setBusy(false);
     }
@@ -532,7 +537,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
       handleSessionUpdate(updated);
       setShowAddMidCombat(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add combatant');
+      setError(err instanceof Error ? err.message : t('errAddCombatant'));
     } finally {
       setBusy(false);
     }
@@ -547,7 +552,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
       const updated = await api.advanceTurn(activeSession.id);
       handleSessionUpdate(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to advance turn');
+      setError(err instanceof Error ? err.message : t('errAdvanceTurn'));
     } finally {
       setBusy(false);
     }
@@ -579,10 +584,10 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
       const updated = await api.updateCombatSession(activeSession.id, { status: 'completed' });
       setSessions((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
       setActiveSession(null);
-      toast.success('Combat ended');
+      toast.success(t('toastCombatEnded'));
       onCombatEnd?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to end combat');
+      setError(err instanceof Error ? err.message : t('errEndCombat'));
     } finally {
       setBusy(false);
     }
@@ -623,12 +628,10 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-semibold text-foreground">
-              {activeSession.name ?? 'Combat'}
+              {activeSession.name ?? t('defaultName')}
             </h2>
             <p aria-live="polite" className="text-sm text-muted-foreground">
-              Round {activeSession.round_number} &middot;{' '}
-              {activeSession.combatants.length} combatant
-              {activeSession.combatants.length !== 1 ? 's' : ''}
+              {t('roundCombatants', { round: activeSession.round_number, count: activeSession.combatants.length })}
             </p>
           </div>
           <div className="flex gap-2">
@@ -636,12 +639,12 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
               onClick={() => { setShowAddMidCombat((v) => !v); setError(null); }}
               className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1.5 rounded-lg transition-colors"
             >
-              {showAddMidCombat ? 'Cancel' : '+ Combatant'}
+              {showAddMidCombat ? t('cancel') : t('addCombatantButton')}
             </button>
             <ConfirmButton
               onConfirm={handleEndCombat}
-              label="End Combat"
-              confirmLabel="End session?"
+              label={t('endCombat')}
+              confirmLabel={t('confirmEndSession')}
               disabled={busy}
               className="text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-700 dark:hover:bg-red-600 dark:text-white px-3 py-1.5 rounded-lg disabled:opacity-40 transition-colors"
             />
@@ -668,7 +671,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         {/* Combatant list */}
         <div role="list" className="space-y-1.5 mb-4">
           {activeSession.combatants.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No combatants.</p>
+            <p className="text-muted-foreground text-sm">{t('noCombatants')}</p>
           ) : (
             <AnimatePresence>
               {activeSession.combatants.map((combatant, i) => (
@@ -701,14 +704,14 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
           disabled={busy || activeSession.combatants.length === 0}
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg disabled:opacity-40 transition-colors"
         >
-          Next Turn
+          {t('nextTurn')}
         </button>
 
         {/* Current turn label */}
         {activeSession.combatants.length > 0 && (
           <p aria-live="polite" className="text-center text-xs text-muted-foreground mt-2">
-            Current: {activeSession.combatants[activeSession.current_turn_index]?.name ?? '—'}
-            <span className="text-muted-foreground/60 ml-2">(Space to advance)</span>
+            {t('currentTurn', { name: activeSession.combatants[activeSession.current_turn_index]?.name ?? '—' })}
+            <span className="text-muted-foreground/60 ml-2">{t('spaceToAdvance')}</span>
           </p>
         )}
       </div>
@@ -720,13 +723,13 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-foreground">Initiative Tracker</h2>
+        <h2 className="text-xl font-semibold text-foreground">{t('heading')}</h2>
         {!isCreating && (
           <button
             onClick={() => { setIsCreating(true); setError(null); }}
             className="text-sm bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-3 py-1.5 rounded-lg transition-colors"
           >
-            Start Combat
+            {t('startCombat')}
           </button>
         )}
       </div>
@@ -740,17 +743,17 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
       {/* New combat form */}
       {isCreating && (
         <div className="bg-muted/50 border border-border rounded-xl p-4 mb-4 space-y-3">
-          <h3 className="font-medium text-foreground">New Combat Session</h3>
+          <h3 className="font-medium text-foreground">{t('newSession')}</h3>
 
           <input
-            placeholder="Session name (optional)"
+            placeholder={t('sessionNamePlaceholder')}
             value={sessionName}
             onChange={(e) => setSessionName(e.target.value)}
             className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full text-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
           />
 
           <div>
-            <h4 className="text-sm font-medium text-foreground/80 mb-2">Combatants</h4>
+            <h4 className="text-sm font-medium text-foreground/80 mb-2">{t('combatantsHeading')}</h4>
             <AddCombatantForm
               characters={characters}
               onAdd={handleAddStaged}
@@ -762,7 +765,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
           {staged.length > 0 && (
             <div className="space-y-1.5">
               <p className="text-xs text-muted-foreground">
-                Staged ({staged.length}) — sorted by initiative on start:
+                {t('stagedLabel', { count: staged.length })}
               </p>
               {staged.map((s, i) => (
                 <div
@@ -772,20 +775,19 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
                   <span>
                     <span className="font-medium text-foreground">{s.name}</span>
                     <span className="text-muted-foreground ml-2">
-                      Init {s.initiative} &middot; HP {s.hp_current}/{s.hp_max} &middot; AC{' '}
-                      {s.armor_class}
+                      {t('stagedRowSummary', { init: s.initiative, hp: s.hp_current, hpMax: s.hp_max, ac: s.armor_class })}
                     </span>
                   </span>
                   <div className="flex items-center gap-2">
                     {s.type === 'pc' ? (
-                      <span className="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded">PC</span>
+                      <span className="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded">{t('typePc')}</span>
                     ) : (
-                      <span className="text-xs bg-red-700 text-white px-1.5 py-0.5 rounded">Monster</span>
+                      <span className="text-xs bg-red-700 text-white px-1.5 py-0.5 rounded">{t('typeMonster')}</span>
                     )}
                     <button
                       onClick={() => removeStaged(i)}
                       className="text-muted-foreground hover:text-red-400 text-xs transition-colors"
-                      aria-label={`Remove ${s.name} from staged list`}
+                      aria-label={t('removeFromStaged', { name: s.name })}
                     >
                       ✕
                     </button>
@@ -801,13 +803,13 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
               disabled={busy || staged.length === 0}
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 py-2 rounded-lg disabled:opacity-40 transition-colors"
             >
-              {busy ? 'Starting...' : 'Begin Combat'}
+              {busy ? t('starting') : t('beginCombat')}
             </button>
             <button
               onClick={handleCancelCreate}
               className="bg-accent hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors"
             >
-              Cancel
+              {t('cancel')}
             </button>
           </div>
         </div>
@@ -815,7 +817,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
 
       {/* No active combat message */}
       {!isCreating && (
-        <p className="text-muted-foreground text-sm mb-4">No active combat. Click "Start Combat" to begin.</p>
+        <p className="text-muted-foreground text-sm mb-4">{t('noActiveCombat')}</p>
       )}
 
       {/* Completed sessions (collapsed) */}
@@ -825,7 +827,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
             onClick={() => setShowCompleted((v) => !v)}
             className="text-sm text-muted-foreground hover:text-foreground/80 transition-colors"
           >
-            {showCompleted ? 'Hide' : 'Show'} completed sessions ({completedSessions.length})
+            {showCompleted ? t('hideCompleted', { count: completedSessions.length }) : t('showCompleted', { count: completedSessions.length })}
           </button>
 
           {showCompleted && (
@@ -836,8 +838,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
                   className="bg-muted/30 border border-border rounded-lg px-3 py-2 text-sm text-muted-foreground flex items-center justify-between"
                 >
                   <span>
-                    {s.name ?? 'Unnamed session'} &middot; Round {s.round_number} &middot;{' '}
-                    {s.combatants.length} combatant{s.combatants.length !== 1 ? 's' : ''}
+                    {t('completedSummary', { name: s.name ?? t('unnamedSession'), round: s.round_number, count: s.combatants.length })}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {new Date(s.created_at).toLocaleDateString()}
