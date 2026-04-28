@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import type { ChatMessage } from '@/types';
 
@@ -51,6 +52,7 @@ const SendIcon = () => (
 );
 
 export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocationName, partyLevel: _partyLevel, mode = "overlay" }: ChatSidebarProps) {
+  const t = useTranslations('chatSidebar');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -61,14 +63,14 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
 
   const suggestions = currentLocationName
     ? [
-        `Who are the NPCs in ${currentLocationName}?`,
-        `What quests are available in ${currentLocationName}?`,
-        `Tell me about ${currentLocationName} lore`,
+        t('suggestNpcs', { location: currentLocationName }),
+        t('suggestQuests', { location: currentLocationName }),
+        t('suggestLore', { location: currentLocationName }),
       ]
     : [
-        'What are the rules for grappling?',
-        'Suggest an interesting plot hook',
-        'What is the history of the Underdark?',
+        t('suggestRules'),
+        t('suggestPlot'),
+        t('suggestHistory'),
       ];
 
   // Auto-scroll to bottom on new messages or loading state change
@@ -120,7 +122,7 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
       const assistantMessage = await api.sendChatMessage(campaignId, nextMessages);
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reach the Oracle');
+      setError(err instanceof Error ? err.message : t('errorReach'));
     } finally {
       setIsLoading(false);
     }
@@ -153,7 +155,7 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
   return (
     <aside
       role="complementary"
-      aria-label="Lore Oracle chat"
+      aria-label={t('ariaLabel')}
       className={asideClass}
     >
       {/* Header */}
@@ -161,16 +163,16 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
         <div className="flex items-center gap-2.5">
           <SparklesIcon className="w-4 h-4 text-primary" />
           <div>
-            <p className="text-sm font-semibold text-foreground leading-tight">Lore Oracle</p>
+            <p className="text-sm font-semibold text-foreground leading-tight">{t('title')}</p>
             <p className="text-xs text-muted-foreground leading-tight">
-              Ask anything about rules, lore, or your campaign
+              {t('subtitle')}
             </p>
           </div>
         </div>
         {!panelMode && (
           <button
             onClick={onClose}
-            aria-label="Close chat sidebar"
+            aria-label={t('closeAria')}
             className="text-muted-foreground hover:text-foreground/80 hover:bg-accent p-1.5 rounded-lg transition-colors duration-150"
           >
             <XIcon />
@@ -187,9 +189,9 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
               <SparklesIcon className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground/80 mb-1">The Oracle awaits</p>
+              <p className="text-sm font-semibold text-foreground/80 mb-1">{t('emptyTitle')}</p>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-[220px] mx-auto">
-                Ask about D&amp;D rules, lore, campaign context, or generate content on the fly.
+                {t('emptyHint')}
               </p>
             </div>
             <div className="flex flex-col gap-2 w-full">
@@ -259,21 +261,21 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
             value={input}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Ask the Oracle..."
+            placeholder={t('inputPlaceholder')}
             rows={1}
             className="flex-1 bg-muted border border-border text-foreground rounded-xl px-3 py-2.5 text-sm placeholder:text-muted-foreground resize-none focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors duration-150 max-h-36 overflow-y-auto"
           />
           <button
             onClick={handleSubmit}
             disabled={isLoading || !input.trim()}
-            aria-label="Send message"
+            aria-label={t('sendAria')}
             className="shrink-0 bg-primary hover:bg-primary/90 disabled:opacity-40 text-primary-foreground p-2.5 rounded-xl transition-colors duration-150 self-end"
           >
             <SendIcon />
           </button>
         </div>
         <p className="text-xs text-muted-foreground/60 mt-1.5 text-right">
-          Enter to send &middot; Shift+Enter for new line
+          {t('footerHint')}
         </p>
       </div>
     </aside>

@@ -139,6 +139,24 @@
     "rollDice": "Roll {notation}",
     "keyboardShortcuts": "Keyboard Shortcuts"
   },
+  "chatSidebar": {
+    "ariaLabel": "Lore Oracle chat",
+    "title": "Lore Oracle",
+    "subtitle": "Ask anything about rules, lore, or your campaign",
+    "closeAria": "Close chat sidebar",
+    "emptyTitle": "The Oracle awaits",
+    "emptyHint": "Ask about D&D rules, lore, campaign context, or generate content on the fly.",
+    "suggestNpcs": "Who are the NPCs in {location}?",
+    "suggestQuests": "What quests are available in {location}?",
+    "suggestLore": "Tell me about {location} lore",
+    "suggestRules": "What are the rules for grappling?",
+    "suggestPlot": "Suggest an interesting plot hook",
+    "suggestHistory": "What is the history of the Underdark?",
+    "errorReach": "Failed to reach the Oracle",
+    "inputPlaceholder": "Ask the Oracle…",
+    "sendAria": "Send message",
+    "footerHint": "Enter to send · Shift+Enter for new line"
+  },
   "entitySheet": {
     "alive": "Alive",
     "dead": "Dead",
