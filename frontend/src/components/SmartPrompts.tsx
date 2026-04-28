@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, type ReactElement } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import type { GeneratedEncounter, GeneratedNpc, GeneratedLoot } from '@/types';
 
@@ -16,15 +17,15 @@ interface SmartPromptsProps {
 
 type GeneratorType = 'encounter' | 'npc' | 'loot';
 
-function formatError(err: unknown): string {
+function formatError(err: unknown, fallbackMsg: string, unexpectedMsg: string): string {
   if (err instanceof Error) {
     const msg = err.message;
     if (msg.startsWith('[object')) {
-      return 'Generation failed. Please try again.';
+      return fallbackMsg;
     }
     return msg;
   }
-  return 'An unexpected error occurred.';
+  return unexpectedMsg;
 }
 
 function SpinnerIcon() {
@@ -109,14 +110,14 @@ function GemIcon() {
   );
 }
 
-const BUTTONS: {
+const BUTTON_TYPES: {
   type: GeneratorType;
-  label: string;
+  labelKey: 'labelEncounter' | 'labelNpc' | 'labelLoot';
   Icon: () => ReactElement;
 }[] = [
-  { type: 'encounter', label: 'Generate Encounter', Icon: SwordIcon },
-  { type: 'npc', label: 'Generate NPC', Icon: PersonIcon },
-  { type: 'loot', label: 'Generate Loot', Icon: GemIcon },
+  { type: 'encounter', labelKey: 'labelEncounter', Icon: SwordIcon },
+  { type: 'npc', labelKey: 'labelNpc', Icon: PersonIcon },
+  { type: 'loot', labelKey: 'labelLoot', Icon: GemIcon },
 ];
 
 export default function SmartPrompts({
@@ -125,6 +126,7 @@ export default function SmartPrompts({
   partyLevel,
   onResult,
 }: SmartPromptsProps) {
+  const t = useTranslations('smartPrompts');
   const [loading, setLoading] = useState<GeneratorType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [npcRole, setNpcRole] = useState('');
@@ -170,7 +172,7 @@ export default function SmartPrompts({
 
       onResult(type, result);
     } catch (err) {
-      showError(formatError(err));
+      showError(formatError(err, t('errFallback'), t('errUnexpected')));
     } finally {
       setLoading(null);
     }
@@ -183,21 +185,22 @@ export default function SmartPrompts({
       {/* Header row */}
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-primary uppercase tracking-wide">
-          AI Generators
+          {t('header')}
         </h2>
         {disabled && (
-          <span className="text-xs text-muted-foreground italic">Set a location first</span>
+          <span className="text-xs text-muted-foreground italic">{t('noLocationHint')}</span>
         )}
         {!disabled && (
           <span className="text-xs text-muted-foreground">
-            {currentLocationName} &middot; Party Level {partyLevel}
+            {t('locationLabel', { location: currentLocationName ?? '', partyLevel })}
           </span>
         )}
       </div>
 
       {/* Button row */}
       <div className="flex flex-wrap gap-2 items-center">
-        {BUTTONS.map(({ type, label, Icon }) => {
+        {BUTTON_TYPES.map(({ type, labelKey, Icon }) => {
+          const label = t(labelKey);
           const isActive = loading === type;
           const isDisabled = disabled || loading !== null;
 
@@ -215,7 +218,7 @@ export default function SmartPrompts({
               <button
                 onClick={handleClick}
                 disabled={isDisabled}
-                title={disabled ? 'Set a location first to enable AI generators' : label}
+                title={disabled ? t('tooltipDisabled') : label}
                 className={`
                   flex items-center gap-2
                   bg-muted border border-border rounded-lg px-4 py-2
@@ -228,7 +231,7 @@ export default function SmartPrompts({
                 `}
               >
                 {isActive ? <SpinnerIcon /> : <Icon />}
-                <span>{isActive ? 'Generating\u2026' : label}</span>
+                <span>{isActive ? t('generating') : label}</span>
               </button>
             </div>
           );
@@ -254,17 +257,17 @@ export default function SmartPrompts({
           }}
         >
           <div className="bg-card border border-border rounded-xl p-6 w-full max-w-sm mx-4 space-y-4">
-            <h3 className="text-base font-semibold text-foreground">Generate NPC</h3>
+            <h3 className="text-base font-semibold text-foreground">{t('modalTitle')}</h3>
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground" htmlFor="npc-role-input">
-                Role or archetype (optional)
+                {t('modalRoleLabel')}
               </label>
               <input
                 id="npc-role-input"
                 type="text"
                 value={npcRole}
                 onChange={(e) => setNpcRole(e.target.value)}
-                placeholder="e.g. blacksmith, bandit captain"
+                placeholder={t('modalRolePlaceholder')}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && loading === null) {
@@ -287,7 +290,7 @@ export default function SmartPrompts({
                 }}
                 className="px-4 py-2 rounded-lg border border-border text-foreground/80 hover:bg-muted text-sm transition-colors"
               >
-                Cancel
+                {t('modalCancel')}
               </button>
               <button
                 onClick={() => {
@@ -304,10 +307,10 @@ export default function SmartPrompts({
                 {loading === 'npc' ? (
                   <>
                     <SpinnerIcon />
-                    <span>Generating&hellip;</span>
+                    <span>{t('generating')}</span>
                   </>
                 ) : (
-                  'Generate'
+                  t('modalGenerate')
                 )}
               </button>
             </div>

@@ -139,6 +139,23 @@
     "rollDice": "Roll {notation}",
     "keyboardShortcuts": "Tastaturkürzel"
   },
+  "smartPrompts": {
+    "header": "AI-Generatoren",
+    "noLocationHint": "Erst einen Ort setzen",
+    "locationLabel": "{location} · Party Level {partyLevel}",
+    "labelEncounter": "Encounter generieren",
+    "labelNpc": "NPC generieren",
+    "labelLoot": "Loot generieren",
+    "tooltipDisabled": "Erst einen Ort setzen, um AI-Generatoren freizuschalten",
+    "generating": "Wird generiert…",
+    "errFallback": "Generierung fehlgeschlagen. Bitte erneut versuchen.",
+    "errUnexpected": "Ein unerwarteter Fehler ist aufgetreten.",
+    "modalTitle": "NPC generieren",
+    "modalRoleLabel": "Rolle oder Archetyp (optional)",
+    "modalRolePlaceholder": "z. B. Schmied, Banditenanführer",
+    "modalCancel": "Abbrechen",
+    "modalGenerate": "Generieren"
+  },
   "chatSidebar": {
     "ariaLabel": "Lore-Oracle-Chat",
     "title": "Lore Oracle",

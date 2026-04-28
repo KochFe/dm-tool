@@ -139,6 +139,23 @@
     "rollDice": "Roll {notation}",
     "keyboardShortcuts": "Keyboard Shortcuts"
   },
+  "smartPrompts": {
+    "header": "AI Generators",
+    "noLocationHint": "Set a location first",
+    "locationLabel": "{location} · Party Level {partyLevel}",
+    "labelEncounter": "Generate Encounter",
+    "labelNpc": "Generate NPC",
+    "labelLoot": "Generate Loot",
+    "tooltipDisabled": "Set a location first to enable AI generators",
+    "generating": "Generating…",
+    "errFallback": "Generation failed. Please try again.",
+    "errUnexpected": "An unexpected error occurred.",
+    "modalTitle": "Generate NPC",
+    "modalRoleLabel": "Role or archetype (optional)",
+    "modalRolePlaceholder": "e.g. blacksmith, bandit captain",
+    "modalCancel": "Cancel",
+    "modalGenerate": "Generate"
+  },
   "chatSidebar": {
     "ariaLabel": "Lore Oracle chat",
     "title": "Lore Oracle",
