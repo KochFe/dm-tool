@@ -139,6 +139,33 @@
     "rollDice": "Roll {notation}",
     "keyboardShortcuts": "Keyboard Shortcuts"
   },
+  "entitySheet": {
+    "alive": "Alive",
+    "dead": "Dead",
+    "description": "Description",
+    "personality": "Personality",
+    "motivation": "Motivation",
+    "secrets": "Secrets",
+    "reward": "Reward",
+    "recommendedLevel": "Recommended Level: {level}"
+  },
+  "ddbImport": {
+    "heading": "Import from D&D Beyond",
+    "urlPrompt": "Paste your D&D Beyond character URL. The character must be set to <public>Public</public> in D&D Beyond privacy settings.",
+    "urlPlaceholder": "https://www.dndbeyond.com/characters/12345",
+    "fetching": "Fetching…",
+    "previewImport": "Preview Import",
+    "importing": "Importing…",
+    "confirmImport": "Confirm Import",
+    "back": "Back",
+    "importFailed": "Import failed",
+    "createFailed": "Failed to create character",
+    "savingThrows": "Saving Throws",
+    "skills": "Skills",
+    "warnings": "Warnings",
+    "notImported": "Not yet imported (future support)",
+    "charSummary": "{race} {charClass} (Lv {level})"
+  },
   "initiative": {
     "heading": "Initiative Tracker",
     "startCombat": "Start Combat",
