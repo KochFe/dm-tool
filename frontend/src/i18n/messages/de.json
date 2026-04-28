@@ -139,6 +139,23 @@
     "rollDice": "Roll {notation}",
     "keyboardShortcuts": "Tastaturkürzel"
   },
+  "shortcuts": {
+    "title": "Tastaturkürzel",
+    "openCommandPalette": "Befehlspalette öffnen",
+    "toggleOracle": "Lore Oracle umschalten",
+    "nextTurn": "Nächster Turn",
+    "closePanel": "Panel/Modal schließen",
+    "ctxGlobal": "Global",
+    "ctxSession": "Session",
+    "ctxCombat": "Combat (außer beim Tippen)"
+  },
+  "hoverCard": {
+    "current": "Aktuell"
+  },
+  "sessionNotes": {
+    "heading": "Session-Notizen",
+    "placeholder": "Notizen während der Session…"
+  },
   "generatorResult": {
     "titleEncounter": "Generiertes Encounter",
     "titleNpc": "Generierter NPC",

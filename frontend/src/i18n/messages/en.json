@@ -139,6 +139,23 @@
     "rollDice": "Roll {notation}",
     "keyboardShortcuts": "Keyboard Shortcuts"
   },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "openCommandPalette": "Open command palette",
+    "toggleOracle": "Toggle Lore Oracle",
+    "nextTurn": "Next turn",
+    "closePanel": "Close panel / modal",
+    "ctxGlobal": "Global",
+    "ctxSession": "Session",
+    "ctxCombat": "Combat (when not typing)"
+  },
+  "hoverCard": {
+    "current": "Current"
+  },
+  "sessionNotes": {
+    "heading": "Session Notes",
+    "placeholder": "Take notes during your session…"
+  },
   "generatorResult": {
     "titleEncounter": "Generated Encounter",
     "titleNpc": "Generated NPC",
