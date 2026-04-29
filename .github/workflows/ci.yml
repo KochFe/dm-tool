@@ -34,5 +34,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies
         run: cd frontend && npm ci
+      - name: Check i18n catalogue parity
+        run: cd frontend && npm run check-i18n
       - name: Build
         run: cd frontend && npm run build
