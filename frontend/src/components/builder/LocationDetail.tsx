@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import type { Location } from "@/types";
 
+// Biome values are stored canonically in English on the backend; only the
+// display label is localized via the `biomeXxx` keys below.
 const BIOMES = [
-  "Urban",
-  "Forest",
-  "Mountain",
-  "Desert",
-  "Coastal",
-  "Underground",
-];
+  { value: "Urban", labelKey: "biomeUrban" },
+  { value: "Forest", labelKey: "biomeForest" },
+  { value: "Mountain", labelKey: "biomeMountain" },
+  { value: "Desert", labelKey: "biomeDesert" },
+  { value: "Coastal", labelKey: "biomeCoastal" },
+  { value: "Underground", labelKey: "biomeUnderground" },
+] as const;
 
 function buildBreadcrumb(location: Location, allLocations: Location[]): string {
   const parts: string[] = [location.name];
@@ -46,6 +49,7 @@ export default function LocationDetail({
   onSave,
   onDelete,
 }: LocationDetailProps) {
+  const t = useTranslations("builder.locationDetail");
   const [name, setName] = useState(location.name);
   const [description, setDescription] = useState(location.description ?? "");
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -92,7 +96,7 @@ export default function LocationDetail({
       {/* Name */}
       <section className="flex flex-col gap-2">
         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Name
+          {t("name")}
         </label>
         <input
           type="text"
@@ -100,14 +104,14 @@ export default function LocationDetail({
           onChange={(e) => setName(e.target.value)}
           onBlur={saveName}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-          placeholder="Location name"
+          placeholder={t("namePlaceholder")}
         />
       </section>
 
       {/* Description */}
       <section className="flex flex-col gap-2">
         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Description
+          {t("description")}
         </label>
         <textarea
           value={description}
@@ -115,27 +119,27 @@ export default function LocationDetail({
           onBlur={saveDescription}
           rows={5}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
-          placeholder="Describe this location..."
+          placeholder={t("descriptionPlaceholder")}
         />
       </section>
 
       {/* Biome */}
       <section className="flex flex-col gap-2">
         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Biome
+          {t("biome")}
         </label>
         <div className="flex flex-wrap gap-2">
-          {BIOMES.map((biome) => (
+          {BIOMES.map(({ value, labelKey }) => (
             <button
-              key={biome}
-              onClick={() => selectBiome(biome)}
+              key={value}
+              onClick={() => selectBiome(value)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                location.biome === biome
+                location.biome === value
                   ? "bg-primary border-primary text-primary-foreground"
                   : "bg-muted border-border text-foreground/80 hover:border-border"
               }`}
             >
-              {biome}
+              {t(labelKey)}
             </button>
           ))}
         </div>
@@ -145,18 +149,18 @@ export default function LocationDetail({
       <section className="pt-2 border-t border-border">
         {confirmDelete ? (
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">Delete &ldquo;{location.name}&rdquo;?</span>
+            <span className="text-sm text-muted-foreground">{t("deletePrompt", { name: location.name })}</span>
             <button
               onClick={() => onDelete(location.id)}
               className="text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-800 dark:hover:bg-red-700 dark:text-white px-3 py-1 rounded transition-colors"
             >
-              Yes, delete
+              {t("yesDelete")}
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
               className="text-sm text-muted-foreground hover:text-foreground/80 px-2 py-1 transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
           </div>
         ) : (
@@ -164,7 +168,7 @@ export default function LocationDetail({
             onClick={() => setConfirmDelete(true)}
             className="text-sm text-red-500 hover:text-red-400 transition-colors"
           >
-            Delete location
+            {t("deleteLocation")}
           </button>
         )}
       </section>

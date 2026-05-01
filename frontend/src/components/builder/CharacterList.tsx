@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Npc, PlayerCharacter, Location } from "@/types";
 
 interface CharacterListProps {
@@ -32,6 +33,7 @@ function LocationGroup({
   onSelectNpc,
   defaultExpanded = true,
 }: LocationGroupProps) {
+  const t = useTranslations("builder.characterList");
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   return (
@@ -73,7 +75,7 @@ function LocationGroup({
               >
                 {npc.name}
                 {!npc.is_alive && (
-                  <span className="ml-1 text-xs text-muted-foreground/60">(deceased)</span>
+                  <span className="ml-1 text-xs text-muted-foreground/60">{t("deceased")}</span>
                 )}
               </button>
             );
@@ -95,7 +97,7 @@ export default function CharacterList({
   onAddNpc,
   onAddPc,
 }: CharacterListProps) {
-  const locationMap = new Map(locations.map((l) => [l.id, l]));
+  const t = useTranslations("builder.characterList");
 
   // Group NPCs by location_id
   const byLocation = new Map<string | null, Npc[]>();
@@ -120,19 +122,19 @@ export default function CharacterList({
       {/* NPC section header */}
       <div className="flex items-center justify-between px-1 mb-2">
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          NPCs
+          {t("npcs")}
         </span>
         <button
           onClick={onAddNpc}
           className="text-xs text-primary hover:text-primary transition-colors"
         >
-          + Add NPC
+          {t("addNpc")}
         </button>
       </div>
 
       {/* NPC groups */}
       {locationGroups.length === 0 && unassigned.length === 0 ? (
-        <p className="text-xs text-muted-foreground/60 text-center py-3">No NPCs yet.</p>
+        <p className="text-xs text-muted-foreground/60 text-center py-3">{t("noNpcs")}</p>
       ) : (
         <>
           {locationGroups.map((group) => (
@@ -147,7 +149,7 @@ export default function CharacterList({
           ))}
           {unassigned.length > 0 && (
             <LocationGroup
-              label="No Location"
+              label={t("noLocation")}
               npcs={unassigned}
               selectedId={selectedId}
               selectedType={selectedType}
@@ -164,19 +166,19 @@ export default function CharacterList({
       {/* PC section header */}
       <div className="flex items-center justify-between px-1 mb-2">
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          Player Characters
+          {t("playerCharacters")}
         </span>
         <button
           onClick={onAddPc}
           className="text-xs text-primary hover:text-primary transition-colors"
         >
-          + Add PC
+          {t("addPc")}
         </button>
       </div>
 
       {/* PC list */}
       {pcs.length === 0 ? (
-        <p className="text-xs text-muted-foreground/60 text-center py-3">No PCs yet.</p>
+        <p className="text-xs text-muted-foreground/60 text-center py-3">{t("noPcs")}</p>
       ) : (
         <div className="flex flex-col gap-0.5">
           {pcs.map((pc) => {
@@ -193,7 +195,7 @@ export default function CharacterList({
               >
                 {pc.name}
                 <span className="ml-1 text-xs text-muted-foreground/60">
-                  Lv{pc.level} {pc.character_class}
+                  {t("levelClass", { level: pc.level, class: pc.character_class })}
                 </span>
               </button>
             );

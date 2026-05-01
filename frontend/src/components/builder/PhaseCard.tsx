@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { PhasePrepResult } from "@/lib/api";
@@ -59,6 +60,7 @@ export default function PhaseCard({
   quests,
   locations,
 }: PhaseCardProps) {
+  const t = useTranslations("builder.phaseCard");
   const [title, setTitle] = useState(isNew ? "" : phase.title);
   const [richContent, setRichContent] = useState<JSONContent | null>(
     (phase.description_rich as JSONContent) ?? null
@@ -113,7 +115,7 @@ export default function PhaseCard({
   async function handleSave() {
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      toast.error("Phase title cannot be empty");
+      toast.error(t("titleEmptyError"));
       titleInputRef.current?.focus();
       return;
     }
@@ -190,7 +192,7 @@ export default function PhaseCard({
       onEditDone();
       onUpdate();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save phase");
+      toast.error(err instanceof Error ? err.message : t("savePhaseError"));
     } finally {
       setSaving(false);
     }
@@ -202,7 +204,7 @@ export default function PhaseCard({
       await api.deletePhase(phase.id);
       onDelete();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete phase");
+      toast.error(err instanceof Error ? err.message : t("deletePhaseError"));
       setDeleting(false);
     }
   }
@@ -263,11 +265,12 @@ export default function PhaseCard({
     >
       <DialogContent showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>Location has nested children</DialogTitle>
+          <DialogTitle>{t("nestedDialogTitle")}</DialogTitle>
           <DialogDescription>
-            <strong>&ldquo;{nestedDialog?.locationName}&rdquo;</strong> has{" "}
-            {nestedDialog?.childCount} nested location
-            {nestedDialog?.childCount !== 1 ? "s" : ""}. What would you like to do?
+            {t("nestedDialogDescription", {
+              name: nestedDialog?.locationName ?? "",
+              count: nestedDialog?.childCount ?? 0,
+            })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -275,13 +278,13 @@ export default function PhaseCard({
             variant="outline"
             onClick={() => handleNestedDialogChoice("unlink")}
           >
-            Just Unlink
+            {t("justUnlink")}
           </Button>
           <Button
             variant="destructive"
             onClick={() => handleNestedDialogChoice("delete")}
           >
-            Delete All
+            {t("deleteAll")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -294,7 +297,7 @@ export default function PhaseCard({
         {/* Title row */}
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Phase Title
+            {t("phaseTitleLabel")}
           </label>
           <input
             ref={titleInputRef}
@@ -302,7 +305,7 @@ export default function PhaseCard({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="bg-card border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-            placeholder="Phase title"
+            placeholder={t("phaseTitlePlaceholder")}
             autoFocus
           />
         </div>
@@ -311,18 +314,18 @@ export default function PhaseCard({
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Description
+              {t("description")}
             </label>
             <button
               type="button"
               onClick={() => setAiDescOpen(true)}
-              aria-label="AI generate phase description"
+              aria-label={t("aiAriaDescription")}
               className="inline-flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 hover:border-blue-500/40 px-2 py-0.5 rounded-md transition-colors"
             >
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
               </svg>
-              AI
+              {t("aiButton")}
             </button>
           </div>
           <RichTextEditor
@@ -330,7 +333,7 @@ export default function PhaseCard({
             plainText={phase.description ?? ""}
             onChange={setRichContent}
             knownLocationNames={locations.map((l) => l.name)}
-            placeholder="Describe what happens in this phase... Select text and click 'Mark as Location' to tag locations."
+            placeholder={t("descriptionPlaceholder")}
           />
         </div>
 
@@ -338,7 +341,7 @@ export default function PhaseCard({
         {richContent && extractLocationMentions(richContent).length > 0 && (
           <div className="flex flex-col gap-2">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Tagged Locations
+              {t("taggedLocations")}
             </label>
             <div className="flex flex-wrap gap-1.5">
               {[...new Map(
@@ -359,7 +362,7 @@ export default function PhaseCard({
         {quests.length > 0 && (
           <div className="flex flex-col gap-2">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Linked Quests
+              {t("linkedQuests")}
             </label>
             <div className="flex flex-col gap-1 max-h-36 overflow-y-auto">
               {quests.map((q) => (
@@ -387,25 +390,25 @@ export default function PhaseCard({
             disabled={saving}
             className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors"
           >
-            {saving ? "Saving..." : "Save"}
+            {saving ? t("saving") : t("save")}
           </button>
           <button
             onClick={cancelEdit}
             disabled={saving}
             className="text-sm text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg border border-border hover:border-border transition-colors disabled:opacity-50"
           >
-            Cancel
+            {t("cancel")}
           </button>
         </div>
         {nestedLocationDialog}
         <AIAssistModal<PhasePrepResult>
           open={aiDescOpen}
           onClose={() => setAiDescOpen(false)}
-          title="Generate phase prep sheet"
+          title={t("aiModalTitle")}
           existingContent={
             richContent ? extractPlainText(richContent).trim() || undefined : undefined
           }
-          placeholder="e.g. 'The party gets a hint from an old friend in a tavern about a mysterious lighthouse on the Sword Coast, shrouded in mist.'"
+          placeholder={t("aiModalPlaceholder")}
           onGenerate={(req) => api.ai.generatePhaseDescription(campaignId, phase.id, req)}
           onAccept={(result) => {
             setRichContent(phasePrepToTiptap(result));
@@ -423,7 +426,7 @@ export default function PhaseCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="bg-primary/15 text-primary text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">
-            PHASE {index + 1}
+            {t("phaseLabel", { index: index + 1 })}
           </span>
           <span className="text-foreground font-medium">{phase.title}</span>
         </div>
@@ -432,7 +435,7 @@ export default function PhaseCard({
           <button
             onClick={onMoveUp}
             disabled={index === 0}
-            title="Move up"
+            title={t("moveUp")}
             className="text-muted-foreground/60 hover:text-foreground/80 disabled:opacity-20 disabled:cursor-not-allowed p-1 rounded transition-colors"
           >
             &#8593;
@@ -440,7 +443,7 @@ export default function PhaseCard({
           <button
             onClick={onMoveDown}
             disabled={index === totalPhases - 1}
-            title="Move down"
+            title={t("moveDown")}
             className="text-muted-foreground/60 hover:text-foreground/80 disabled:opacity-20 disabled:cursor-not-allowed p-1 rounded transition-colors"
           >
             &#8595;
@@ -448,25 +451,25 @@ export default function PhaseCard({
           <button
             type="button"
             onClick={() => setExpanderOpen(true)}
-            aria-label="AI expand this phase"
+            aria-label={t("expandAria")}
             className="inline-flex items-center gap-1 text-xs font-medium text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-500/40 px-2 py-0.5 rounded-md transition-colors"
           >
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
               <path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
             </svg>
-            Expand
+            {t("expand")}
           </button>
           <button
             onClick={enterEdit}
             className="text-sm text-primary hover:text-primary px-2 py-0.5 rounded transition-colors"
           >
-            Edit
+            {t("edit")}
           </button>
           <button
             onClick={handleDelete}
             disabled={deleting}
-            title="Delete phase"
+            title={t("deleteAria")}
             className="text-muted-foreground/60 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed px-1.5 py-0.5 rounded transition-colors text-base leading-none"
           >
             &times;
@@ -480,19 +483,19 @@ export default function PhaseCard({
       {/* Links summary */}
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mt-1">
         <span>
-          Linked:{" "}
+          {t("linked")}{" "}
           <span className="text-muted-foreground">
             {linkedQuestTitles.length > 0
-              ? `${linkedQuestTitles.length} quest${linkedQuestTitles.length !== 1 ? "s" : ""}`
-              : "none yet"}
+              ? t("questCount", { count: linkedQuestTitles.length })
+              : t("noneYet")}
           </span>
         </span>
         <span>
-          Locations:{" "}
+          {t("locations")}{" "}
           <span className="text-muted-foreground">
             {linkedLocationNames.length > 0
               ? linkedLocationNames.join(", ")
-              : "none yet"}
+              : t("noneYet")}
           </span>
         </span>
       </div>

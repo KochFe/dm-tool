@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Location } from "@/types";
 
 interface TreeNode {
@@ -46,6 +47,7 @@ function LocationNode({
   draggedId,
   setDraggedId,
 }: LocationNodeProps) {
+  const t = useTranslations("builder.locationTree");
   const [expanded, setExpanded] = useState(true);
   const [isDragOver, setIsDragOver] = useState(false);
   const hasChildren = node.children.length > 0;
@@ -145,7 +147,7 @@ function LocationNode({
             onAddChild(node.location.id);
           }}
           className="hidden group-hover:flex items-center justify-center w-5 h-5 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0"
-          title="Add sublocation"
+          title={t("addSublocation")}
         >
           <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -196,6 +198,7 @@ export default function LocationTree({
   onAddChild,
   onReparent,
 }: LocationTreeProps) {
+  const t = useTranslations("builder.locationTree");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [rootDropOver, setRootDropOver] = useState(false);
 
@@ -226,13 +229,13 @@ export default function LocationTree({
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Locations
+          {t("heading")}
         </span>
         <button
           onClick={onAddRoot}
           className="text-xs text-primary hover:text-primary transition-colors"
         >
-          + Add Location
+          {t("addLocation")}
         </button>
       </div>
 
@@ -248,7 +251,7 @@ export default function LocationTree({
               : "border-border text-muted-foreground/60"
           }`}
         >
-          Drop here to make top-level
+          {t("dropToTopLevel")}
         </div>
       )}
 
@@ -256,7 +259,7 @@ export default function LocationTree({
       <div className="flex-1 overflow-y-auto">
         {tree.length === 0 ? (
           <p className="text-xs text-muted-foreground/60 text-center py-4">
-            No locations yet. Click &ldquo;+ Add Location&rdquo; to start.
+            {t("empty")}
           </p>
         ) : (
           <div className="flex flex-col gap-0.5">
@@ -280,7 +283,7 @@ export default function LocationTree({
       {/* Hint */}
       {locations.length > 0 && (
         <p className="mt-3 text-xs text-muted-foreground/40 text-center">
-          Drag locations to rearrange hierarchy
+          {t("dragHint")}
         </p>
       )}
     </div>

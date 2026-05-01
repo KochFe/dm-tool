@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { Campaign, CampaignIdea, Location } from "@/types";
@@ -19,6 +20,8 @@ export default function LocationsTab({
   ideas,
   onToggleIdea,
 }: LocationsTabProps) {
+  const t = useTranslations("builder.locationsTab");
+  const tTree = useTranslations("builder.locationTree");
   const [locations, setLocations] = useState<Location[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,11 +31,11 @@ export default function LocationsTab({
       const loaded = await api.getLocations(campaign.id);
       setLocations(loaded);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load locations");
+      toast.error(err instanceof Error ? err.message : t("loadError"));
     } finally {
       setLoading(false);
     }
-  }, [campaign.id]);
+  }, [campaign.id, t]);
 
   useEffect(() => {
     loadLocations();
@@ -41,28 +44,28 @@ export default function LocationsTab({
   async function handleAddRoot() {
     try {
       const created = await api.createLocation(campaign.id, {
-        name: "New Location",
+        name: tTree("newLocation"),
         biome: "Urban",
         parent_id: null,
       });
       setLocations((prev) => [...prev, created]);
       setSelectedId(created.id);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create location");
+      toast.error(err instanceof Error ? err.message : t("createError"));
     }
   }
 
   async function handleAddChild(parentId: string) {
     try {
       const created = await api.createLocation(campaign.id, {
-        name: "New Location",
+        name: tTree("newLocation"),
         biome: "Urban",
         parent_id: parentId,
       });
       setLocations((prev) => [...prev, created]);
       setSelectedId(created.id);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create sublocation");
+      toast.error(err instanceof Error ? err.message : t("createSubError"));
     }
   }
 
@@ -73,7 +76,7 @@ export default function LocationsTab({
         prev.map((loc) => (loc.id === id ? updated : loc))
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save location");
+      toast.error(err instanceof Error ? err.message : t("saveError"));
     }
   }
 
@@ -83,7 +86,7 @@ export default function LocationsTab({
       setLocations((prev) => prev.filter((loc) => loc.id !== id));
       if (selectedId === id) setSelectedId(null);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete location");
+      toast.error(err instanceof Error ? err.message : t("deleteError"));
     }
   }
 
@@ -98,7 +101,7 @@ export default function LocationsTab({
         prev.map((loc) => (loc.id === draggedId ? updated : loc))
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to reparent location");
+      toast.error(err instanceof Error ? err.message : t("reparentError"));
     }
   }
 
@@ -109,7 +112,7 @@ export default function LocationsTab({
       {/* Left panel: tree */}
       <div className="w-72 flex-shrink-0 bg-card/60 border border-border rounded-xl p-3 flex flex-col">
         {loading ? (
-          <p className="text-xs text-muted-foreground/60 text-center py-4">Loading...</p>
+          <p className="text-xs text-muted-foreground/60 text-center py-4">{t("loading")}</p>
         ) : (
           <LocationTree
             locations={locations}
@@ -127,7 +130,7 @@ export default function LocationsTab({
         {selectedLocation ? (
           <>
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-4">
-              Location Details
+              {t("locationDetails")}
             </p>
             <LocationDetail
               location={selectedLocation}
@@ -158,14 +161,14 @@ export default function LocationsTab({
               />
             </svg>
             <p className="text-sm text-muted-foreground/60">
-              Select a location to edit its details
+              {t("selectToEdit")}
             </p>
             {locations.length === 0 && !loading && (
               <button
                 onClick={handleAddRoot}
                 className="text-sm text-primary hover:text-primary transition-colors"
               >
-                + Add your first location
+                {t("addFirst")}
               </button>
             )}
           </div>
@@ -176,7 +179,7 @@ export default function LocationsTab({
       <div className="w-56 flex-shrink-0">
         <div className="sticky top-0 bg-card/80 backdrop-blur-sm rounded-xl border border-border p-3">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-            Location Ideas
+            {t("locationIdeas")}
           </p>
           <IdeasHelper
             campaignId={campaign.id}

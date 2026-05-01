@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { Campaign, CampaignIdea } from "@/types";
@@ -12,8 +13,8 @@ import StoryTab from "./StoryTab";
 import LocationsTab from "./LocationsTab";
 import CharactersTab from "./CharactersTab";
 
-const TAB_NAMES = ["Basics", "Story & Phases", "Locations", "Characters"];
-const TOTAL_TABS = TAB_NAMES.length;
+const TAB_KEYS = ["basics", "story", "locations", "characters"] as const;
+const TOTAL_TABS = TAB_KEYS.length;
 
 interface CampaignWizardProps {
   campaign: Campaign;
@@ -24,6 +25,7 @@ export default function CampaignWizard({
   campaign,
   onCampaignUpdate,
 }: CampaignWizardProps) {
+  const t = useTranslations("builder");
   const [activeTab, setActiveTab] = useState(0);
   const [completedTabs, setCompletedTabs] = useState<Set<number>>(new Set());
   const [finishing, setFinishing] = useState(false);
@@ -35,9 +37,9 @@ export default function CampaignWizard({
       const loaded = await api.getIdeas(campaign.id);
       setIdeas(loaded);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load ideas");
+      toast.error(err instanceof Error ? err.message : t("loadIdeasError"));
     }
-  }, [campaign.id]);
+  }, [campaign.id, t]);
 
   const handleToggleIdea = useCallback(
     async (id: string, isDone: boolean) => {
@@ -45,10 +47,10 @@ export default function CampaignWizard({
         await api.updateIdea(id, { is_done: isDone });
         await reloadIdeas();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to update idea");
+        toast.error(err instanceof Error ? err.message : t("updateIdeaError"));
       }
     },
-    [reloadIdeas]
+    [reloadIdeas, t]
   );
 
   useEffect(() => {
@@ -69,19 +71,21 @@ export default function CampaignWizard({
     try {
       const updated = await api.activateCampaign(campaign.id);
       onCampaignUpdate(updated);
-      toast.success("Campaign activated!");
+      toast.success(t("campaignActivated"));
       router.push(`/campaigns/${campaign.id}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : "An error occurred";
-      toast.error(`Failed to activate campaign: ${message}`);
+      toast.error(t("activateError", { message }));
       setFinishing(false);
     }
   };
 
   const isLastTab = activeTab === TOTAL_TABS - 1;
   const isFirstTab = activeTab === 0;
-  const prevTabName = isFirstTab ? null : TAB_NAMES[activeTab - 1];
-  const nextTabName = isLastTab ? null : TAB_NAMES[activeTab + 1];
+  const prevTabKey = isFirstTab ? null : TAB_KEYS[activeTab - 1];
+  const nextTabKey = isLastTab ? null : TAB_KEYS[activeTab + 1];
+  const prevTabName = prevTabKey ? t(`tabs.${prevTabKey}`) : null;
+  const nextTabName = nextTabKey ? t(`tabs.${nextTabKey}`) : null;
 
   function renderTabContent() {
     switch (activeTab) {
@@ -132,9 +136,9 @@ export default function CampaignWizard({
           href="/campaigns"
           className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150"
         >
-          &#8592; Back to Campaigns
+          {t("backToCampaigns")}
         </Link>
-        <span className="text-sm text-muted-foreground">Draft auto-saved</span>
+        <span className="text-sm text-muted-foreground">{t("draftAutosaved")}</span>
       </div>
 
       {/* Campaign title */}
@@ -164,7 +168,7 @@ export default function CampaignWizard({
               onClick={goBack}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150 px-4 py-2 rounded-lg border border-border hover:border-border"
             >
-              &#8592; Back: {prevTabName}
+              {t("back", { tab: prevTabName })}
             </button>
           )}
         </div>
@@ -175,7 +179,7 @@ export default function CampaignWizard({
               disabled={finishing}
               className="bg-green-700 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-5 py-2 rounded-lg transition-colors duration-150"
             >
-              {finishing ? "Activating..." : "\u2713 Finish Campaign"}
+              {finishing ? t("activating") : t("finishCampaign")}
             </button>
           ) : (
             nextTabName && (
@@ -183,7 +187,7 @@ export default function CampaignWizard({
                 onClick={goNext}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-5 py-2 rounded-lg transition-colors duration-150"
               >
-                Next: {nextTabName} &#8594;
+                {t("next", { tab: nextTabName })}
               </button>
             )
           )}

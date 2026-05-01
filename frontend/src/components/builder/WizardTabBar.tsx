@@ -1,21 +1,29 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 interface WizardTabBarProps {
   activeTab: number;
   onTabChange: (tab: number) => void;
   completedTabs: Set<number>;
 }
 
-const TAB_LABELS = ["1. Basics", "2. Story & Phases", "3. Locations", "4. Characters"];
+const TAB_KEYS = [
+  "basicsNumbered",
+  "storyNumbered",
+  "locationsNumbered",
+  "charactersNumbered",
+] as const;
 
 export default function WizardTabBar({
   activeTab,
   onTabChange,
   completedTabs,
 }: WizardTabBarProps) {
+  const t = useTranslations("builder.tabs");
   return (
     <div className="flex border-b border-border">
-      {TAB_LABELS.map((label, i) => {
+      {TAB_KEYS.map((key, i) => {
         const isActive = activeTab === i;
         const isCompleted = completedTabs.has(i);
         return (
@@ -28,7 +36,7 @@ export default function WizardTabBar({
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
             }`}
           >
-            {label}
+            {t(key)}
             {isCompleted && !isActive && (
               <span className="ml-1 text-primary">&#10003;</span>
             )}
