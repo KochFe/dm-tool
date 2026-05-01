@@ -174,6 +174,12 @@ export default function BasicsTab({
   }
 
   function handleNewIdeaKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "t") {
+      e.preventDefault();
+      e.stopPropagation();
+      cycleTag();
+      return;
+    }
     if (e.key === "Enter") {
       e.preventDefault();
       saveNewIdea();
