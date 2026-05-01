@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Sheet,
   SheetContent,
@@ -43,6 +44,7 @@ export default function EntitySheet({ entity, onClose }: EntitySheetProps) {
 }
 
 function NpcDetail({ npc }: { npc: Npc }) {
+  const t = useTranslations("entitySheet");
   return (
     <>
       <div className="flex items-center gap-2">
@@ -51,36 +53,38 @@ function NpcDetail({ npc }: { npc: Npc }) {
           {npc.npc_class ? ` · ${npc.npc_class}` : ""}
         </span>
         <Badge variant={npc.is_alive ? "secondary" : "destructive"} className="text-xs">
-          {npc.is_alive ? "Alive" : "Dead"}
+          {npc.is_alive ? t("alive") : t("dead")}
         </Badge>
       </div>
-      {npc.description && <Field label="Description" value={npc.description} />}
-      {npc.personality && <Field label="Personality" value={npc.personality} />}
-      {npc.motivation && <Field label="Motivation" value={npc.motivation} />}
-      {npc.secrets && <Field label="Secrets" value={npc.secrets} />}
+      {npc.description && <Field label={t("description")} value={npc.description} />}
+      {npc.personality && <Field label={t("personality")} value={npc.personality} />}
+      {npc.motivation && <Field label={t("motivation")} value={npc.motivation} />}
+      {npc.secrets && <Field label={t("secrets")} value={npc.secrets} />}
     </>
   );
 }
 
 function LocationDetail({ location }: { location: Location }) {
+  const t = useTranslations("entitySheet");
   return (
     <>
       <Badge variant="secondary" className="text-xs capitalize">{location.biome}</Badge>
-      {location.description && <Field label="Description" value={location.description} />}
+      {location.description && <Field label={t("description")} value={location.description} />}
     </>
   );
 }
 
 function QuestDetail({ quest }: { quest: Quest }) {
+  const t = useTranslations("entitySheet");
   return (
     <>
       <Badge variant="secondary" className="text-xs capitalize">
         {quest.status.replace("_", " ")}
       </Badge>
-      {quest.description && <Field label="Description" value={quest.description} />}
-      {quest.reward && <Field label="Reward" value={quest.reward} />}
+      {quest.description && <Field label={t("description")} value={quest.description} />}
+      {quest.reward && <Field label={t("reward")} value={quest.reward} />}
       {quest.level && (
-        <p className="text-sm text-muted-foreground">Recommended Level: {quest.level}</p>
+        <p className="text-sm text-muted-foreground">{t("recommendedLevel", { level: quest.level })}</p>
       )}
     </>
   );

@@ -10,6 +10,7 @@ import {
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { api, setTokens, clearTokens } from "@/lib/api";
+import { setLocaleCookie } from "@/lib/locale";
 import { AuthUser } from "@/types";
 
 interface AuthContextType {
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkAuth = async () => {
       try {
         const me = await api.getMe();
+        setLocaleCookie(me.language);
         setUser(me);
       } catch {
         // Try refresh
@@ -47,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const tokens = await api.refreshToken();
           setTokens(tokens.access_token, tokens.refresh_token);
           const me = await api.getMe();
+          setLocaleCookie(me.language);
           setUser(me);
         } catch {
           clearTokens();
@@ -70,6 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     const tokens = await api.login(email, password);
     setTokens(tokens.access_token, tokens.refresh_token);
+    // Fetch user to sync locale cookie before hard navigation so the
+    // very first request after redirect uses the correct Accept-Language.
+    const me = await api.getMe();
+    setLocaleCookie(me.language);
     // Hard navigation clears the client-side Router Cache, which may
     // hold stale redirects from before the user was authenticated
     window.location.href = "/campaigns";

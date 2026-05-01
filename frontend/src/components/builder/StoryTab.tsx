@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { Campaign, CampaignIdea, CampaignPhase, Quest, Location } from "@/types";
@@ -20,6 +21,7 @@ export default function StoryTab({
   ideas,
   onToggleIdea,
 }: StoryTabProps) {
+  const t = useTranslations("builder.story");
   const [description, setDescription] = useState(
     campaign.description ?? ""
   );
@@ -43,9 +45,9 @@ export default function StoryTab({
       const loaded = await api.getPhases(campaign.id);
       setPhases(loaded.slice().sort((a, b) => a.sort_order - b.sort_order));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load phases");
+      toast.error(err instanceof Error ? err.message : t("loadPhasesError"));
     }
-  }, [campaign.id]);
+  }, [campaign.id, t]);
 
   const loadQuestsAndLocations = useCallback(async () => {
     try {
@@ -57,10 +59,10 @@ export default function StoryTab({
       setLocations(loadedLocations);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to load quests/locations"
+        err instanceof Error ? err.message : t("loadQuestsLocationsError")
       );
     }
-  }, [campaign.id]);
+  }, [campaign.id, t]);
 
   useEffect(() => {
     loadPhases();
@@ -84,7 +86,7 @@ export default function StoryTab({
       onCampaignUpdate(updated);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to save description"
+        err instanceof Error ? err.message : t("saveDescriptionError")
       );
       setDescription(campaign.description ?? "");
     }
@@ -92,7 +94,7 @@ export default function StoryTab({
 
   async function handleAddPhase() {
     if (editingPhaseId) {
-      toast.warning("Finish editing the current phase before adding a new one");
+      toast.warning(t("finishCurrentBeforeAdd"));
       editingPhaseRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       return;
     }
@@ -106,7 +108,7 @@ export default function StoryTab({
       setEditingPhaseId(created.id);
       setIsNewPhase(true);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add phase");
+      toast.error(err instanceof Error ? err.message : t("addPhaseError"));
     } finally {
       setAddingPhase(false);
     }
@@ -124,7 +126,7 @@ export default function StoryTab({
       ]);
       await loadPhases();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to reorder phases");
+      toast.error(err instanceof Error ? err.message : t("reorderPhasesError"));
     }
   }
 
@@ -140,7 +142,7 @@ export default function StoryTab({
       ]);
       await loadPhases();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to reorder phases");
+      toast.error(err instanceof Error ? err.message : t("reorderPhasesError"));
     }
   }
 
@@ -152,10 +154,10 @@ export default function StoryTab({
         <section className="flex flex-col gap-2">
           <div>
             <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              Campaign description
+              {t("campaignDescription")}
             </label>
             <p className="text-xs text-muted-foreground/60 mt-0.5">
-              (the story, hook, and background)
+              {t("campaignDescriptionHint")}
             </p>
           </div>
           <textarea
@@ -164,7 +166,7 @@ export default function StoryTab({
             onBlur={saveDescription}
             rows={5}
             className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
-            placeholder="Describe the story, hook, and background…"
+            placeholder={t("descriptionPlaceholder")}
           />
         </section>
 
@@ -172,20 +174,20 @@ export default function StoryTab({
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              Campaign Phases
+              {t("campaignPhases")}
             </label>
             <button
               onClick={handleAddPhase}
               disabled={addingPhase}
               className="text-sm text-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {addingPhase ? "Adding..." : "+ Add Phase"}
+              {addingPhase ? t("adding") : t("addPhase")}
             </button>
           </div>
 
           {phases.length === 0 ? (
             <div className="text-sm text-muted-foreground/60 border border-border rounded-xl px-4 py-6 text-center">
-              No phases yet. Phases help you plan your campaign arc — add one to get started.
+              {t("noPhases")}
             </div>
           ) : (
             <div className="flex flex-col gap-3">
@@ -206,7 +208,7 @@ export default function StoryTab({
                       allPhases={phases}
                       onRequestEdit={() => {
                         if (editingPhaseId) {
-                          toast.warning("Finish editing the current phase first");
+                          toast.warning(t("finishCurrentFirst"));
                           editingPhaseRef.current?.scrollIntoView({
                             behavior: "smooth",
                             block: "nearest",
@@ -249,7 +251,7 @@ export default function StoryTab({
       <div className="w-56 flex-shrink-0">
         <div className="sticky top-0 bg-card/80 backdrop-blur-sm rounded-xl border border-border p-3">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-            Story Ideas
+            {t("storyIdeas")}
           </p>
           <IdeasHelper
             campaignId={campaign.id}

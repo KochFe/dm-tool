@@ -1,12 +1,13 @@
 import uuid
 from collections.abc import AsyncGenerator
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import async_session
 from app.models.user import User
+from app.schemas.language import Language
 from app.services.auth_service import decode_token, get_user_by_id
 
 security = HTTPBearer()
@@ -53,3 +54,10 @@ async def get_current_user(
             detail="User not found or inactive",
         )
     return user
+
+
+def get_language(
+    accept_language: str | None = Header(default=None, alias="Accept-Language"),
+) -> Language:
+    """Resolve the user's language preference from the Accept-Language header."""
+    return Language.from_header(accept_language)

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { api } from "@/lib/api";
 import type { DiceRollResponse } from "@/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -17,6 +18,7 @@ interface HistoryEntry {
 }
 
 export default function CompactDiceRoller() {
+  const t = useTranslations("dice");
   const [notation, setNotation] = useState("");
   const [lastRoll, setLastRoll] = useState<DiceRollResponse | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -40,7 +42,7 @@ export default function CompactDiceRoller() {
         ].slice(0, MAX_HISTORY)
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Roll failed");
+      setError(err instanceof Error ? err.message : t("rollFailed"));
     } finally {
       setRolling(false);
     }
@@ -83,7 +85,7 @@ export default function CompactDiceRoller() {
           disabled={rolling || !notation.trim()}
           className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded disabled:opacity-50 hover:bg-primary/90 transition-colors"
         >
-          Roll
+          {t("rollButton")}
         </button>
       </form>
 
@@ -108,7 +110,7 @@ export default function CompactDiceRoller() {
         <Popover>
           <PopoverTrigger asChild>
             <button className="ml-auto text-xs text-muted-foreground hover:text-foreground/80 transition-colors">
-              History ({history.length})
+              {t("historyCount", { count: history.length })}
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-0 bg-card border-border" align="end" side="top">

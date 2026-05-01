@@ -6,13 +6,14 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.dependencies import get_current_user, get_db
+from app.dependencies import get_current_user, get_db, get_language
 from app.models.campaign_phase import CampaignPhase
 from app.models.location import Location
 from app.models.user import User
 from app.schemas.ai_assist import AIAssistRequest, PhasePrepResult
 from app.schemas.campaign_phase import PhaseCreate, PhaseLinksUpdate, PhaseResponse, PhaseUpdate
 from app.schemas.common import APIResponse
+from app.schemas.language import Language
 from app.schemas.phase_expander import (
     ApplyPhaseBundleRequest,
     ApplyPhaseBundleResponse,
@@ -150,6 +151,7 @@ async def ai_phase_description_endpoint(
     request: AIAssistRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    language: Language = Depends(get_language),
 ) -> APIResponse[PhasePrepResult]:
     """Generate a structured DM prep sheet for a phase (non-persistent)."""
     campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
@@ -177,7 +179,9 @@ async def ai_phase_description_endpoint(
     ]
 
     try:
-        result = await generate_phase_description(campaign, phase, prior_summaries, request)
+        result = await generate_phase_description(
+            campaign, phase, prior_summaries, request, language=language,
+        )
     except RuntimeError:
         logger.exception("AI phase-description error for phase %s", phase_id)
         raise HTTPException(status_code=503, detail="AI generation failed")
@@ -195,6 +199,7 @@ async def expand_phase_endpoint(
     request: ExpandPhaseRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    language: Language = Depends(get_language),
 ) -> APIResponse[DraftPhaseBundle]:
     """Run the Phase Expander graph and return a read-only DraftPhaseBundle."""
     campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
@@ -206,7 +211,9 @@ async def expand_phase_endpoint(
         raise HTTPException(status_code=404, detail="Phase not found")
 
     try:
-        bundle = await run_phase_expander(db, campaign, phase, request.user_steer)
+        bundle = await run_phase_expander(
+            db, campaign, phase, request.user_steer, language=language,
+        )
     except RuntimeError:
         logger.exception("Phase expander error for phase %s", phase_id)
         raise HTTPException(status_code=503, detail="AI generation failed")

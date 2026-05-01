@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { api } from "@/lib/api";
 import type { DDBImportPreview } from "@/types";
 
@@ -21,6 +22,7 @@ export default function DDBImportModal({
   onImported: () => void;
   onClose: () => void;
 }) {
+  const t = useTranslations("ddbImport");
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +37,7 @@ export default function DDBImportModal({
       const result = await api.importFromDDB(campaignId, url);
       setPreview(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Import failed");
+      setError(err instanceof Error ? err.message : t("importFailed"));
     } finally {
       setLoading(false);
     }
@@ -50,7 +52,7 @@ export default function DDBImportModal({
       onImported();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create character");
+      setError(err instanceof Error ? err.message : t("createFailed"));
       setImporting(false);
     }
   };
@@ -63,17 +65,19 @@ export default function DDBImportModal({
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
       <div className="bg-card border border-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-foreground">Import from D&D Beyond</h3>
+          <h3 className="text-lg font-semibold text-foreground">{t("heading")}</h3>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground/80 transition-colors text-xl">&times;</button>
         </div>
 
         {!preview ? (
           <form onSubmit={handlePreview} className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Paste your D&D Beyond character URL. The character must be set to <span className="text-primary">Public</span> in D&D Beyond privacy settings.
+              {t.rich("urlPrompt", {
+                public: (chunks) => <span className="text-primary">{chunks}</span>,
+              })}
             </p>
             <input
-              placeholder="https://www.dndbeyond.com/characters/12345"
+              placeholder={t("urlPlaceholder")}
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               className={INPUT_CLS}
@@ -87,7 +91,7 @@ export default function DDBImportModal({
               disabled={loading}
               className="bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-colors w-full"
             >
-              {loading ? "Fetching..." : "Preview Import"}
+              {loading ? t("fetching") : t("previewImport")}
             </button>
           </form>
         ) : p ? (
@@ -95,7 +99,7 @@ export default function DDBImportModal({
             {/* Character header */}
             <div className="bg-muted/50 border border-border rounded-xl p-4">
               <p className="font-semibold text-foreground text-lg">{p.name}</p>
-              <p className="text-sm text-muted-foreground">{p.race} {p.character_class} (Lv {p.level})</p>
+              <p className="text-sm text-muted-foreground">{t("charSummary", { race: p.race, charClass: p.character_class, level: p.level })}</p>
               <div className="mt-2 flex gap-4 text-sm text-foreground/80">
                 <span>HP {p.hp_current}/{p.hp_max}</span>
                 <span>AC {p.armor_class}</span>
@@ -118,7 +122,7 @@ export default function DDBImportModal({
             {/* Proficiencies summary */}
             {p.saving_throw_proficiencies.length > 0 && (
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Saving Throws</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("savingThrows")}</p>
                 <div className="flex flex-wrap gap-1">
                   {p.saving_throw_proficiencies.map((s) => (
                     <span key={s} className="inline-block bg-accent text-foreground/80 text-xs px-2 py-0.5 rounded">{s}</span>
@@ -129,7 +133,7 @@ export default function DDBImportModal({
 
             {p.skill_proficiencies.length > 0 && (
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Skills</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("skills")}</p>
                 <div className="flex flex-wrap gap-1">
                   {p.skill_proficiencies.map((s) => (
                     <span key={s} className="inline-block bg-accent text-foreground/80 text-xs px-2 py-0.5 rounded">{s}</span>
@@ -141,7 +145,7 @@ export default function DDBImportModal({
             {/* Warnings */}
             {preview.warnings.length > 0 && (
               <div className="bg-primary/20/20 border border-primary/30 rounded-lg p-3 space-y-1">
-                <p className="text-xs font-medium text-primary">Warnings</p>
+                <p className="text-xs font-medium text-primary">{t("warnings")}</p>
                 {preview.warnings.map((w, i) => (
                   <p key={i} className="text-xs text-primary/80">{w}</p>
                 ))}
@@ -151,7 +155,7 @@ export default function DDBImportModal({
             {/* Unmapped data */}
             {Object.keys(preview.unmapped_data).length > 0 && (
               <div className="bg-muted/30 border border-border/30 rounded-lg p-3 space-y-1">
-                <p className="text-xs font-medium text-muted-foreground">Not yet imported (future support)</p>
+                <p className="text-xs font-medium text-muted-foreground">{t("notImported")}</p>
                 {Object.entries(preview.unmapped_data).map(([key, val]) => (
                   <p key={key} className="text-xs text-muted-foreground">
                     <span className="text-muted-foreground capitalize">{key}:</span>{" "}
@@ -172,13 +176,13 @@ export default function DDBImportModal({
                 disabled={importing}
                 className="flex-1 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-colors"
               >
-                {importing ? "Importing..." : "Confirm Import"}
+                {importing ? t("importing") : t("confirmImport")}
               </button>
               <button
                 onClick={() => { setPreview(null); setError(null); }}
                 className="bg-accent hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors"
               >
-                Back
+                {t("back")}
               </button>
             </div>
           </div>

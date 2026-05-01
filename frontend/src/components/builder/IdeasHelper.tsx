@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { CampaignIdea, IdeaTag } from "@/types";
 import IdeaRow from "./IdeaRow";
 
@@ -9,10 +10,10 @@ const TAG_DOT_COLORS: Record<IdeaTag, string> = {
   character: "bg-blue-400",
 };
 
-const TAG_LABELS: Record<IdeaTag, string> = {
-  story: "Story Ideas",
-  location: "Location Ideas",
-  character: "Character Ideas",
+const TAG_LABEL_KEYS: Record<IdeaTag, "storyIdeas" | "locationIdeas" | "characterIdeas"> = {
+  story: "storyIdeas",
+  location: "locationIdeas",
+  character: "characterIdeas",
 };
 
 interface IdeasHelperProps {
@@ -27,6 +28,7 @@ export default function IdeasHelper({
   ideas,
   onToggleDone,
 }: IdeasHelperProps) {
+  const t = useTranslations("builder.ideasHelper");
   const filtered = ideas.filter((idea) => idea.tag === tag);
   const sorted = [
     ...filtered.filter((i) => !i.is_done),
@@ -39,10 +41,10 @@ export default function IdeasHelper({
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2 mb-1">
         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${TAG_DOT_COLORS[tag]}`} />
-        <span className="text-sm font-medium text-foreground/80">{TAG_LABELS[tag]}</span>
+        <span className="text-sm font-medium text-foreground/80">{t(TAG_LABEL_KEYS[tag])}</span>
       </div>
       {sorted.length === 0 ? (
-        <p className="text-xs text-muted-foreground/60 pl-4">No ideas yet.</p>
+        <p className="text-xs text-muted-foreground/60 pl-4">{t("noIdeas")}</p>
       ) : (
         <div className="flex flex-col divide-y divide-border">
           {sorted.map((idea) => (
@@ -57,7 +59,7 @@ export default function IdeasHelper({
       )}
       {totalCount > 0 && (
         <p className="text-xs text-muted-foreground/60 mt-1 pl-4">
-          {doneCount} of {totalCount} done
+          {t("doneOf", { done: doneCount, total: totalCount })}
         </p>
       )}
     </div>

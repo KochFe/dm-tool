@@ -343,6 +343,7 @@ export interface AuthUser {
   display_name: string;
   role: string;
   is_active: boolean;
+  language: "en" | "de";
   created_at: string;
   updated_at: string;
 }

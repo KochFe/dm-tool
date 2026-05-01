@@ -1,12 +1,14 @@
 "use client";
 
 import { useCampaign } from "@/contexts/CampaignContext";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { MapPin, Clock } from "lucide-react";
 
 export default function CampaignStatusBar() {
   const { campaign, currentLocation } = useCampaign();
+  const t = useTranslations("statusBar");
 
   return (
     <div className="h-10 shrink-0 border-b border-border bg-card/80 backdrop-blur-sm flex items-center px-4 gap-3 text-sm">
@@ -22,7 +24,7 @@ export default function CampaignStatusBar() {
         variant="outline"
         className="border-ring text-primary bg-primary/10 text-xs"
       >
-        Level {campaign.party_level}
+        {t("level", { level: campaign.party_level })}
       </Badge>
 
       <Separator orientation="vertical" className="h-4 bg-accent" />

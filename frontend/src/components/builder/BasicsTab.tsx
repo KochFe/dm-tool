@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { TextResult } from "@/lib/api";
@@ -8,11 +9,11 @@ import type { Campaign, CampaignIdea, IdeaTag } from "@/types";
 import IdeaRow from "./IdeaRow";
 import { AIAssistModal } from "@/components/ai/AIAssistModal";
 
-const CAMPAIGN_LENGTHS: { label: string; value: NonNullable<Campaign["campaign_length"]> }[] = [
-  { label: "One-Shot", value: "one_shot" },
-  { label: "Short", value: "short" },
-  { label: "Medium", value: "medium" },
-  { label: "Long", value: "long" },
+const CAMPAIGN_LENGTHS: { labelKey: string; value: NonNullable<Campaign["campaign_length"]> }[] = [
+  { labelKey: "lengthOneShot", value: "one_shot" },
+  { labelKey: "lengthShort", value: "short" },
+  { labelKey: "lengthMedium", value: "medium" },
+  { labelKey: "lengthLong", value: "long" },
 ];
 
 const TAG_OPTIONS: IdeaTag[] = ["story", "location", "character"];
@@ -36,6 +37,7 @@ export default function BasicsTab({
   ideas,
   reloadIdeas,
 }: BasicsTabProps) {
+  const t = useTranslations("builder.basics");
   const [name, setName] = useState(campaign.name);
   const [partyLevel, setPartyLevel] = useState(String(campaign.party_level));
   const [description, setDescription] = useState(campaign.description ?? "");
@@ -76,7 +78,7 @@ export default function BasicsTab({
       const updated = await api.updateCampaign(campaign.id, { name: trimmed });
       onCampaignUpdate(updated);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save name");
+      toast.error(err instanceof Error ? err.message : t("saveNameError"));
       setName(campaign.name);
     }
   }
@@ -86,7 +88,7 @@ export default function BasicsTab({
       const updated = await api.updateCampaign(campaign.id, { campaign_length: value });
       onCampaignUpdate(updated);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save campaign length");
+      toast.error(err instanceof Error ? err.message : t("saveCampaignLengthError"));
     }
   }
 
@@ -101,7 +103,7 @@ export default function BasicsTab({
       const updated = await api.updateCampaign(campaign.id, { party_level: level });
       onCampaignUpdate(updated);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save party level");
+      toast.error(err instanceof Error ? err.message : t("savePartyLevelError"));
       setPartyLevel(String(campaign.party_level));
     }
   }
@@ -114,7 +116,7 @@ export default function BasicsTab({
       const updated = await api.updateCampaign(campaign.id, { description: trimmed || null });
       onCampaignUpdate(updated);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save description");
+      toast.error(err instanceof Error ? err.message : t("saveDescriptionError"));
       setDescription(campaign.description ?? "");
     }
   }
@@ -131,7 +133,7 @@ export default function BasicsTab({
       setNewIdeaText("");
       refocusAfterSave.current = true;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add idea");
+      toast.error(err instanceof Error ? err.message : t("addIdeaError"));
     } finally {
       setSavingIdea(false);
     }
@@ -142,7 +144,7 @@ export default function BasicsTab({
       await api.updateIdea(id, { is_done: isDone });
       await reloadIdeas();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update idea");
+      toast.error(err instanceof Error ? err.message : t("saveDescriptionError"));
     }
   }
 
@@ -151,7 +153,7 @@ export default function BasicsTab({
       await api.updateIdea(id, { tag });
       await reloadIdeas();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update tag");
+      toast.error(err instanceof Error ? err.message : t("updateTagError"));
     }
   }
 
@@ -160,7 +162,7 @@ export default function BasicsTab({
       await api.deleteIdea(id);
       await reloadIdeas();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete idea");
+      toast.error(err instanceof Error ? err.message : t("deleteIdeaError"));
     }
   }
 
@@ -176,7 +178,7 @@ export default function BasicsTab({
       {/* Campaign Name */}
       <section className="flex flex-col gap-2">
         <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-          Campaign Name
+          {t("campaignName")}
         </label>
         <input
           type="text"
@@ -184,17 +186,17 @@ export default function BasicsTab({
           onChange={(e) => setName(e.target.value)}
           onBlur={saveName}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-          placeholder="Enter campaign name"
+          placeholder={t("campaignNamePlaceholder")}
         />
       </section>
 
       {/* Campaign Length */}
       <section className="flex flex-col gap-2">
         <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-          Campaign Length
+          {t("campaignLength")}
         </label>
         <div className="flex gap-2 flex-wrap">
-          {CAMPAIGN_LENGTHS.map(({ label, value }) => (
+          {CAMPAIGN_LENGTHS.map(({ labelKey, value }) => (
             <button
               key={value}
               onClick={() => saveCampaignLength(value)}
@@ -204,7 +206,7 @@ export default function BasicsTab({
                   : "bg-muted border-border text-foreground/80 hover:border-border"
               }`}
             >
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </div>
@@ -213,7 +215,7 @@ export default function BasicsTab({
       {/* Party Level */}
       <section className="flex flex-col gap-2">
         <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-          Party Level
+          {t("partyLevel")}
         </label>
         <input
           type="number"
@@ -230,18 +232,18 @@ export default function BasicsTab({
       <section className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-            Campaign description
+            {t("campaignDescription")}
           </label>
           <button
             type="button"
             onClick={() => setDescriptionAiOpen(true)}
-            aria-label="AI generate campaign description"
+            aria-label={t("aiAriaDescription")}
             className="inline-flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 hover:border-blue-500/40 px-2 py-0.5 rounded-md transition-colors"
           >
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
             </svg>
-            AI
+            {t("aiButton")}
           </button>
         </div>
         <textarea
@@ -249,7 +251,7 @@ export default function BasicsTab({
           onChange={(e) => setDescription(e.target.value)}
           onBlur={saveDescription}
           rows={4}
-          placeholder="Describe the story, hook, and background…"
+          placeholder={t("descriptionPlaceholder")}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
         />
       </section>
@@ -257,7 +259,7 @@ export default function BasicsTab({
       {/* Ideas & Notes */}
       <section className="flex flex-col gap-3">
         <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-          Ideas &amp; Notes
+          {t("ideasNotes")}
         </label>
 
         {/* Persistent input row — always visible */}
@@ -268,7 +270,7 @@ export default function BasicsTab({
             value={newIdeaText}
             onChange={(e) => setNewIdeaText(e.target.value)}
             onKeyDown={handleNewIdeaKeyDown}
-            placeholder="Type an idea and press Enter..."
+            placeholder={t("ideaPlaceholder")}
             disabled={savingIdea}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
@@ -278,16 +280,16 @@ export default function BasicsTab({
               setNewIdeaTag(TAG_OPTIONS[(idx + 1) % TAG_OPTIONS.length]);
             }}
             className={`px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 transition-opacity hover:opacity-80 ${TAG_PILL_STYLES[newIdeaTag]}`}
-            title="Click to change tag"
+            title={t("clickToChangeTag")}
           >
-            {newIdeaTag}
+            {t(`tag${newIdeaTag.charAt(0).toUpperCase()}${newIdeaTag.slice(1)}` as "tagStory" | "tagLocation" | "tagCharacter")}
           </button>
           <button
             onClick={saveNewIdea}
             disabled={savingIdea || !newIdeaText.trim()}
             className="text-primary hover:text-primary text-sm font-medium disabled:opacity-30 disabled:cursor-default transition-opacity flex-shrink-0"
           >
-            {savingIdea ? "..." : "Save"}
+            {savingIdea ? t("saving") : t("save")}
           </button>
         </div>
 
@@ -309,14 +311,14 @@ export default function BasicsTab({
       <AIAssistModal<TextResult>
         open={descriptionAiOpen}
         onClose={() => setDescriptionAiOpen(false)}
-        title="Generate campaign description"
+        title={t("aiModalTitle")}
         existingContent={description || undefined}
-        placeholder="e.g. 'A heist against a corrupt merchant prince who's hiring adventurers to retrieve a stolen relic.'"
+        placeholder={t("aiModalPlaceholder")}
         onGenerate={(req) => api.ai.generateCampaignDescription(campaign.id, req)}
         onAccept={(result) => {
           setDescription(result.text);
           api.updateCampaign(campaign.id, { description: result.text }).then(onCampaignUpdate).catch((err) => {
-            toast.error(err instanceof Error ? err.message : "Failed to save description");
+            toast.error(err instanceof Error ? err.message : t("saveDescriptionError"));
           });
         }}
         renderResult={(r) => <p className="whitespace-pre-wrap">{r.text}</p>}

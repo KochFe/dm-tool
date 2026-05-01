@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import EntitySheet from "@/components/EntitySheet";
 import KeyboardShortcutsDialog from "@/components/KeyboardShortcutsDialog";
@@ -27,6 +28,9 @@ export default function CommandPalette() {
   const router = useRouter();
   const { campaign, characters, locations, npcs, quests } = useCampaign();
   const base = `/campaigns/${campaign.id}`;
+
+  const t = useTranslations("commandPalette");
+  const tSidebar = useTranslations("sidebar");
 
   const [diceResult, setDiceResult] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
@@ -68,21 +72,21 @@ export default function CommandPalette() {
     <>
       <CommandDialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setDiceResult(null); setInputValue(""); } }}>
         <CommandInput
-          placeholder="Search campaigns, NPCs, locations... or type dice like 2d6+3"
+          placeholder={t("placeholder")}
           onValueChange={setInputValue}
         />
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandEmpty>{t("noResults")}</CommandEmpty>
 
-          <CommandGroup heading="Navigation">
+          <CommandGroup heading={t("headingNavigation")}>
             {[
-              { label: "Overview", path: `${base}/overview` },
-              { label: "Characters", path: `${base}/characters` },
-              { label: "Locations", path: `${base}/locations` },
-              { label: "NPCs", path: `${base}/npcs` },
-              { label: "Quests", path: `${base}/quests` },
-              { label: "Session", path: `${base}/session` },
-              { label: "Settings", path: `${base}/settings` },
+              { label: tSidebar("overview"), path: `${base}/overview` },
+              { label: tSidebar("characters"), path: `${base}/characters` },
+              { label: tSidebar("locations"), path: `${base}/locations` },
+              { label: tSidebar("npcs"), path: `${base}/npcs` },
+              { label: tSidebar("quests"), path: `${base}/quests` },
+              { label: tSidebar("session"), path: `${base}/session` },
+              { label: tSidebar("settings"), path: `${base}/settings` },
             ].map((item) => (
               <CommandItem key={item.path} onSelect={() => navigate(item.path)}>
                 {item.label}
@@ -96,19 +100,19 @@ export default function CommandPalette() {
             </div>
           )}
 
-          <CommandGroup heading="Actions">
+          <CommandGroup heading={t("headingActions")}>
             {isDiceNotation && (
               <CommandItem onSelect={() => rollDice(inputValue.trim())}>
-                Roll {inputValue.trim()}
+                {t("rollDice", { notation: inputValue.trim() })}
               </CommandItem>
             )}
             <CommandItem onSelect={() => { setOpen(false); setShortcutsOpen(true); }}>
-              Keyboard Shortcuts
+              {t("keyboardShortcuts")}
             </CommandItem>
           </CommandGroup>
 
           {characters.length > 0 && (
-            <CommandGroup heading="Characters">
+            <CommandGroup heading={t("headingCharacters")}>
               {characters.map((c) => (
                 <CommandItem
                   key={c.id}
@@ -124,7 +128,7 @@ export default function CommandPalette() {
           )}
 
           {npcs.length > 0 && (
-            <CommandGroup heading="NPCs">
+            <CommandGroup heading={t("headingNpcs")}>
               {npcs.map((n) => (
                 <CommandItem
                   key={n.id}
@@ -138,7 +142,7 @@ export default function CommandPalette() {
           )}
 
           {locations.length > 0 && (
-            <CommandGroup heading="Locations">
+            <CommandGroup heading={t("headingLocations")}>
               {locations.map((l) => (
                 <CommandItem
                   key={l.id}
@@ -154,7 +158,7 @@ export default function CommandPalette() {
           )}
 
           {quests.length > 0 && (
-            <CommandGroup heading="Quests">
+            <CommandGroup heading={t("headingQuests")}>
               {quests.map((q) => (
                 <CommandItem
                   key={q.id}

@@ -260,3 +260,51 @@ async def test_generate_encounter_response_envelope(client: AsyncClient, auth_he
     assert "monsters" in data
     assert "tactical_notes" in data
     assert "difficulty" in data
+
+
+# ---------------------------------------------------------------------------
+# Accept-Language header propagation
+# ---------------------------------------------------------------------------
+
+
+async def test_encounter_endpoint_uses_german_prompt_when_accept_language_de(
+    client: AsyncClient, auth_headers
+):
+    """Accept-Language: de should resolve to Language.DE in the service call."""
+    from app.schemas.language import Language
+
+    cid = await _create_campaign(client, auth_headers)
+    with patch(
+        "app.routers.generators.generate_encounter", new_callable=AsyncMock
+    ) as mock_gen:
+        mock_gen.return_value = MOCK_ENCOUNTER
+        resp = await client.post(
+            ENCOUNTER_URL.format(campaign_id=cid),
+            json={"difficulty": "medium"},
+            headers={**auth_headers, "Accept-Language": "de"},
+        )
+
+    assert resp.status_code == 200
+    mock_gen.assert_awaited_once()
+    assert mock_gen.await_args.kwargs.get("language") == Language.DE
+
+
+async def test_encounter_endpoint_defaults_to_english_when_header_missing(
+    client: AsyncClient, auth_headers
+):
+    """No Accept-Language header should default the service call to Language.EN."""
+    from app.schemas.language import Language
+
+    cid = await _create_campaign(client, auth_headers)
+    with patch(
+        "app.routers.generators.generate_encounter", new_callable=AsyncMock
+    ) as mock_gen:
+        mock_gen.return_value = MOCK_ENCOUNTER
+        resp = await client.post(
+            ENCOUNTER_URL.format(campaign_id=cid),
+            json={"difficulty": "medium"},
+            headers=auth_headers,
+        )
+
+    assert resp.status_code == 200
+    assert mock_gen.await_args.kwargs.get("language") == Language.EN

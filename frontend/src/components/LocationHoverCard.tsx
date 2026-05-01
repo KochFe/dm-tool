@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Badge } from "@/components/ui/badge";
 import type { Location } from "@/types";
@@ -11,6 +12,7 @@ interface LocationHoverCardProps {
 }
 
 export default function LocationHoverCard({ location, isCurrent, children }: LocationHoverCardProps) {
+  const t = useTranslations("hoverCard");
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
@@ -21,7 +23,7 @@ export default function LocationHoverCard({ location, isCurrent, children }: Loc
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold">{location.name}</h4>
             <Badge variant="secondary" className="text-xs capitalize">{location.biome}</Badge>
-            {isCurrent && <Badge className="text-xs bg-primary/20 text-primary">Current</Badge>}
+            {isCurrent && <Badge className="text-xs bg-primary/20 text-primary">{t("current")}</Badge>}
           </div>
           {location.description && (
             <p className="text-xs text-muted-foreground line-clamp-3">{location.description}</p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { api, type PersonalityResult } from "@/lib/api";
@@ -25,17 +26,21 @@ const EMPTY_FORM = {
 
 type FormState = typeof EMPTY_FORM;
 
-function parseStats(raw: string): Record<string, number> | undefined {
+function parseStats(
+  raw: string,
+  tInvalidObject: string,
+  tInvalidValue: (key: string) => string,
+): Record<string, number> | undefined {
   const trimmed = raw.trim();
   if (!trimmed) return undefined;
   const parsed = JSON.parse(trimmed) as unknown;
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new Error("Stats must be a JSON object, e.g. {\"str\": 10, \"dex\": 14}");
+    throw new Error(tInvalidObject);
   }
   const result: Record<string, number> = {};
   for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
     if (typeof v !== "number") {
-      throw new Error(`Stats value for "${k}" must be a number`);
+      throw new Error(tInvalidValue(k));
     }
     result[k] = v;
   }
@@ -72,6 +77,7 @@ export default function NPCSection({
   locations: Location[];
   refreshKey?: number;
 }) {
+  const t = useTranslations("npcSection");
   const [npcs, setNpcs] = useState<Npc[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -90,7 +96,7 @@ export default function NPCSection({
       const data = await api.getNpcs(campaignId);
       setNpcs(data);
     } catch (err) {
-      setFetchError(err instanceof Error ? err.message : "Failed to load NPCs");
+      setFetchError(err instanceof Error ? err.message : t("loadError"));
     } finally {
       setLoading(false);
     }
@@ -128,9 +134,13 @@ export default function NPCSection({
 
     let stats: Record<string, number> | undefined;
     try {
-      stats = parseStats(form.statsJson);
+      stats = parseStats(
+        form.statsJson,
+        t("statsInvalidObject"),
+        (key) => t("statsInvalidValue", { key }),
+      );
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Invalid stats JSON");
+      setSubmitError(err instanceof Error ? err.message : t("statsInvalidJson"));
       return;
     }
 
@@ -151,16 +161,16 @@ export default function NPCSection({
     try {
       if (editId) {
         await api.updateNpc(editId, payload);
-        toast.success("NPC updated");
+        toast.success(t("toastUpdated"));
       } else {
         await api.createNpc(campaignId, payload);
-        toast.success("NPC created");
+        toast.success(t("toastCreated"));
       }
       cancelForm();
       await loadNpcs();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unknown error";
-      setSubmitError(msg.startsWith("[object") ? "Validation error — check all required fields" : msg);
+      const msg = err instanceof Error ? err.message : t("unknownError");
+      setSubmitError(msg.startsWith("[object") ? t("validationError") : msg);
     } finally {
       setSubmitting(false);
     }
@@ -169,11 +179,11 @@ export default function NPCSection({
   const handleDelete = async (npc: Npc) => {
     try {
       await api.deleteNpc(npc.id);
-      toast.success("NPC deleted");
+      toast.success(t("toastDeleted"));
       await loadNpcs();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Delete failed";
-      toast.error(`Failed to delete ${npc.name}: ${msg}`);
+      const msg = err instanceof Error ? err.message : t("deleteFailed");
+      toast.error(t("toastDeleteFailed", { name: npc.name, message: msg }));
       setFetchError(msg);
     }
   };
@@ -185,12 +195,12 @@ export default function NPCSection({
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-foreground">NPCs</h2>
+        <h2 className="text-xl font-semibold text-foreground">{t("heading")}</h2>
         <button
           onClick={showForm ? cancelForm : openCreate}
           className="text-sm bg-accent hover:bg-muted text-foreground px-3 py-1.5 rounded-lg transition-colors"
         >
-          {showForm ? "Cancel" : "+ Add"}
+          {showForm ? t("cancel") : t("addButton")}
         </button>
       </div>
 
@@ -202,7 +212,7 @@ export default function NPCSection({
         >
           {/* Name */}
           <input
-            placeholder="Name *"
+            placeholder={t("namePlaceholder")}
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             className={INPUT_CLS}
@@ -212,14 +222,14 @@ export default function NPCSection({
           {/* Race + Class */}
           <div className="grid grid-cols-2 gap-2">
             <input
-              placeholder="Race *"
+              placeholder={t("racePlaceholder")}
               value={form.race}
               onChange={(e) => setForm({ ...form, race: e.target.value })}
               className={INPUT_CLS}
               required
             />
             <input
-              placeholder="Class (optional)"
+              placeholder={t("classPlaceholder")}
               value={form.npc_class}
               onChange={(e) => setForm({ ...form, npc_class: e.target.value })}
               className={INPUT_CLS}
@@ -228,7 +238,7 @@ export default function NPCSection({
 
           {/* Description */}
           <textarea
-            placeholder="Description (optional)"
+            placeholder={t("descriptionPlaceholder")}
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             className={TEXTAREA_CLS}
@@ -238,23 +248,23 @@ export default function NPCSection({
           {/* Personality */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs text-muted-foreground">Personality</label>
+              <label className="text-xs text-muted-foreground">{t("personalityLabel")}</label>
               {editId && (
                 <button
                   type="button"
                   onClick={() => setAiOpen(true)}
-                  aria-label="AI generate NPC personality"
+                  aria-label={t("aiPersonalityAriaLabel")}
                   className="inline-flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 hover:border-blue-500/40 px-2 py-0.5 rounded-md transition-colors"
                 >
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
                   </svg>
-                  AI personality
+                  {t("aiPersonalityButton")}
                 </button>
               )}
             </div>
             <textarea
-              placeholder="Personality (optional)"
+              placeholder={t("personalityPlaceholder")}
               value={form.personality}
               onChange={(e) => setForm({ ...form, personality: e.target.value })}
               className={TEXTAREA_CLS}
@@ -264,7 +274,7 @@ export default function NPCSection({
 
           {/* Motivation */}
           <textarea
-            placeholder="Motivation (optional)"
+            placeholder={t("motivationPlaceholder")}
             value={form.motivation}
             onChange={(e) => setForm({ ...form, motivation: e.target.value })}
             className={TEXTAREA_CLS}
@@ -273,7 +283,7 @@ export default function NPCSection({
 
           {/* Secrets */}
           <textarea
-            placeholder="Secrets (optional)"
+            placeholder={t("secretsPlaceholder")}
             value={form.secrets}
             onChange={(e) => setForm({ ...form, secrets: e.target.value })}
             className={TEXTAREA_CLS}
@@ -283,7 +293,7 @@ export default function NPCSection({
           {/* Stats JSON */}
           <div>
             <label className="text-xs text-muted-foreground block mb-1">
-              Stats — JSON format, e.g.{" "}
+              {t("statsLabel")}{" "}
               <span className="font-mono text-muted-foreground">
                 {"{"}
                 &quot;str&quot;: 10, &quot;dex&quot;: 14
@@ -302,13 +312,13 @@ export default function NPCSection({
           {/* Location + Alive */}
           <div className="grid grid-cols-2 gap-2 items-end">
             <div>
-              <label className="text-xs text-muted-foreground block mb-1">Location</label>
+              <label className="text-xs text-muted-foreground block mb-1">{t("locationLabel")}</label>
               <select
                 value={form.location_id}
                 onChange={(e) => setForm({ ...form, location_id: e.target.value })}
                 className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
               >
-                <option value="">— None —</option>
+                <option value="">{t("locationNone")}</option>
                 {locations.map((loc) => (
                   <option key={loc.id} value={loc.id}>
                     {loc.name}

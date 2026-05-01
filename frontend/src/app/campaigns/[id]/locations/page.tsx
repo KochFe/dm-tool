@@ -1,11 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import LocationSection from "@/components/LocationSection";
 import NpcHoverCard from "@/components/NpcHoverCard";
 import { Badge } from "@/components/ui/badge";
 
 export default function LocationsPage() {
+  const t = useTranslations("locations");
   const { campaign, locations, npcs, quests, reload } = useCampaign();
 
   return (
@@ -20,7 +22,7 @@ export default function LocationsPage() {
       {/* Cross-references: NPCs and quests by location */}
       {locations.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-foreground/80 mb-3">Location Cross-References</h3>
+          <h3 className="text-sm font-semibold text-foreground/80 mb-3">{t("crossRefsHeading")}</h3>
           <div className="space-y-3">
             {locations.map((loc) => {
               const locNpcs = npcs.filter((n) => n.location_id === loc.id);
@@ -32,12 +34,12 @@ export default function LocationsPage() {
                     <span className="text-sm font-medium text-foreground">{loc.name}</span>
                     <Badge variant="secondary" className="text-xs capitalize">{loc.biome}</Badge>
                     {campaign.current_location_id === loc.id && (
-                      <Badge className="text-xs bg-primary/20 text-primary">Current</Badge>
+                      <Badge className="text-xs bg-primary/20 text-primary">{t("currentBadge")}</Badge>
                     )}
                   </div>
                   {locNpcs.length > 0 && (
                     <div className="mb-1.5">
-                      <span className="text-xs text-muted-foreground">NPCs: </span>
+                      <span className="text-xs text-muted-foreground">{t("npcsLabel")}</span>
                       {locNpcs.map((npc, i) => (
                         <NpcHoverCard key={npc.id} npc={npc}>
                           <span className="text-xs text-primary hover:text-primary cursor-pointer">
@@ -49,7 +51,7 @@ export default function LocationsPage() {
                   )}
                   {locQuests.length > 0 && (
                     <div>
-                      <span className="text-xs text-muted-foreground">Quests: </span>
+                      <span className="text-xs text-muted-foreground">{t("questsLabel")}</span>
                       {locQuests.map((q, i) => (
                         <span key={q.id} className="text-xs text-foreground/80">
                           {q.title}{i < locQuests.length - 1 ? ", " : ""}

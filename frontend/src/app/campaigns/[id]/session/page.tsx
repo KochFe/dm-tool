@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import PartyPanel from "@/components/PartyPanel";
 import ExplorationView from "@/components/ExplorationView";
@@ -12,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 type SessionMode = "exploration" | "combat";
 
 export default function SessionPage() {
+  const t = useTranslations("session");
   const { campaign, characters, currentLocation } = useCampaign();
   const [mode, setMode] = useState<SessionMode>("exploration");
   const [isChatOpen, setIsChatOpen] = useState(true);
@@ -36,15 +38,15 @@ export default function SessionPage() {
       <div className="flex items-center justify-between px-4 py-2 border-b border-border shrink-0">
         <Tabs value={mode} onValueChange={(v) => setMode(v as SessionMode)}>
           <TabsList className="bg-muted">
-            <TabsTrigger value="exploration" className="text-xs">Exploration</TabsTrigger>
-            <TabsTrigger value="combat" className="text-xs">Combat</TabsTrigger>
+            <TabsTrigger value="exploration" className="text-xs">{t("tabExploration")}</TabsTrigger>
+            <TabsTrigger value="combat" className="text-xs">{t("tabCombat")}</TabsTrigger>
           </TabsList>
         </Tabs>
         <button
           onClick={() => setIsChatOpen((v) => !v)}
           className="text-xs text-muted-foreground hover:text-primary transition-colors px-2 py-1"
         >
-          {isChatOpen ? "Hide Oracle" : "Show Oracle"}
+          {isChatOpen ? t("hideOracle") : t("showOracle")}
         </button>
       </div>
 

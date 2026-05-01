@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
@@ -28,6 +29,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
   const pathname = usePathname();
   const base = `/campaigns/${campaignId}`;
   const [sheetOpen, setSheetOpen] = useState(false);
+  const t = useTranslations("sidebar");
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
@@ -35,19 +37,19 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
   };
 
   const mainNav: NavItem[] = [
-    { href: base, label: "Overview", icon: Scroll, exact: true },
-    { href: `${base}/characters`, label: "Characters", icon: Users },
-    { href: `${base}/locations`, label: "Locations", icon: MapPin },
-    { href: `${base}/npcs`, label: "NPCs", icon: Drama },
-    { href: `${base}/quests`, label: "Quests", icon: Flag },
+    { href: base, label: t("overview"), icon: Scroll, exact: true },
+    { href: `${base}/characters`, label: t("characters"), icon: Users },
+    { href: `${base}/locations`, label: t("locations"), icon: MapPin },
+    { href: `${base}/npcs`, label: t("npcs"), icon: Drama },
+    { href: `${base}/quests`, label: t("quests"), icon: Flag },
   ];
 
   const sessionNav: NavItem[] = [
-    { href: `${base}/session`, label: "Session", icon: Swords },
+    { href: `${base}/session`, label: t("session"), icon: Swords },
   ];
 
   const bottomNav: NavItem[] = [
-    { href: `${base}/settings`, label: "Settings", icon: Settings },
+    { href: `${base}/settings`, label: t("settings"), icon: Settings },
   ];
 
   const NavLink = ({
@@ -131,7 +133,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground/80 hover:bg-accent transition-colors duration-150"
         >
           <ArrowLeft className="shrink-0 w-5 h-5" />
-          <span className="hidden xl:block truncate">All Campaigns</span>
+          <span className="hidden xl:block truncate">{t("allCampaigns")}</span>
         </Link>
       </aside>
 
@@ -139,7 +141,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
       <button
         onClick={() => setSheetOpen(true)}
         className="fixed bottom-4 left-4 z-40 md:hidden bg-muted border border-border text-foreground/80 p-3 rounded-full shadow-lg hover:bg-accent transition-colors"
-        aria-label="Open navigation menu"
+        aria-label={t("openNavMenu")}
       >
         <Menu className="w-5 h-5" />
       </button>
@@ -216,7 +218,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground/80 hover:bg-accent transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>All Campaigns</span>
+              <span>{t("allCampaigns")}</span>
             </Link>
           </nav>
         </SheetContent>

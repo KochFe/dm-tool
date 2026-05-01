@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
+  const t = useTranslations("settings");
   const { campaign, reload } = useCampaign();
   const [form, setForm] = useState({
     name: campaign.name,
@@ -26,9 +28,9 @@ export default function SettingsPage() {
         in_game_time: form.in_game_time,
       });
       await reload();
-      toast.success("Campaign updated");
+      toast.success(t("updateSuccess"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update campaign");
+      toast.error(err instanceof Error ? err.message : t("updateError"));
     } finally {
       setSaving(false);
     }
@@ -39,11 +41,11 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl">
-      <h2 className="text-xl font-semibold text-foreground mb-6">Campaign Settings</h2>
+      <h2 className="text-xl font-semibold text-foreground mb-6">{t("pageTitle")}</h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm text-muted-foreground mb-1">Campaign Name</label>
+          <label className="block text-sm text-muted-foreground mb-1">{t("nameLabel")}</label>
           <input
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -53,19 +55,19 @@ export default function SettingsPage() {
         </div>
 
         <div>
-          <label className="block text-sm text-muted-foreground mb-1">Description</label>
+          <label className="block text-sm text-muted-foreground mb-1">{t("descriptionLabel")}</label>
           <textarea
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             className={`${inputCls} resize-none`}
             rows={4}
-            placeholder="Campaign description (optional)"
+            placeholder={t("descriptionPlaceholder")}
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-muted-foreground mb-1">Party Level</label>
+            <label className="block text-sm text-muted-foreground mb-1">{t("partyLevelLabel")}</label>
             <input
               type="number"
               min={1}
@@ -76,7 +78,7 @@ export default function SettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm text-muted-foreground mb-1">In-Game Time</label>
+            <label className="block text-sm text-muted-foreground mb-1">{t("inGameTimeLabel")}</label>
             <input
               value={form.in_game_time}
               onChange={(e) => setForm({ ...form, in_game_time: e.target.value })}
@@ -90,7 +92,7 @@ export default function SettingsPage() {
           disabled={saving}
           className="bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-semibold px-5 py-2 rounded-lg transition-colors"
         >
-          {saving ? "Saving..." : "Save Changes"}
+          {saving ? t("saving") : t("saveButton")}
         </button>
       </form>
     </div>

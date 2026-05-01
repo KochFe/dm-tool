@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 interface ConfirmButtonProps {
   onConfirm: () => void | Promise<void>;
@@ -16,13 +17,15 @@ interface ConfirmButtonProps {
 export default function ConfirmButton({
   onConfirm,
   label,
-  confirmLabel = "Are you sure?",
+  confirmLabel,
   className = "text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-700/50 dark:hover:bg-red-700 dark:text-red-200 px-3 py-1 rounded-lg transition-colors",
   confirmClassName,
   disabled = false,
   timeoutMs = 3000,
   onConfirmingChange,
 }: ConfirmButtonProps) {
+  const t = useTranslations("common");
+  const resolvedConfirmLabel = confirmLabel ?? t("areYouSure");
   const [confirming, setConfirming] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -73,21 +76,21 @@ export default function ConfirmButton({
         }
       >
         <span className="text-xs text-muted-foreground whitespace-nowrap">
-          {confirmLabel}
+          {resolvedConfirmLabel}
         </span>
         <button
           type="button"
           onClick={handleConfirm}
           className="text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-700/50 dark:hover:bg-red-700 dark:text-red-200 px-3 py-1 rounded-lg transition-colors"
         >
-          Confirm
+          {t("confirm")}
         </button>
         <button
           type="button"
           onClick={cancelConfirm}
           className="text-sm bg-accent hover:bg-muted text-foreground/80 px-3 py-1 rounded-lg transition-colors"
         >
-          Cancel
+          {t("cancel")}
         </button>
       </span>
     );

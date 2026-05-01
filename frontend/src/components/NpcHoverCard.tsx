@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Badge } from "@/components/ui/badge";
 import type { Npc } from "@/types";
@@ -10,6 +11,7 @@ interface NpcHoverCardProps {
 }
 
 export default function NpcHoverCard({ npc, children }: NpcHoverCardProps) {
+  const t = useTranslations("entitySheet");
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
@@ -20,7 +22,7 @@ export default function NpcHoverCard({ npc, children }: NpcHoverCardProps) {
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold">{npc.name}</h4>
             <Badge variant={npc.is_alive ? "secondary" : "destructive"} className="text-xs">
-              {npc.is_alive ? "Alive" : "Dead"}
+              {npc.is_alive ? t("alive") : t("dead")}
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground">{npc.race}{npc.npc_class ? ` · ${npc.npc_class}` : ""}</p>

@@ -6,6 +6,7 @@ from app.ai.graphs.phase_expander import compile_phase_expander_graph
 from app.models.campaign_phase import CampaignPhase
 from app.models.npc import Npc
 from app.models.location import Location
+from app.schemas.language import Language
 from app.schemas.phase_expander import DraftPhaseBundle
 
 
@@ -79,9 +80,12 @@ async def run_phase_expander(
     campaign: object,
     phase: CampaignPhase,
     user_steer: str,
+    *,
+    language: Language = Language.EN,
 ) -> DraftPhaseBundle:
     """Preload context, invoke graph, return the final DraftPhaseBundle."""
     state = await _build_state(db, campaign, phase, user_steer)
+    state["language"] = language
     graph = compile_phase_expander_graph()
     final = await graph.ainvoke(state)
     return DraftPhaseBundle(

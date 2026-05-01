@@ -1,9 +1,11 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
+import { useTranslations } from "next-intl";
 
 export function NavUser() {
   const { user, loading, logout } = useAuth();
+  const t = useTranslations("header");
 
   if (loading || !user) return null;
 
@@ -14,7 +16,7 @@ export function NavUser() {
         onClick={logout}
         className="text-sm text-muted-foreground hover:text-foreground/80 transition-colors"
       >
-        Logout
+        {t("logout")}
       </button>
     </div>
   );

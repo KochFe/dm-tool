@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import type {
   GeneratedEncounter,
@@ -92,6 +93,7 @@ interface EncounterCombatViewProps {
 }
 
 function EncounterCombatView({ encounter, characters, combatants, onChange }: EncounterCombatViewProps) {
+  const t = useTranslations('generatorResult');
   const addedPcIds = new Set(
     combatants
       .filter((c) => c.player_character_id !== null)
@@ -159,16 +161,16 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
 
       {encounter.monsters.length > 0 && (
         <div>
-          <h3 className="text-foreground text-sm font-semibold mb-2">Monsters</h3>
+          <h3 className="text-foreground text-sm font-semibold mb-2">{t('monstersHeading')}</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-muted-foreground text-left">
-                  <th className="pb-2 pr-4 font-medium">Name</th>
-                  <th className="pb-2 pr-4 font-medium">CR</th>
-                  <th className="pb-2 pr-4 font-medium">HP</th>
-                  <th className="pb-2 pr-4 font-medium">AC</th>
-                  <th className="pb-2 font-medium">Count</th>
+                  <th className="pb-2 pr-4 font-medium">{t('thName')}</th>
+                  <th className="pb-2 pr-4 font-medium">{t('thCr')}</th>
+                  <th className="pb-2 pr-4 font-medium">{t('thHp')}</th>
+                  <th className="pb-2 pr-4 font-medium">{t('thAc')}</th>
+                  <th className="pb-2 font-medium">{t('thCount')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -189,7 +191,7 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
 
       {encounter.tactical_notes && (
         <div>
-          <h3 className="text-foreground text-sm font-semibold mb-1">Tactical Notes</h3>
+          <h3 className="text-foreground text-sm font-semibold mb-1">{t('tacticalNotes')}</h3>
           <p className="text-muted-foreground text-sm leading-relaxed">{encounter.tactical_notes}</p>
         </div>
       )}
@@ -197,7 +199,7 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
       {/* Prepare Combat section */}
       <div className="border-t border-border pt-4 mt-4">
         <h3 className="text-primary text-xs font-semibold uppercase tracking-wide mb-3">
-          Prepare Combat
+          {t('prepareCombat')}
         </h3>
 
         {combatants.length > 0 && (
@@ -205,11 +207,11 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-muted-foreground text-left">
-                  <th className="pb-2 pr-2 font-medium">Name</th>
-                  <th className="pb-2 pr-2 font-medium w-16">Init</th>
-                  <th className="pb-2 pr-2 font-medium w-16">HP</th>
-                  <th className="pb-2 pr-2 font-medium w-16">Max HP</th>
-                  <th className="pb-2 pr-2 font-medium w-16">AC</th>
+                  <th className="pb-2 pr-2 font-medium">{t('thName')}</th>
+                  <th className="pb-2 pr-2 font-medium w-16">{t('thInit')}</th>
+                  <th className="pb-2 pr-2 font-medium w-16">{t('thHp')}</th>
+                  <th className="pb-2 pr-2 font-medium w-16">{t('thMaxHp')}</th>
+                  <th className="pb-2 pr-2 font-medium w-16">{t('thAc')}</th>
                   <th className="pb-2 w-6" />
                 </tr>
               </thead>
@@ -221,7 +223,7 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
                         type="text"
                         value={c.name}
                         onChange={(e) => updateRow(i, 'name', e.target.value)}
-                        placeholder="Name"
+                        placeholder={t('namePlaceholder')}
                         className={`${COMPACT_INPUT_CLASS} w-full min-w-[100px]`}
                       />
                     </td>
@@ -267,7 +269,7 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
                     <td className="py-1.5">
                       <button
                         onClick={() => removeRow(i)}
-                        aria-label={`Remove ${c.name || 'combatant'}`}
+                        aria-label={t('removeAria', { name: c.name || t('removePlaceholder') })}
                         className="text-muted-foreground hover:text-red-400 transition-colors text-base leading-none px-1"
                       >
                         &times;
@@ -282,10 +284,10 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
 
         {/* Add PCs quick-add */}
         <div className="mb-3">
-          <p className="text-muted-foreground text-xs mb-1.5 uppercase tracking-wide font-medium">Add PCs</p>
+          <p className="text-muted-foreground text-xs mb-1.5 uppercase tracking-wide font-medium">{t('addPcs')}</p>
           {availablePcs.length === 0 ? (
             <p className="text-muted-foreground text-xs italic">
-              {characters.length === 0 ? 'No characters in this campaign.' : 'All PCs added.'}
+              {characters.length === 0 ? t('noChars') : t('allPcsAdded')}
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
@@ -308,7 +310,7 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
           onClick={addBlankRow}
           className="text-xs text-primary hover:text-primary transition-colors flex items-center gap-1"
         >
-          <span className="text-base leading-none">+</span> Add Combatant
+          <span className="text-base leading-none">+</span> {t('addCombatant')}
         </button>
       </div>
     </div>
@@ -326,6 +328,7 @@ interface NpcEditViewProps {
 }
 
 function NpcEditView({ npc, onChange }: NpcEditViewProps) {
+  const t = useTranslations('generatorResult');
   function set<K extends keyof GeneratedNpc>(field: K, value: GeneratedNpc[K]) {
     onChange({ ...npc, [field]: value });
   }
@@ -353,84 +356,84 @@ function NpcEditView({ npc, onChange }: NpcEditViewProps) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={LABEL_CLASS}>Name</label>
+          <label className={LABEL_CLASS}>{t('npcLabelName')}</label>
           <input
             type="text"
             value={npc.name}
             onChange={(e) => set('name', e.target.value)}
             className={INPUT_CLASS}
-            placeholder="NPC name"
+            placeholder={t('npcPlaceholderName')}
           />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Race</label>
+          <label className={LABEL_CLASS}>{t('npcLabelRace')}</label>
           <input
             type="text"
             value={npc.race}
             onChange={(e) => set('race', e.target.value)}
             className={INPUT_CLASS}
-            placeholder="e.g. Human, Elf"
+            placeholder={t('npcPlaceholderRace')}
           />
         </div>
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Class / Occupation</label>
+        <label className={LABEL_CLASS}>{t('npcLabelClass')}</label>
         <input
           type="text"
           value={npc.npc_class ?? ''}
           onChange={(e) => set('npc_class', e.target.value || null)}
           className={INPUT_CLASS}
-          placeholder="e.g. Merchant, Wizard (optional)"
+          placeholder={t('npcPlaceholderClass')}
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
+        <label className={LABEL_CLASS}>{t('npcLabelDescription')}</label>
         <textarea
           value={npc.description}
           onChange={(e) => set('description', e.target.value)}
           className={TEXTAREA_CLASS}
           rows={3}
-          placeholder="Physical appearance and brief background"
+          placeholder={t('npcPlaceholderDesc')}
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Personality</label>
+        <label className={LABEL_CLASS}>{t('npcLabelPersonality')}</label>
         <textarea
           value={npc.personality}
           onChange={(e) => set('personality', e.target.value)}
           className={TEXTAREA_CLASS}
           rows={2}
-          placeholder="Personality traits and demeanor"
+          placeholder={t('npcPlaceholderPersonality')}
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Motivation</label>
+        <label className={LABEL_CLASS}>{t('npcLabelMotivation')}</label>
         <textarea
           value={npc.motivation}
           onChange={(e) => set('motivation', e.target.value)}
           className={TEXTAREA_CLASS}
           rows={2}
-          placeholder="What drives this NPC"
+          placeholder={t('npcPlaceholderMotivation')}
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Secrets</label>
+        <label className={LABEL_CLASS}>{t('npcLabelSecrets')}</label>
         <textarea
           value={npc.secrets}
           onChange={(e) => set('secrets', e.target.value)}
           className={TEXTAREA_CLASS}
           rows={2}
-          placeholder="Hidden knowledge or dark past"
+          placeholder={t('npcPlaceholderSecrets')}
         />
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Ability Scores</label>
+        <label className={LABEL_CLASS}>{t('npcLabelAbilityScores')}</label>
         <div className="grid grid-cols-6 gap-2 mt-1">
           {ABILITY_KEYS.map((abbr) => (
             <div key={abbr} className="flex flex-col items-center gap-1">
@@ -452,6 +455,7 @@ function NpcEditView({ npc, onChange }: NpcEditViewProps) {
 }
 
 function LootView({ loot }: { loot: GeneratedLoot }) {
+  const t = useTranslations('generatorResult');
   return (
     <div className="space-y-4">
       {loot.context && (
@@ -460,15 +464,15 @@ function LootView({ loot }: { loot: GeneratedLoot }) {
 
       {loot.items.length > 0 && (
         <div>
-          <h3 className="text-foreground text-sm font-semibold mb-2">Items</h3>
+          <h3 className="text-foreground text-sm font-semibold mb-2">{t('itemsHeading')}</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-muted-foreground text-left">
-                  <th className="pb-2 pr-4 font-medium">Name</th>
-                  <th className="pb-2 pr-4 font-medium">Rarity</th>
-                  <th className="pb-2 pr-4 font-medium">Value</th>
-                  <th className="pb-2 font-medium">Description</th>
+                  <th className="pb-2 pr-4 font-medium">{t('thName')}</th>
+                  <th className="pb-2 pr-4 font-medium">{t('thRarity')}</th>
+                  <th className="pb-2 pr-4 font-medium">{t('thValue')}</th>
+                  <th className="pb-2 font-medium">{t('thDescription')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -494,7 +498,7 @@ function LootView({ loot }: { loot: GeneratedLoot }) {
 
       {loot.total_value && (
         <div className="flex items-center justify-end pt-2 border-t border-border">
-          <span className="text-muted-foreground text-sm mr-2">Total Value:</span>
+          <span className="text-muted-foreground text-sm mr-2">{t('totalValue')}</span>
           <span className="text-primary font-semibold text-sm">{loot.total_value}</span>
         </div>
       )}
@@ -502,10 +506,10 @@ function LootView({ loot }: { loot: GeneratedLoot }) {
   );
 }
 
-const TITLES: Record<string, string> = {
-  encounter: 'Generated Encounter',
-  npc: 'Generated NPC',
-  loot: 'Generated Loot',
+const TITLE_KEYS: Record<string, 'titleEncounter' | 'titleNpc' | 'titleLoot'> = {
+  encounter: 'titleEncounter',
+  npc: 'titleNpc',
+  loot: 'titleLoot',
 };
 
 export default function GeneratorResultModal({
@@ -516,6 +520,7 @@ export default function GeneratorResultModal({
   onClose,
   onSaved,
 }: GeneratorResultModalProps) {
+  const t = useTranslations('generatorResult');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [editedNpc, setEditedNpc] = useState<GeneratedNpc | null>(
@@ -552,7 +557,7 @@ export default function GeneratorResultModal({
       onSaved?.();
       onClose();
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to save NPC');
+      setSaveError(err instanceof Error ? err.message : t('errSaveNpc'));
     } finally {
       setSaving(false);
     }
@@ -584,7 +589,7 @@ export default function GeneratorResultModal({
       onSaved?.();
       onClose();
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to start combat session');
+      setSaveError(err instanceof Error ? err.message : t('errStartCombat'));
     } finally {
       setSaving(false);
     }
@@ -604,11 +609,11 @@ export default function GeneratorResultModal({
       <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-card border border-border rounded-lg shadow-xl mx-4">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
-          <h2 className="text-primary text-lg font-semibold">{TITLES[type]}</h2>
+          <h2 className="text-primary text-lg font-semibold">{t(TITLE_KEYS[type])}</h2>
           <button
             onClick={onClose}
             className="text-muted-foreground hover:text-foreground transition-colors text-xl leading-none"
-            aria-label="Close"
+            aria-label={t('closeAria')}
           >
             &times;
           </button>
@@ -646,7 +651,7 @@ export default function GeneratorResultModal({
                 disabled={saving}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-1.5 rounded text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saving ? 'Saving...' : 'Save to Campaign'}
+                {saving ? t('saving') : t('saveToCampaign')}
               </button>
             )}
             {type === 'encounter' && (
@@ -655,19 +660,19 @@ export default function GeneratorResultModal({
                 disabled={saving || !canBeginCombat}
                 title={
                   !canBeginCombat
-                    ? 'All combatants must have a name and initiative value'
+                    ? t('mustHaveAllFields')
                     : undefined
                 }
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-4 py-1.5 rounded text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saving ? 'Starting...' : 'Begin Combat'}
+                {saving ? t('starting') : t('beginCombat')}
               </button>
             )}
             <button
               onClick={onClose}
               className="px-4 py-1.5 rounded border border-border text-foreground/80 hover:bg-muted text-sm transition-colors"
             >
-              {type === 'npc' ? 'Discard' : 'Close'}
+              {type === 'npc' ? t('discard') : t('close')}
             </button>
           </div>
         </div>

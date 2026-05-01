@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type {
@@ -26,6 +27,7 @@ interface NpcDetailProps {
 }
 
 function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
+  const t = useTranslations("builder.characters");
   const [name, setName] = useState(npc.name);
   const [race, setRace] = useState(npc.race);
   const [npcClass, setNpcClass] = useState(npc.npc_class ?? "");
@@ -64,57 +66,57 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
   return (
     <div className="flex flex-col gap-5">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-        NPC Details
+        {t("npcDetails")}
       </p>
 
       {/* Name */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-muted-foreground">Name *</label>
+        <label className="text-xs text-muted-foreground">{t("name")}</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           onBlur={() => handleBlur("name", name)}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-          placeholder="NPC name"
+          placeholder={t("namePlaceholder")}
         />
       </div>
 
       {/* Race + Class row */}
       <div className="flex gap-3">
         <div className="flex flex-col gap-1 flex-1">
-          <label className="text-xs text-muted-foreground">Race</label>
+          <label className="text-xs text-muted-foreground">{t("race")}</label>
           <input
             type="text"
             value={race}
             onChange={(e) => setRace(e.target.value)}
             onBlur={() => handleBlur("race", race)}
             className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-            placeholder="Human"
+            placeholder={t("racePlaceholder")}
           />
         </div>
         <div className="flex flex-col gap-1 flex-1">
-          <label className="text-xs text-muted-foreground">Class / Role</label>
+          <label className="text-xs text-muted-foreground">{t("classRole")}</label>
           <input
             type="text"
             value={npcClass}
             onChange={(e) => setNpcClass(e.target.value)}
             onBlur={() => handleBlur("npc_class", npcClass)}
             className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-            placeholder="Merchant, Guard..."
+            placeholder={t("classRolePlaceholder")}
           />
         </div>
       </div>
 
       {/* Location */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-muted-foreground">Location</label>
+        <label className="text-xs text-muted-foreground">{t("locationLabel")}</label>
         <select
           value={locationId}
           onChange={(e) => handleLocationChange(e.target.value)}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
         >
-          <option value="">No location</option>
+          <option value="">{t("noLocation")}</option>
           {locations.map((loc) => (
             <option key={loc.id} value={loc.id}>
               {loc.name}
@@ -125,49 +127,49 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
 
       {/* Description */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-muted-foreground">Description</label>
+        <label className="text-xs text-muted-foreground">{t("description")}</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           onBlur={() => handleBlur("description", description)}
           rows={3}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
-          placeholder="Physical appearance, mannerisms..."
+          placeholder={t("descriptionPlaceholder")}
         />
       </div>
 
       {/* Personality */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-muted-foreground">Personality</label>
+        <label className="text-xs text-muted-foreground">{t("personality")}</label>
         <textarea
           value={personality}
           onChange={(e) => setPersonality(e.target.value)}
           onBlur={() => handleBlur("personality", personality)}
           rows={3}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
-          placeholder="Traits, bonds, flaws..."
+          placeholder={t("personalityPlaceholder")}
         />
       </div>
 
       {/* Motivation */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-muted-foreground">Motivation</label>
+        <label className="text-xs text-muted-foreground">{t("motivation")}</label>
         <textarea
           value={motivation}
           onChange={(e) => setMotivation(e.target.value)}
           onBlur={() => handleBlur("motivation", motivation)}
           rows={2}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
-          placeholder="What does this NPC want?"
+          placeholder={t("motivationPlaceholder")}
         />
       </div>
 
       {/* Secrets — DM eyes only */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <label className="text-xs text-muted-foreground">Secrets</label>
+          <label className="text-xs text-muted-foreground">{t("secrets")}</label>
           <span className="text-xs bg-muted border border-border text-muted-foreground px-1.5 py-0.5 rounded">
-            DM only
+            {t("dmOnly")}
           </span>
         </div>
         <textarea
@@ -176,7 +178,7 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
           onBlur={() => handleBlur("secrets", secrets)}
           rows={2}
           className="bg-card bg-card border border-border/60 rounded-lg px-3 py-2 text-foreground/80 text-sm focus:outline-none focus:border-ring transition-colors resize-none placeholder:text-muted-foreground/40"
-          placeholder="Hidden agendas, true identity, secret knowledge..."
+          placeholder={t("secretsPlaceholder")}
         />
       </div>
 
@@ -184,18 +186,18 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
       <div className="pt-2 border-t border-border">
         {confirmDelete ? (
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">Delete this NPC?</span>
+            <span className="text-sm text-muted-foreground">{t("deleteNpcConfirm")}</span>
             <button
               onClick={() => onDelete(npc.id)}
               className="text-sm text-red-400 hover:text-red-300 font-medium transition-colors"
             >
-              Confirm
+              {t("confirm")}
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
               className="text-sm text-muted-foreground hover:text-foreground/80 transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
           </div>
         ) : (
@@ -203,7 +205,7 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
             onClick={() => setConfirmDelete(true)}
             className="text-sm text-red-500/70 hover:text-red-400 transition-colors"
           >
-            Delete NPC
+            {t("deleteNpc")}
           </button>
         )}
       </div>
@@ -222,6 +224,7 @@ interface PcDetailProps {
 }
 
 function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
+  const t = useTranslations("builder.characters");
   const [name, setName] = useState(pc.name);
   const [race, setRace] = useState(pc.race);
   const [characterClass, setCharacterClass] = useState(pc.character_class);
@@ -283,24 +286,24 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
   return (
     <div className="flex flex-col gap-5">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-        Player Character
+        {t("playerCharacter")}
       </p>
 
       {/* Identity row */}
       <div className="flex gap-3">
         <div className="flex flex-col gap-1 flex-1">
-          <label className="text-xs text-muted-foreground">Name *</label>
+          <label className="text-xs text-muted-foreground">{t("pcName")}</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             onBlur={() => stringBlur("name", name, pc.name)}
             className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-            placeholder="Character name"
+            placeholder={t("pcNamePlaceholder")}
           />
         </div>
         <div className="flex flex-col gap-1 w-16">
-          <label className="text-xs text-muted-foreground">Level</label>
+          <label className="text-xs text-muted-foreground">{t("level")}</label>
           <input
             type="number"
             min={1}
@@ -315,18 +318,18 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
 
       <div className="flex gap-3">
         <div className="flex flex-col gap-1 flex-1">
-          <label className="text-xs text-muted-foreground">Race</label>
+          <label className="text-xs text-muted-foreground">{t("race")}</label>
           <input
             type="text"
             value={race}
             onChange={(e) => setRace(e.target.value)}
             onBlur={() => stringBlur("race", race, pc.race)}
             className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-            placeholder="Human"
+            placeholder={t("racePlaceholder")}
           />
         </div>
         <div className="flex flex-col gap-1 flex-1">
-          <label className="text-xs text-muted-foreground">Class</label>
+          <label className="text-xs text-muted-foreground">{t("class")}</label>
           <input
             type="text"
             value={characterClass}
@@ -335,7 +338,7 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
               stringBlur("character_class", characterClass, pc.character_class)
             }
             className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-            placeholder="Fighter"
+            placeholder={t("classPlaceholder")}
           />
         </div>
       </div>
@@ -343,7 +346,7 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
       {/* Combat stats row */}
       <div className="flex gap-3">
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">HP</label>
+          <label className="text-xs text-muted-foreground">{t("hp")}</label>
           <div className="flex items-center gap-1">
             <input
               type="number"
@@ -363,7 +366,7 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
           </div>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">AC</label>
+          <label className="text-xs text-muted-foreground">{t("ac")}</label>
           <input
             type="number"
             value={armorClass}
@@ -373,7 +376,7 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">Passive Perc.</label>
+          <label className="text-xs text-muted-foreground">{t("passivePerc")}</label>
           <input
             type="number"
             value={passivePerception}
@@ -404,7 +407,7 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
               clipRule="evenodd"
             />
           </svg>
-          Stats &amp; Combat
+          {t("statsCombat")}
         </summary>
 
         <div className="mt-4 flex flex-col gap-4">
@@ -412,16 +415,16 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
           <div className="grid grid-cols-6 gap-2">
             {(
               [
-                ["STR", strength, setStrength, "strength", pc.strength],
-                ["DEX", dexterity, setDexterity, "dexterity", pc.dexterity],
-                ["CON", constitution, setConstitution, "constitution", pc.constitution],
-                ["INT", intelligence, setIntelligence, "intelligence", pc.intelligence],
-                ["WIS", wisdom, setWisdom, "wisdom", pc.wisdom],
-                ["CHA", charisma, setCharisma, "charisma", pc.charisma],
-              ] as [string, string, (v: string) => void, string, number][]
-            ).map(([label, val, setter, field, original]) => (
+                ["str", strength, setStrength, "strength", pc.strength],
+                ["dex", dexterity, setDexterity, "dexterity", pc.dexterity],
+                ["con", constitution, setConstitution, "constitution", pc.constitution],
+                ["int", intelligence, setIntelligence, "intelligence", pc.intelligence],
+                ["wis", wisdom, setWisdom, "wisdom", pc.wisdom],
+                ["cha", charisma, setCharisma, "charisma", pc.charisma],
+              ] as ["str" | "dex" | "con" | "int" | "wis" | "cha", string, (v: string) => void, string, number][]
+            ).map(([labelKey, val, setter, field, original]) => (
               <div key={field} className="flex flex-col items-center gap-1">
-                <label className="text-xs text-muted-foreground">{label}</label>
+                <label className="text-xs text-muted-foreground">{t(labelKey)}</label>
                 <input
                   type="number"
                   min={1}
@@ -438,7 +441,7 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
           {/* Proficiency bonus + Speed */}
           <div className="flex gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">Prof. Bonus</label>
+              <label className="text-xs text-muted-foreground">{t("profBonus")}</label>
               <input
                 type="number"
                 value={proficiencyBonus}
@@ -454,7 +457,7 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">Speed (ft)</label>
+              <label className="text-xs text-muted-foreground">{t("speed")}</label>
               <input
                 type="number"
                 value={speed}
@@ -471,18 +474,18 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
       <div className="pt-2 border-t border-border">
         {confirmDelete ? (
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">Delete this PC?</span>
+            <span className="text-sm text-muted-foreground">{t("deletePcConfirm")}</span>
             <button
               onClick={() => onDelete(pc.id)}
               className="text-sm text-red-400 hover:text-red-300 font-medium transition-colors"
             >
-              Confirm
+              {t("confirm")}
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
               className="text-sm text-muted-foreground hover:text-foreground/80 transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
           </div>
         ) : (
@@ -490,7 +493,7 @@ function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
             onClick={() => setConfirmDelete(true)}
             className="text-sm text-red-500/70 hover:text-red-400 transition-colors"
           >
-            Delete PC
+            {t("deletePc")}
           </button>
         )}
       </div>
@@ -508,6 +511,7 @@ interface DDBImportProps {
 }
 
 function DDBImport({ campaignId, onImported }: DDBImportProps) {
+  const t = useTranslations("builder.characters");
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -523,10 +527,10 @@ function DDBImport({ campaignId, onImported }: DDBImportProps) {
       );
       onImported(created);
       setUrl("");
-      toast.success(`Imported ${created.name} from D&D Beyond`);
+      toast.success(t("ddbImportSuccess", { name: created.name }));
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to import from D&D Beyond"
+        err instanceof Error ? err.message : t("ddbImportError")
       );
     } finally {
       setLoading(false);
@@ -535,7 +539,7 @@ function DDBImport({ campaignId, onImported }: DDBImportProps) {
 
   return (
     <div className="flex flex-col gap-2 p-3 bg-muted/50 border border-border rounded-lg">
-      <p className="text-xs font-medium text-muted-foreground">Import from D&amp;D Beyond</p>
+      <p className="text-xs font-medium text-muted-foreground">{t("ddbImport")}</p>
       <div className="flex gap-2">
         <input
           type="url"
@@ -544,7 +548,7 @@ function DDBImport({ campaignId, onImported }: DDBImportProps) {
           onKeyDown={(e) => {
             if (e.key === "Enter") handleImport();
           }}
-          placeholder="https://www.dndbeyond.com/characters/..."
+          placeholder={t("ddbImportPlaceholder")}
           className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors placeholder:text-muted-foreground/60"
         />
         <button
@@ -552,7 +556,7 @@ function DDBImport({ campaignId, onImported }: DDBImportProps) {
           disabled={loading || !url.trim()}
           className="px-3 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground text-sm font-medium rounded-lg transition-colors flex-shrink-0"
         >
-          {loading ? "Importing..." : "Import"}
+          {loading ? t("ddbImporting") : t("ddbImportButton")}
         </button>
       </div>
     </div>
@@ -574,6 +578,7 @@ export default function CharactersTab({
   ideas,
   onToggleIdea,
 }: CharactersTabProps) {
+  const t = useTranslations("builder.characters");
   const [npcs, setNpcs] = useState<Npc[]>([]);
   const [pcs, setPcs] = useState<PlayerCharacter[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
@@ -593,12 +598,12 @@ export default function CharactersTab({
       setLocations(loadedLocations);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to load characters"
+        err instanceof Error ? err.message : t("loadError")
       );
     } finally {
       setLoading(false);
     }
-  }, [campaign.id]);
+  }, [campaign.id, t]);
 
   useEffect(() => {
     loadAll();
@@ -609,7 +614,7 @@ export default function CharactersTab({
   async function handleAddNpc() {
     try {
       const created = await api.createNpc(campaign.id, {
-        name: "New NPC",
+        name: t("newNpc"),
         race: "Human",
       });
       setNpcs((prev) => [...prev, created]);
@@ -617,7 +622,7 @@ export default function CharactersTab({
       setSelectedId(created.id);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to create NPC"
+        err instanceof Error ? err.message : t("createNpcError")
       );
     }
   }
@@ -628,7 +633,7 @@ export default function CharactersTab({
       setNpcs((prev) => prev.map((n) => (n.id === id ? updated : n)));
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to save NPC"
+        err instanceof Error ? err.message : t("saveNpcError")
       );
     }
   }
@@ -643,7 +648,7 @@ export default function CharactersTab({
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to delete NPC"
+        err instanceof Error ? err.message : t("deleteNpcError")
       );
     }
   }
@@ -653,7 +658,7 @@ export default function CharactersTab({
   async function handleAddPc() {
     try {
       const created = await api.createCharacter(campaign.id, {
-        name: "New Character",
+        name: t("newCharacter"),
         race: "Human",
         character_class: "Fighter",
         level: 1,
@@ -679,7 +684,7 @@ export default function CharactersTab({
       setSelectedId(created.id);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to create character"
+        err instanceof Error ? err.message : t("createPcError")
       );
     }
   }
@@ -690,7 +695,7 @@ export default function CharactersTab({
       setPcs((prev) => prev.map((p) => (p.id === id ? updated : p)));
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to save character"
+        err instanceof Error ? err.message : t("savePcError")
       );
     }
   }
@@ -705,7 +710,7 @@ export default function CharactersTab({
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to delete character"
+        err instanceof Error ? err.message : t("deletePcError")
       );
     }
   }
@@ -727,7 +732,7 @@ export default function CharactersTab({
       {/* Left panel: character list */}
       <div className="w-[270px] flex-shrink-0 bg-card/60 border border-border rounded-xl p-3 flex flex-col">
         {loading ? (
-          <p className="text-xs text-muted-foreground/60 text-center py-4">Loading...</p>
+          <p className="text-xs text-muted-foreground/60 text-center py-4">{t("loading")}</p>
         ) : (
           <CharacterList
             npcs={npcs}
@@ -789,11 +794,11 @@ export default function CharactersTab({
             </svg>
             <div>
               <p className="text-sm text-muted-foreground/60">
-                Select a character to edit their details
+                {t("selectToEdit")}
               </p>
               {!loading && npcs.length === 0 && pcs.length === 0 && (
                 <p className="text-xs text-muted-foreground/40 mt-1">
-                  Add an NPC or PC to get started
+                  {t("addToStart")}
                 </p>
               )}
             </div>
@@ -811,7 +816,7 @@ export default function CharactersTab({
       <div className="w-56 flex-shrink-0">
         <div className="sticky top-0 bg-card/80 backdrop-blur-sm rounded-xl border border-border p-3">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-            Character Ideas
+            {t("characterIdeas")}
           </p>
           <IdeasHelper
             campaignId={campaign.id}
