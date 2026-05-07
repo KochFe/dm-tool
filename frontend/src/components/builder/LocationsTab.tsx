@@ -13,12 +13,14 @@ interface LocationsTabProps {
   campaign: Campaign;
   ideas: CampaignIdea[];
   onToggleIdea: (id: string, isDone: boolean) => void;
+  reloadIdeas: () => Promise<void>;
 }
 
 export default function LocationsTab({
   campaign,
   ideas,
   onToggleIdea,
+  reloadIdeas,
 }: LocationsTabProps) {
   const t = useTranslations("builder.locationsTab");
   const tTree = useTranslations("builder.locationTree");
@@ -186,6 +188,7 @@ export default function LocationsTab({
             tag="location"
             ideas={ideas}
             onToggleDone={onToggleIdea}
+            onIdeaCreated={reloadIdeas}
           />
         </div>
       </div>

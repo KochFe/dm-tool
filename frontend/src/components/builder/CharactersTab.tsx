@@ -571,12 +571,14 @@ interface CharactersTabProps {
   campaign: Campaign;
   ideas: CampaignIdea[];
   onToggleIdea: (id: string, isDone: boolean) => void;
+  reloadIdeas: () => Promise<void>;
 }
 
 export default function CharactersTab({
   campaign,
   ideas,
   onToggleIdea,
+  reloadIdeas,
 }: CharactersTabProps) {
   const t = useTranslations("builder.characters");
   const [npcs, setNpcs] = useState<Npc[]>([]);
@@ -823,6 +825,7 @@ export default function CharactersTab({
             tag="character"
             ideas={ideas}
             onToggleDone={onToggleIdea}
+            onIdeaCreated={reloadIdeas}
           />
         </div>
       </div>

@@ -105,6 +105,7 @@ export default function CampaignWizard({
             onCampaignUpdate={onCampaignUpdate}
             ideas={ideas}
             onToggleIdea={handleToggleIdea}
+            reloadIdeas={reloadIdeas}
           />
         );
       case 2:
@@ -113,6 +114,7 @@ export default function CampaignWizard({
             campaign={campaign}
             ideas={ideas}
             onToggleIdea={handleToggleIdea}
+            reloadIdeas={reloadIdeas}
           />
         );
       case 3:
@@ -121,6 +123,7 @@ export default function CampaignWizard({
             campaign={campaign}
             ideas={ideas}
             onToggleIdea={handleToggleIdea}
+            reloadIdeas={reloadIdeas}
           />
         );
       default:

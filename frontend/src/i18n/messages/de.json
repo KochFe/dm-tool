@@ -320,7 +320,11 @@
       "locationIdeas": "Ortsideen",
       "characterIdeas": "Charakterideen",
       "noIdeas": "Noch keine Ideen.",
-      "doneOf": "{done} von {total} erledigt"
+      "doneOf": "{done} von {total} erledigt",
+      "addIdeaPlaceholder": "Idee hinzufügen…",
+      "save": "Speichern",
+      "saving": "Speichert…",
+      "addIdeaError": "Idee konnte nicht hinzugefügt werden"
     },
     "ideaRow": {
       "clickToChangeTag": "Klicken, um Tag zu ändern",

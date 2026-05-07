@@ -320,7 +320,11 @@
       "locationIdeas": "Location Ideas",
       "characterIdeas": "Character Ideas",
       "noIdeas": "No ideas yet.",
-      "doneOf": "{done} of {total} done"
+      "doneOf": "{done} of {total} done",
+      "addIdeaPlaceholder": "Add idea…",
+      "save": "Save",
+      "saving": "Saving…",
+      "addIdeaError": "Failed to add idea"
     },
     "ideaRow": {
       "clickToChangeTag": "Click to change tag",

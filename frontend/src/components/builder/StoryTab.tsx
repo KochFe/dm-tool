@@ -13,6 +13,7 @@ interface StoryTabProps {
   onCampaignUpdate: (campaign: Campaign) => void;
   ideas: CampaignIdea[];
   onToggleIdea: (id: string, isDone: boolean) => void;
+  reloadIdeas: () => Promise<void>;
 }
 
 export default function StoryTab({
@@ -20,6 +21,7 @@ export default function StoryTab({
   onCampaignUpdate,
   ideas,
   onToggleIdea,
+  reloadIdeas,
 }: StoryTabProps) {
   const t = useTranslations("builder.story");
   const [description, setDescription] = useState(
@@ -258,6 +260,7 @@ export default function StoryTab({
             tag="story"
             ideas={ideas}
             onToggleDone={onToggleIdea}
+            onIdeaCreated={reloadIdeas}
           />
         </div>
       </div>

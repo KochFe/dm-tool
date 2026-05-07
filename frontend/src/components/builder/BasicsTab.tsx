@@ -166,7 +166,20 @@ export default function BasicsTab({
     }
   }
 
+  function cycleTag() {
+    setNewIdeaTag((current) => {
+      const idx = TAG_OPTIONS.indexOf(current);
+      return TAG_OPTIONS[(idx + 1) % TAG_OPTIONS.length];
+    });
+  }
+
   function handleNewIdeaKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.altKey && (e.key.toLowerCase() === "t" || e.code === "KeyT")) {
+      e.preventDefault();
+      e.stopPropagation();
+      cycleTag();
+      return;
+    }
     if (e.key === "Enter") {
       e.preventDefault();
       saveNewIdea();
@@ -275,10 +288,7 @@ export default function BasicsTab({
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           <button
-            onClick={() => {
-              const idx = TAG_OPTIONS.indexOf(newIdeaTag);
-              setNewIdeaTag(TAG_OPTIONS[(idx + 1) % TAG_OPTIONS.length]);
-            }}
+            onClick={cycleTag}
             className={`px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 transition-opacity hover:opacity-80 ${TAG_PILL_STYLES[newIdeaTag]}`}
             title={t("clickToChangeTag")}
           >
