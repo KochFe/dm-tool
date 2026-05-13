@@ -210,3 +210,61 @@ async def test_patch_unknown_user_404(client: AsyncClient, admin_headers):
         json={"display_name": "x"},
     )
     assert response.status_code == 404
+
+
+async def test_admin_can_reset_password(
+    client: AsyncClient, admin_headers, test_user
+):
+    response = await client.post(
+        f"/api/v1/admin/users/{test_user.id}/password",
+        headers=admin_headers,
+        json={"password": "brandnewpassword"},
+    )
+    assert response.status_code == 200
+
+    # Verify the new password works
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "testuser@example.com", "password": "brandnewpassword"},
+    )
+    assert login.status_code == 200
+
+
+async def test_reset_password_too_short_422(
+    client: AsyncClient, admin_headers, test_user
+):
+    response = await client.post(
+        f"/api/v1/admin/users/{test_user.id}/password",
+        headers=admin_headers,
+        json={"password": "short"},
+    )
+    assert response.status_code == 422
+
+
+async def test_reset_password_non_admin_403(
+    client: AsyncClient, auth_headers, test_user
+):
+    response = await client.post(
+        f"/api/v1/admin/users/{test_user.id}/password",
+        headers=auth_headers,
+        json={"password": "brandnewpassword"},
+    )
+    assert response.status_code == 403
+
+
+async def test_inactive_user_cannot_login(
+    client: AsyncClient, admin_headers, test_user
+):
+    # Deactivate test_user via admin PATCH
+    deact = await client.patch(
+        f"/api/v1/admin/users/{test_user.id}",
+        headers=admin_headers,
+        json={"is_active": False},
+    )
+    assert deact.status_code == 200
+
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "testuser@example.com", "password": "testpassword123"},
+    )
+    assert login.status_code == 401
