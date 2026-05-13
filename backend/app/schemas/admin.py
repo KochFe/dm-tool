@@ -2,13 +2,15 @@ import uuid
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 Role = Literal["admin", "dm", "player"]
 
+_EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
 
 class AdminUserCreate(BaseModel):
-    email: EmailStr
+    email: str = Field(..., min_length=3, max_length=255, pattern=_EMAIL_PATTERN)
     password: str = Field(..., min_length=8, max_length=128)
     display_name: str = Field(..., min_length=1, max_length=255)
     role: Role = "dm"
