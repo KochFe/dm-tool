@@ -3,7 +3,8 @@
     "appName": "DM Co-Pilot",
     "campaigns": "Campaigns",
     "logout": "Log out",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "admin_link": "Admin"
   },
   "auth": {
     "loginTitle": "Sign In",
@@ -690,6 +691,64 @@
   "partyPanel": {
     "heading": "Party",
     "empty": "No characters in this campaign."
+  },
+  "admin": {
+    "nav_link": "Admin",
+    "users_title": "Users",
+    "users_subtitle": "Manage all user accounts in DM Co-Pilot.",
+    "new_user": "New user",
+    "columns": {
+      "display_name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "created": "Created"
+    },
+    "status_active": "Active",
+    "status_inactive": "Inactive",
+    "roles": {
+      "admin": "Admin",
+      "dm": "DM",
+      "player": "Player"
+    },
+    "actions": {
+      "edit": "Edit",
+      "reset_password": "Reset password",
+      "deactivate": "Deactivate",
+      "activate": "Activate"
+    },
+    "form": {
+      "title_create": "Create user",
+      "title_edit": "Edit user",
+      "email": "Email",
+      "display_name": "Display name",
+      "password": "Password",
+      "role": "Role",
+      "submit_create": "Create",
+      "submit_save": "Save",
+      "cancel": "Cancel"
+    },
+    "password_reset": {
+      "title": "Reset password",
+      "new_password": "New password",
+      "confirm_password": "Confirm password",
+      "submit": "Reset password",
+      "mismatch": "Passwords do not match"
+    },
+    "deactivate_confirm": {
+      "title": "Deactivate user?",
+      "body": "{name} will no longer be able to log in. You can reactivate them later.",
+      "confirm": "Deactivate",
+      "cancel": "Cancel"
+    },
+    "toasts": {
+      "created": "User created.",
+      "updated": "User updated.",
+      "password_reset": "Password reset.",
+      "deactivated": "User deactivated.",
+      "activated": "User activated.",
+      "error": "Something went wrong: {message}"
+    }
   },
   "explorationView": {
     "noLocation": "Set a current location to see location-specific info.",

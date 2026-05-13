@@ -24,7 +24,7 @@ async def main():
     parser.add_argument("display_name", help="Display name")
     parser.add_argument(
         "--role",
-        choices=["dm", "player"],
+        choices=["dm", "player", "admin"],
         default="dm",
         help="User role (default: dm)",
     )

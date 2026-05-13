@@ -56,6 +56,18 @@ async def get_current_user(
     return user
 
 
+async def get_current_admin(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """Require the authenticated user to have role == 'admin'."""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
+        )
+    return current_user
+
+
 def get_language(
     accept_language: str | None = Header(default=None, alias="Accept-Language"),
 ) -> Language:

@@ -1,4 +1,11 @@
-import type { APIResponse, TokenResponse, AuthUser } from "@/types";
+import type {
+  APIResponse,
+  TokenResponse,
+  AuthUser,
+  AdminUser,
+  AdminUserCreatePayload,
+  AdminUserUpdatePayload,
+} from "@/types";
 
 // --- AI ---
 
@@ -498,6 +505,42 @@ export const api = {
     return request<AuthUser>("/api/v1/auth/me", {
       method: "PATCH",
       body: JSON.stringify(patch),
+    });
+  },
+
+  // Admin
+  async listAdminUsers(): Promise<AdminUser[]> {
+    return request<AdminUser[]>("/api/v1/admin/users");
+  },
+
+  async createAdminUser(payload: AdminUserCreatePayload): Promise<AdminUser> {
+    return request<AdminUser>("/api/v1/admin/users", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getAdminUser(id: string): Promise<AdminUser> {
+    return request<AdminUser>(`/api/v1/admin/users/${id}`);
+  },
+
+  async updateAdminUser(
+    id: string,
+    patch: AdminUserUpdatePayload,
+  ): Promise<AdminUser> {
+    return request<AdminUser>(`/api/v1/admin/users/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(patch),
+    });
+  },
+
+  async resetAdminUserPassword(
+    id: string,
+    password: string,
+  ): Promise<AdminUser> {
+    return request<AdminUser>(`/api/v1/admin/users/${id}/password`, {
+      method: "POST",
+      body: JSON.stringify({ password }),
     });
   },
 };
