@@ -3,7 +3,8 @@
     "appName": "DM Co-Pilot",
     "campaigns": "Kampagnen",
     "logout": "Abmelden",
-    "skipToContent": "Zum Inhalt springen"
+    "skipToContent": "Zum Inhalt springen",
+    "admin_link": "Verwaltung"
   },
   "auth": {
     "loginTitle": "Anmelden",
