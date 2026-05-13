@@ -6,9 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_current_admin, get_db
 from app.models.user import User
-from app.schemas.admin import AdminUserCreate, AdminUserOut
+from app.schemas.admin import AdminPasswordReset, AdminUserCreate, AdminUserOut, AdminUserUpdate
 from app.schemas.common import APIResponse
 from app.services import admin_service
+from app.services.admin_service import AdminServiceError
 from app.services.auth_service import create_user, get_user_by_email
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -70,3 +71,44 @@ async def get_admin_user(
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return APIResponse(data=AdminUserOut.model_validate(user))
+
+
+@router.patch("/users/{user_id}", response_model=APIResponse[AdminUserOut])
+async def patch_admin_user(
+    user_id: uuid.UUID,
+    payload: AdminUserUpdate,
+    acting: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Partially update a user. Enforces safety rails. Requires admin role."""
+    target = await admin_service.get_user(db, user_id)
+    if not target:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    patch = payload.model_dump(exclude_unset=True)
+    try:
+        updated = await admin_service.update_user(
+            db, target, patch, acting_user=acting
+        )
+    except AdminServiceError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=exc.message
+        )
+    return APIResponse(data=AdminUserOut.model_validate(updated))
+
+
+@router.post(
+    "/users/{user_id}/password",
+    response_model=APIResponse[AdminUserOut],
+)
+async def reset_admin_user_password(
+    user_id: uuid.UUID,
+    payload: AdminPasswordReset,
+    _: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Reset a user's password. Requires admin role."""
+    target = await admin_service.get_user(db, user_id)
+    if not target:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    updated = await admin_service.reset_password(db, target, payload.password)
+    return APIResponse(data=AdminUserOut.model_validate(updated))
