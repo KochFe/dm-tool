@@ -352,6 +352,32 @@ export interface RefreshRequest {
   refresh_token: string;
 }
 
+// Admin
+export type Role = "admin" | "dm" | "player";
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  display_name: string;
+  role: Role;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminUserCreatePayload {
+  email: string;
+  password: string;
+  display_name: string;
+  role: Role;
+}
+
+export interface AdminUserUpdatePayload {
+  display_name?: string;
+  role?: Role;
+  is_active?: boolean;
+}
+
 // DDB Import
 export interface DDBImportPreview {
   preview: {
