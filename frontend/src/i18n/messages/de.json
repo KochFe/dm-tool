@@ -691,6 +691,64 @@
     "heading": "Party",
     "empty": "Keine Charaktere in dieser Kampagne."
   },
+  "admin": {
+    "nav_link": "Verwaltung",
+    "users_title": "Benutzer",
+    "users_subtitle": "Alle Benutzerkonten in DM Co-Pilot verwalten.",
+    "new_user": "Neuer Benutzer",
+    "columns": {
+      "display_name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "status": "Status",
+      "created": "Erstellt"
+    },
+    "status_active": "Aktiv",
+    "status_inactive": "Inaktiv",
+    "roles": {
+      "admin": "Admin",
+      "dm": "DM",
+      "player": "Spieler"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "reset_password": "Passwort zurücksetzen",
+      "deactivate": "Deaktivieren",
+      "activate": "Aktivieren"
+    },
+    "form": {
+      "title_create": "Benutzer anlegen",
+      "title_edit": "Benutzer bearbeiten",
+      "email": "E-Mail",
+      "display_name": "Anzeigename",
+      "password": "Passwort",
+      "role": "Rolle",
+      "submit_create": "Anlegen",
+      "submit_save": "Speichern",
+      "cancel": "Abbrechen"
+    },
+    "password_reset": {
+      "title": "Passwort zurücksetzen",
+      "new_password": "Neues Passwort",
+      "confirm_password": "Passwort bestätigen",
+      "submit": "Passwort zurücksetzen",
+      "mismatch": "Passwörter stimmen nicht überein"
+    },
+    "deactivate_confirm": {
+      "title": "Benutzer deaktivieren?",
+      "body": "{name} kann sich danach nicht mehr anmelden. Du kannst sie später wieder aktivieren.",
+      "confirm": "Deaktivieren",
+      "cancel": "Abbrechen"
+    },
+    "toasts": {
+      "created": "Benutzer angelegt.",
+      "updated": "Benutzer aktualisiert.",
+      "password_reset": "Passwort zurückgesetzt.",
+      "deactivated": "Benutzer deaktiviert.",
+      "activated": "Benutzer aktiviert.",
+      "error": "Es ist ein Fehler aufgetreten: {message}"
+    }
+  },
   "explorationView": {
     "noLocation": "Setze einen aktuellen Ort, um ortsspezifische Informationen zu sehen.",
     "npcsHere": "NSCs hier",
