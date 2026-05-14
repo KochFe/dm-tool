@@ -13,6 +13,7 @@ from app.config import settings
 
 _cache: dict[str, LLMProvider] = {}
 _lock = Lock()
+_initialized = False
 _KNOWN_IDS = ("groq", "deepseek")
 
 
@@ -38,13 +39,15 @@ def _build(provider_id: str) -> LLMProvider | None:
 
 
 def _ensure_loaded() -> None:
+    global _initialized
     with _lock:
-        if _cache:
+        if _initialized:
             return
         for pid in _KNOWN_IDS:
             instance = _build(pid)
             if instance is not None:
                 _cache[pid] = instance
+        _initialized = True
 
 
 def list_providers() -> list[LLMProvider]:
@@ -63,5 +66,7 @@ def get_provider(provider_id: str) -> LLMProvider:
 
 def _reset_for_tests() -> None:
     """Clear the cache so tests can re-patch settings."""
+    global _initialized
     with _lock:
         _cache.clear()
+        _initialized = False

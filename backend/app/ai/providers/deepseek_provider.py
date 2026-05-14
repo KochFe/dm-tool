@@ -4,6 +4,7 @@ The `deepseek-reasoner` model emits a `reasoning_content` field alongside
 `content` in each streaming delta. We forward them as separate chunk types
 so the client can present the reasoning trace in a collapsed block.
 """
+import asyncio
 import logging
 from typing import AsyncIterator
 
@@ -57,6 +58,8 @@ class DeepseekProvider:
                 if content:
                     yield {"type": "content", "delta": content}
             yield {"type": "done"}
+        except asyncio.CancelledError:
+            raise
         except Exception as exc:  # noqa: BLE001 — SSE contract requires clean close
             logger.exception("DeepseekProvider stream failed")
             yield {"type": "error", "message": str(exc)}

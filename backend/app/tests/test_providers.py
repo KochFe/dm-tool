@@ -1,7 +1,13 @@
 """Tests for the LLMProvider protocol surface and provider implementations."""
+from types import SimpleNamespace
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 
 from app.ai.providers.base import ChatChunk, LLMProvider, ProviderNotConfigured
+from app.ai.providers.deepseek_provider import DeepseekProvider
+from app.ai.providers.groq_provider import GroqProvider
+from app.schemas.chat import ChatMessage
 
 
 def test_chat_chunk_accepts_known_types():
@@ -20,13 +26,6 @@ def test_provider_not_configured_is_runtime_error():
     """ProviderNotConfigured is a typed subclass usable in except clauses."""
     with pytest.raises(ProviderNotConfigured):
         raise ProviderNotConfigured("deepseek")
-
-
-from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
-
-from app.ai.providers.groq_provider import GroqProvider
-from app.schemas.chat import ChatMessage
 
 
 def _make_openai_chunk(content: str | None = None, reasoning: str | None = None):
@@ -91,9 +90,6 @@ def test_groq_provider_capability_flags():
     assert p.display_name
     assert p.supports_reasoning is False
     assert p.supports_tools is False
-
-
-from app.ai.providers.deepseek_provider import DeepseekProvider
 
 
 @pytest.mark.asyncio

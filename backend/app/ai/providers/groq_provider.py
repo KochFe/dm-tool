@@ -2,6 +2,7 @@
 
 Streams `content` chunks only; Groq's Llama 3.3 does not emit reasoning.
 """
+import asyncio
 import logging
 from typing import AsyncIterator
 
@@ -51,6 +52,8 @@ class GroqProvider:
                 if content:
                     yield {"type": "content", "delta": content}
             yield {"type": "done"}
+        except asyncio.CancelledError:
+            raise
         except Exception as exc:  # noqa: BLE001 — SSE contract requires clean close
             logger.exception("GroqProvider stream failed")
             yield {"type": "error", "message": str(exc)}
