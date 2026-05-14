@@ -12,6 +12,7 @@ import BasicsTab from "./BasicsTab";
 import StoryTab from "./StoryTab";
 import LocationsTab from "./LocationsTab";
 import CharactersTab from "./CharactersTab";
+import AssistantDrawer from "./AssistantDrawer";
 
 const TAB_KEYS = ["basics", "story", "locations", "characters"] as const;
 const TOTAL_TABS = TAB_KEYS.length;
@@ -30,6 +31,13 @@ export default function CampaignWizard({
   const [completedTabs, setCompletedTabs] = useState<Set<number>>(new Set());
   const [finishing, setFinishing] = useState(false);
   const [ideas, setIdeas] = useState<CampaignIdea[]>([]);
+  const [assistantOpen, setAssistantOpen] = useState(false);
+
+  const campaignDraft = {
+    name: campaign.name || undefined,
+    world_description: campaign.description || undefined,
+    party_level: campaign.party_level ?? undefined,
+  };
   const router = useRouter();
 
   const reloadIdeas = useCallback(async () => {
@@ -196,6 +204,20 @@ export default function CampaignWizard({
           )}
         </div>
       </div>
+      {/* Assistant FAB */}
+      <button
+        onClick={() => setAssistantOpen(true)}
+        aria-label="Open assistant"
+        className="fixed bottom-20 right-6 z-30 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-14 h-14 shadow-lg flex items-center justify-center text-xl"
+      >
+        ✨
+      </button>
+
+      <AssistantDrawer
+        isOpen={assistantOpen}
+        onClose={() => setAssistantOpen(false)}
+        campaignDraft={campaignDraft}
+      />
     </div>
   );
 }
