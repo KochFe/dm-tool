@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: str = "http://localhost:3000"
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"
+    DEEPSEEK_API_KEY: str = ""
+    DEEPSEEK_MODEL: str = "deepseek-reasoner"
+    DEEPSEEK_BASE_URL: str = "https://api.deepseek.com"
 
     # Auth / JWT
     SECRET_KEY: str = "CHANGE-ME-IN-PRODUCTION"
