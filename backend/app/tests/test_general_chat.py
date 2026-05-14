@@ -88,3 +88,26 @@ async def test_chat_general_streams_chunks(client, auth_headers):
     assert 'data: {"type": "reasoning"' in text
     assert 'data: {"type": "content"' in text
     assert 'data: {"type": "done"}' in text
+
+
+@pytest.mark.asyncio
+async def test_campaign_scoped_chat_404_for_other_users_campaign(
+    client, auth_headers, auth_headers_b
+):
+    """User B cannot use User A's campaign for general-chat context."""
+    camp = await client.post(
+        "/api/v1/campaigns", json={"name": "A's Campaign"}, headers=auth_headers
+    )
+    cid = camp.json()["data"]["id"]
+
+    fake = FakeProvider([{"type": "content", "delta": "x"}, {"type": "done"}])
+    with patch("app.ai.providers.registry.get_provider", return_value=fake):
+        res = await client.post(
+            f"/api/v1/campaigns/{cid}/chat/general",
+            headers=auth_headers_b,
+            json={
+                "provider": "deepseek",
+                "messages": [{"role": "user", "content": "hi"}],
+            },
+        )
+    assert res.status_code == 404
