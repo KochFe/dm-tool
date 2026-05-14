@@ -64,6 +64,11 @@ def get_provider(provider_id: str) -> LLMProvider:
     return _cache[provider_id]
 
 
+def known_provider_ids() -> tuple[str, ...]:
+    """All provider ids the registry can construct, configured or not."""
+    return _KNOWN_IDS
+
+
 def _reset_for_tests() -> None:
     """Clear the cache so tests can re-patch settings."""
     global _initialized

@@ -24,8 +24,10 @@ async def stream_general_chat(
 ) -> AsyncIterator[bytes]:
     """Yield SSE-encoded chunks from the requested provider.
 
-    Caller is responsible for catching `ProviderNotConfigured` BEFORE invoking
-    this generator — once the stream opens we cannot send a pre-stream 503.
+    Caller must validate the provider before constructing this generator
+    (see _check_provider in the router) — once StreamingResponse is returned,
+    a pre-stream 503 is impossible because the generator body does not execute
+    until SSE consumption begins.
     """
     provider = registry.get_provider(provider_id)
     system = build_general_system_prompt(context)

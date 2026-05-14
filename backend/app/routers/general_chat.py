@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.ai.providers.base import ProviderNotConfigured
+from app.ai.providers import registry
 from app.dependencies import get_current_user, get_db
 from app.models.location import Location
 from app.models.user import User
@@ -17,11 +17,9 @@ from app.services.general_chat_service import is_provider_configured, stream_gen
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-_VALID_PROVIDER_IDS = ("groq", "deepseek")
-
 
 def _check_provider(provider_id: str) -> None:
-    if provider_id not in _VALID_PROVIDER_IDS:
+    if provider_id not in registry.known_provider_ids():
         raise HTTPException(status_code=400, detail=f"Unknown provider: {provider_id}")
     if not is_provider_configured(provider_id):
         raise HTTPException(status_code=503, detail=f"Provider '{provider_id}' is not configured")
@@ -39,15 +37,11 @@ async def chat_general(
     if request.campaign_draft:
         context = request.campaign_draft.model_dump(exclude_none=True) or None
 
-    try:
-        generator = stream_general_chat(
-            provider_id=request.provider,
-            messages=request.messages,
-            context=context,
-        )
-    except ProviderNotConfigured:
-        raise HTTPException(status_code=503, detail="Provider not configured")
-
+    generator = stream_general_chat(
+        provider_id=request.provider,
+        messages=request.messages,
+        context=context,
+    )
     return StreamingResponse(generator, media_type="text/event-stream")
 
 
@@ -79,13 +73,9 @@ async def chat_general_for_campaign(
     }
     context = {k: v for k, v in context.items() if v is not None}
 
-    try:
-        generator = stream_general_chat(
-            provider_id=request.provider,
-            messages=request.messages,
-            context=context or None,
-        )
-    except ProviderNotConfigured:
-        raise HTTPException(status_code=503, detail="Provider not configured")
-
+    generator = stream_general_chat(
+        provider_id=request.provider,
+        messages=request.messages,
+        context=context or None,
+    )
     return StreamingResponse(generator, media_type="text/event-stream")
