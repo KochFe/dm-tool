@@ -408,3 +408,23 @@ export interface DDBImportPreview {
   warnings: string[];
   unmapped_data: Record<string, unknown>;
 }
+
+// General chat (Phase 11 — multi-provider)
+export type ChatChunk =
+  | { type: "reasoning"; delta: string }
+  | { type: "content"; delta: string }
+  | { type: "done" }
+  | { type: "error"; message: string };
+
+export interface ProviderInfo {
+  id: string;
+  display_name: string;
+  supports_reasoning: boolean;
+  supports_tools: boolean;
+}
+
+export interface CampaignDraft {
+  name?: string;
+  world_description?: string;
+  party_level?: number;
+}
