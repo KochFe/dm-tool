@@ -195,6 +195,50 @@ async function request<T>(
   return json.data as T;
 }
 
+async function* parseSseStream(
+  response: Response,
+  signal: AbortSignal
+): AsyncIterable<import("@/types").ChatChunk> {
+  if (!response.body) return;
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  try {
+    while (true) {
+      if (signal.aborted) return;
+      const { value, done } = await reader.read();
+      if (done) return;
+      buffer += decoder.decode(value, { stream: true });
+
+      let separatorIdx;
+      while ((separatorIdx = buffer.indexOf("\n\n")) !== -1) {
+        const record = buffer.slice(0, separatorIdx);
+        buffer = buffer.slice(separatorIdx + 2);
+        for (const line of record.split("\n")) {
+          if (!line.startsWith("data: ")) continue;
+          const json = line.slice(6);
+          try {
+            yield JSON.parse(json) as import("@/types").ChatChunk;
+          } catch {
+            // Ignore malformed frames; the server should not emit any.
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+export interface StreamGeneralChatOptions {
+  provider: string;
+  messages: import("@/types").ChatMessage[];
+  campaignId?: string;
+  campaignDraft?: import("@/types").CampaignDraft;
+  signal: AbortSignal;
+}
+
 export const api = {
   // Campaigns
   getCampaigns: () => request<import("@/types").Campaign[]>("/api/v1/campaigns"),
@@ -418,6 +462,42 @@ export const api = {
       throw new Error(msg);
     }
     return json.data.message;
+  },
+
+  getProviders: () => request<import("@/types").ProviderInfo[]>("/api/v1/providers"),
+
+  async streamGeneralChat(
+    opts: StreamGeneralChatOptions
+  ): Promise<AsyncIterable<import("@/types").ChatChunk>> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Accept-Language": getLocaleFromCookie(),
+    };
+    const token = getAccessToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const body: Record<string, unknown> = {
+      provider: opts.provider,
+      messages: opts.messages,
+    };
+    if (opts.campaignDraft) body.campaign_draft = opts.campaignDraft;
+
+    const path = opts.campaignId
+      ? `/api/v1/campaigns/${opts.campaignId}/chat/general`
+      : "/api/v1/chat/general";
+
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+      signal: opts.signal,
+    });
+
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      throw new Error(json.detail || json.error || `Request failed: ${res.status}`);
+    }
+    return parseSseStream(res, opts.signal);
   },
 
   // Generators
