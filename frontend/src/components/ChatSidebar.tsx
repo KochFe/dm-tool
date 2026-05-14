@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import type { ChatMessage } from '@/types';
+import GeneralChat from "@/components/chat/GeneralChat";
+import type { ProviderInfo } from "@/types";
 
 interface ChatSidebarProps {
   campaignId: string;
@@ -57,6 +59,20 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [chatMode, setChatMode] = useState<string>("oracle");
+  const [providers, setProviders] = useState<ProviderInfo[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    api.getProviders().then((list) => {
+      if (cancelled) return;
+      setProviders(list.filter((p) => !p.supports_tools));
+    }).catch(() => {
+      // Quietly fail — selector simply offers only Oracle.
+    });
+    return () => { cancelled = true; };
+  }, [isOpen]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -180,6 +196,26 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
         )}
       </div>
 
+      {/* Provider selector */}
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-border shrink-0 bg-card/50">
+        <span className="text-xs text-muted-foreground">Model:</span>
+        <select
+          value={chatMode}
+          onChange={(e) => setChatMode(e.target.value)}
+          aria-label="Chat model"
+          className="bg-muted border border-border text-foreground text-xs rounded-lg px-2 py-1 flex-1"
+        >
+          <option value="oracle">Lore Oracle (tools)</option>
+          {providers.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.display_name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {chatMode === "oracle" ? (
+        <>
       {/* Message list */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.length === 0 ? (
@@ -278,6 +314,12 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
           {t('footerHint')}
         </p>
       </div>
+        </>
+      ) : (
+        <div className="flex-1 min-h-0">
+          <GeneralChat key={chatMode} provider={chatMode} campaignId={campaignId} />
+        </div>
+      )}
     </aside>
   );
 }
