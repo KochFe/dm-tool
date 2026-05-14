@@ -21,20 +21,23 @@ export default function AssistantDrawer({
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const loadProviders = useCallback(async () => {
+    setLoadError(null);
     try {
       const list = await api.getProviders();
       // The wizard chat is tool-less; filter to the providers we can use here.
       const eligible = list.filter((p) => !p.supports_tools);
       setProviders(eligible);
-      if (eligible.length > 0 && !selectedProvider) {
+      setSelectedProvider((current) => {
+        if (current && eligible.some((p) => p.id === current)) return current;
+        if (eligible.length === 0) return "";
         // Prefer the reasoning provider when available.
         const reasoner = eligible.find((p) => p.supports_reasoning);
-        setSelectedProvider((reasoner ?? eligible[0]).id);
-      }
+        return (reasoner ?? eligible[0]).id;
+      });
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Failed to load providers");
     }
-  }, [selectedProvider]);
+  }, []);
 
   useEffect(() => {
     if (isOpen) loadProviders();
@@ -77,6 +80,7 @@ export default function AssistantDrawer({
             onChange={(e) => setSelectedProvider(e.target.value)}
             className="bg-muted border border-border text-foreground text-xs rounded-lg px-2 py-1.5"
             disabled={providers.length === 0}
+            aria-label="Assistant provider"
           >
             {providers.map((p) => (
               <option key={p.id} value={p.id}>
