@@ -208,7 +208,7 @@ export default function CampaignWizard({
       <button
         onClick={() => setAssistantOpen(true)}
         aria-label="Open assistant"
-        className="fixed bottom-6 right-6 z-30 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-14 h-14 shadow-lg flex items-center justify-center text-xl"
+        className="fixed bottom-20 right-6 z-30 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-14 h-14 shadow-lg flex items-center justify-center text-xl"
       >
         ✨
       </button>
