@@ -91,3 +91,55 @@ def test_groq_provider_capability_flags():
     assert p.display_name
     assert p.supports_reasoning is False
     assert p.supports_tools is False
+
+
+from app.ai.providers.deepseek_provider import DeepseekProvider
+
+
+@pytest.mark.asyncio
+async def test_deepseek_provider_emits_reasoning_then_content():
+    """DeepseekProvider distinguishes reasoning_content from content."""
+    fake_stream = _aiter([
+        _make_openai_chunk(reasoning="Considering options..."),
+        _make_openai_chunk(reasoning=" weighing risk..."),
+        _make_openai_chunk(content="Try this hook: "),
+        _make_openai_chunk(content="the mayor is the villain."),
+    ])
+
+    fake_client = MagicMock()
+    fake_client.chat.completions.create = AsyncMock(return_value=fake_stream)
+
+    provider = DeepseekProvider(api_key="fake-key", model="deepseek-reasoner")
+    with patch.object(provider, "_client", fake_client):
+        chunks = []
+        async for chunk in provider.stream_chat(
+            messages=[ChatMessage(role="user", content="plot idea?")],
+            system="sys",
+        ):
+            chunks.append(chunk)
+
+    types = [c["type"] for c in chunks]
+    assert types == ["reasoning", "reasoning", "content", "content", "done"]
+    assert chunks[0]["delta"] == "Considering options..."
+    assert chunks[2]["delta"] == "Try this hook: "
+
+
+def test_deepseek_provider_capability_flags():
+    p = DeepseekProvider(api_key="k", model="deepseek-reasoner")
+    assert p.id == "deepseek"
+    assert p.display_name
+    assert p.supports_reasoning is True
+    assert p.supports_tools is False
+
+
+@pytest.mark.asyncio
+async def test_deepseek_provider_emits_error_chunk_on_exception():
+    fake_client = MagicMock()
+    fake_client.chat.completions.create = AsyncMock(side_effect=RuntimeError("net down"))
+    provider = DeepseekProvider(api_key="fake-key", model="deepseek-reasoner")
+    with patch.object(provider, "_client", fake_client):
+        chunks = [c async for c in provider.stream_chat(
+            messages=[ChatMessage(role="user", content="hi")],
+            system="sys",
+        )]
+    assert chunks[-1] == {"type": "error", "message": "net down"}
