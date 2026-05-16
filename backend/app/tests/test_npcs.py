@@ -345,3 +345,55 @@ def test_npc_stats_rejects_non_int():
 
     with pytest.raises(ValidationError):
         NpcStats(**{"str": "ten", "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10})
+
+
+# ---------------------------------------------------------------------------
+# Endpoint behavior for typed stats
+# ---------------------------------------------------------------------------
+
+
+async def test_create_npc_with_valid_stats_round_trips(client: AsyncClient, auth_headers):
+    cid = await _create_campaign(client, auth_headers)
+    payload = {
+        "name": "Garrick",
+        "race": "Dwarf",
+        "stats": {"str": 16, "dex": 10, "con": 14, "int": 8, "wis": 12, "cha": 9},
+    }
+    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=payload, headers=auth_headers)
+    assert resp.status_code == 201
+    data = resp.json()["data"]
+    assert data["stats"] == {"str": 16, "dex": 10, "con": 14, "int": 8, "wis": 12, "cha": 9}
+
+
+async def test_create_npc_rejects_missing_stat_key(client: AsyncClient, auth_headers):
+    cid = await _create_campaign(client, auth_headers)
+    payload = {
+        "name": "Brokenstats",
+        "race": "Human",
+        "stats": {"str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10},  # missing cha
+    }
+    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=payload, headers=auth_headers)
+    assert resp.status_code == 422
+
+
+async def test_create_npc_rejects_out_of_range_stat(client: AsyncClient, auth_headers):
+    cid = await _create_campaign(client, auth_headers)
+    payload = {
+        "name": "Brokenstats",
+        "race": "Human",
+        "stats": {"str": 99, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10},
+    }
+    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=payload, headers=auth_headers)
+    assert resp.status_code == 422
+
+
+async def test_update_npc_can_clear_stats(client: AsyncClient, auth_headers):
+    cid = await _create_campaign(client, auth_headers)
+    npc = await _create_npc(client, cid, FULL_NPC, auth_headers)
+    resp = await client.patch(
+        f"/api/v1/npcs/{npc['id']}",
+        json={"stats": None},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 200
+    assert resp.json()["data"]["stats"] is None
