@@ -83,7 +83,6 @@ async def seeded_campaign():
             description="Find the lost merchant",
             status="in_progress",
             reward="100 gp",
-            level=5,
         )
         session.add(quest)
 
@@ -165,7 +164,6 @@ async def test_get_location_quests_by_name(seeded_campaign):
     quest = data[0]
     assert quest["title"] == "The Missing Merchant"
     assert quest["status"] == "in_progress"
-    assert quest["level"] == 5
 
 
 async def test_get_npc_details(seeded_campaign):
@@ -192,7 +190,6 @@ async def test_get_quest_details(seeded_campaign):
     assert data["description"] == "Find the lost merchant"
     assert data["status"] == "in_progress"
     assert data["reward"] == "100 gp"
-    assert data["level"] == 5
 
 
 async def test_get_all_locations(seeded_campaign):

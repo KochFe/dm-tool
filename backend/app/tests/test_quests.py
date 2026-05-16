@@ -14,7 +14,6 @@ FULL_QUEST = {
     "description": "An ancient tome of forbidden spells has been stolen from the Arcane Library.",
     "status": "in_progress",
     "reward": "500 gold pieces and a spell scroll of your choice.",
-    "level": 5,
 }
 
 
@@ -61,7 +60,6 @@ async def test_create_quest_minimal(client: AsyncClient, auth_headers):
     assert data["status"] == "not_started"
     assert data["description"] is None
     assert data["reward"] is None
-    assert data["level"] is None
     assert data["location_id"] is None
 
 
@@ -77,7 +75,6 @@ async def test_create_quest_all_fields(client: AsyncClient, auth_headers):
     assert data["description"] == FULL_QUEST["description"]
     assert data["status"] == "in_progress"
     assert data["reward"] == FULL_QUEST["reward"]
-    assert data["level"] == 5
     assert data["location_id"] == lid
 
 
@@ -201,7 +198,6 @@ async def test_update_quest_partial_status(client: AsyncClient, auth_headers):
     assert data["title"] == "Retrieve the Arcane Tome"
     assert data["description"] == FULL_QUEST["description"]
     assert data["reward"] == FULL_QUEST["reward"]
-    assert data["level"] == 5
 
 
 async def test_update_quest_set_location(client: AsyncClient, auth_headers):
@@ -252,7 +248,6 @@ async def test_update_quest_title_only(client: AsyncClient, auth_headers):
     data = resp.json()["data"]
     assert data["title"] == "Recover the Stolen Tome"
     assert data["status"] == "not_started"
-    assert data["level"] == 5
 
 
 # ---------------------------------------------------------------------------

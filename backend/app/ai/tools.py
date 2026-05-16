@@ -140,7 +140,6 @@ def create_campaign_tools(
                 {
                     "title": q.title,
                     "status": q.status,
-                    "level": q.level,
                     "description": q.description,
                 }
                 for q in quests
@@ -211,7 +210,6 @@ def create_campaign_tools(
                 "description": quest.description,
                 "status": quest.status,
                 "reward": quest.reward,
-                "level": quest.level,
             }
             return json.dumps(data)
 
