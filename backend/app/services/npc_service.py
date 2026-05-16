@@ -32,7 +32,7 @@ async def create_npc(
     npc = Npc(
         campaign_id=campaign_id,
         **npc_data,
-        stats=data.stats,
+        stats=data.stats.model_dump(by_alias=True) if data.stats is not None else None,
     )
     db.add(npc)
     await db.commit()
@@ -86,7 +86,7 @@ async def update_npc(db: AsyncSession, npc: Npc, data: NpcUpdate) -> Npc:
     being set to a non-None value, the location is verified to exist (404 if
     not). Setting location_id to None is allowed without verification.
     """
-    update_data = data.model_dump(exclude_unset=True)
+    update_data = data.model_dump(exclude_unset=True, exclude={"stats"})
 
     if "location_id" in update_data and update_data["location_id"] is not None:
         location = await db.get(Location, update_data["location_id"])
@@ -95,6 +95,11 @@ async def update_npc(db: AsyncSession, npc: Npc, data: NpcUpdate) -> Npc:
 
     for key, value in update_data.items():
         setattr(npc, key, value)
+
+    if data.model_fields_set and "stats" in data.model_fields_set:
+        npc.stats = (
+            data.stats.model_dump(by_alias=True) if data.stats is not None else None
+        )
 
     await db.commit()
     await db.refresh(npc)

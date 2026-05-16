@@ -299,3 +299,49 @@ async def test_npc_response_envelope_structure(client: AsyncClient, auth_headers
     assert "error" in body
     assert "meta" in body
     assert body["error"] is None
+
+
+# ---------------------------------------------------------------------------
+# NpcStats schema tests
+# ---------------------------------------------------------------------------
+
+
+def test_npc_stats_accepts_valid_payload():
+    from app.schemas.npc import NpcStats
+
+    s = NpcStats(**{"str": 10, "dex": 14, "con": 12, "int": 11, "wis": 13, "cha": 9})
+    assert s.model_dump(by_alias=True) == {
+        "str": 10, "dex": 14, "con": 12, "int": 11, "wis": 13, "cha": 9
+    }
+
+
+def test_npc_stats_rejects_out_of_range_low():
+    from pydantic import ValidationError
+    from app.schemas.npc import NpcStats
+
+    with pytest.raises(ValidationError):
+        NpcStats(**{"str": 0, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10})
+
+
+def test_npc_stats_rejects_out_of_range_high():
+    from pydantic import ValidationError
+    from app.schemas.npc import NpcStats
+
+    with pytest.raises(ValidationError):
+        NpcStats(**{"str": 31, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10})
+
+
+def test_npc_stats_rejects_missing_key():
+    from pydantic import ValidationError
+    from app.schemas.npc import NpcStats
+
+    with pytest.raises(ValidationError):
+        NpcStats(**{"str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10})
+
+
+def test_npc_stats_rejects_non_int():
+    from pydantic import ValidationError
+    from app.schemas.npc import NpcStats
+
+    with pytest.raises(ValidationError):
+        NpcStats(**{"str": "ten", "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10})
