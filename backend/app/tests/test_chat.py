@@ -199,7 +199,7 @@ async def test_chat_context_includes_campaign_data(client: AsyncClient, auth_hea
 
     patch_resp = await client.patch(
         f"/api/v1/campaigns/{cid}",
-        json={"current_location_id": loc_id, "party_level": 7},
+        json={"current_location_id": loc_id},
         headers=auth_headers,
     )
     assert patch_resp.status_code == 200

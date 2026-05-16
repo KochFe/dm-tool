@@ -28,7 +28,7 @@ async def seeded_campaign():
         session.add(user)
         await session.flush()
 
-        campaign = Campaign(name="Test Campaign", party_level=5, user_id=user.id)
+        campaign = Campaign(name="Test Campaign", user_id=user.id)
         session.add(campaign)
         await session.flush()
 
@@ -98,7 +98,7 @@ async def empty_campaign():
         session.add(user)
         await session.flush()
 
-        campaign = Campaign(name="Empty Campaign", party_level=1, user_id=user.id)
+        campaign = Campaign(name="Empty Campaign", user_id=user.id)
         session.add(campaign)
         await session.commit()
         return campaign.id

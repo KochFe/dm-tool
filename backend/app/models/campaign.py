@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, ForeignKey, Integer, Text, Uuid, func
+from sqlalchemy import CheckConstraint, ForeignKey, Text, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -26,7 +26,6 @@ class Campaign(Base):
     in_game_time: Mapped[str] = mapped_column(
         Text, nullable=False, server_default="Day 1, Morning"
     )
-    party_level: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(Text, nullable=False, server_default="active")
     campaign_length: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -63,7 +62,6 @@ class Campaign(Base):
     owner: Mapped["User"] = relationship(lazy="select")
 
     __table_args__ = (
-        CheckConstraint("party_level >= 1 AND party_level <= 20", name="ck_party_level"),
         CheckConstraint("status IN ('draft', 'active')", name="ck_campaign_status"),
         CheckConstraint(
             "campaign_length IS NULL OR campaign_length IN ('one_shot', 'short', 'medium', 'long')",
