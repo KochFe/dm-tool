@@ -503,6 +503,14 @@ export default function NPCSection({
                         {npc.description}
                       </p>
                     )}
+
+                    {/* Stats one-liner */}
+                    {npc.stats && (
+                      <p className="text-xs font-mono text-muted-foreground mt-1">
+                        STR {npc.stats.str} · DEX {npc.stats.dex} · CON {npc.stats.con}
+                        {" · "}INT {npc.stats.int} · WIS {npc.stats.wis} · CHA {npc.stats.cha}
+                      </p>
+                    )}
                   </div>
 
                   {/* Actions */}
