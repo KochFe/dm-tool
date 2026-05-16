@@ -119,6 +119,7 @@ export default function LocationsTab({
           <LocationTree
             locations={locations}
             selectedId={selectedId}
+            currentLocationId={campaign.current_location_id}
             onSelect={(loc) => setSelectedId(loc.id)}
             onAddRoot={handleAddRoot}
             onAddChild={handleAddChild}
