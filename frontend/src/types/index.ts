@@ -127,6 +127,15 @@ export interface UpdateCombatantRequest {
 // NPC
 export type QuestStatus = "not_started" | "in_progress" | "completed" | "failed";
 
+export interface NpcStats {
+  str: number;
+  dex: number;
+  con: number;
+  int: number;
+  wis: number;
+  cha: number;
+}
+
 export interface Npc {
   id: string;
   campaign_id: string;
@@ -138,7 +147,7 @@ export interface Npc {
   personality: string | null;
   secrets: string | null;
   motivation: string | null;
-  stats: Record<string, number> | null;
+  stats: NpcStats | null;
   is_alive: boolean;
   created_at: string;
   updated_at: string;
@@ -152,7 +161,7 @@ export interface NpcCreate {
   personality?: string;
   secrets?: string;
   motivation?: string;
-  stats?: Record<string, number>;
+  stats?: NpcStats | null;
   location_id?: string;
   is_alive?: boolean;
 }
@@ -165,7 +174,7 @@ export interface NpcUpdate {
   personality?: string;
   secrets?: string;
   motivation?: string;
-  stats?: Record<string, number>;
+  stats?: NpcStats | null;
   location_id?: string | null;
   is_alive?: boolean;
 }
@@ -240,7 +249,7 @@ export interface GeneratedNpc {
   personality: string;
   secrets: string;
   motivation: string;
-  stats: Record<string, number> | null;
+  stats: NpcStats | null;
 }
 
 export interface GeneratedLootItem {

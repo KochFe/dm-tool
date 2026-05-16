@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { api, type PersonalityResult } from "@/lib/api";
-import type { Npc, NpcCreate, Location } from "@/types";
+import type { Npc, NpcCreate, NpcStats, Location } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
 import { CardListSkeleton } from "@/components/skeletons/CardSkeleton";
 import LocationHoverCard from "@/components/LocationHoverCard";
@@ -21,31 +21,17 @@ const EMPTY_FORM = {
   secrets: "",
   location_id: "",
   is_alive: true,
-  statsJson: "",
+  statsEnabled: false,
+  statsStr: "10",
+  statsDex: "10",
+  statsCon: "10",
+  statsInt: "10",
+  statsWis: "10",
+  statsCha: "10",
 };
 
 type FormState = typeof EMPTY_FORM;
 
-function parseStats(
-  raw: string,
-  tInvalidObject: string,
-  tInvalidValue: (key: string) => string,
-): Record<string, number> | undefined {
-  const trimmed = raw.trim();
-  if (!trimmed) return undefined;
-  const parsed = JSON.parse(trimmed) as unknown;
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new Error(tInvalidObject);
-  }
-  const result: Record<string, number> = {};
-  for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
-    if (typeof v !== "number") {
-      throw new Error(tInvalidValue(k));
-    }
-    result[k] = v;
-  }
-  return result;
-}
 
 function npcToForm(npc: Npc): FormState {
   return {
@@ -58,7 +44,13 @@ function npcToForm(npc: Npc): FormState {
     secrets: npc.secrets ?? "",
     location_id: npc.location_id ?? "",
     is_alive: npc.is_alive,
-    statsJson: npc.stats ? JSON.stringify(npc.stats, null, 2) : "",
+    statsEnabled: npc.stats != null,
+    statsStr: npc.stats?.str != null ? String(npc.stats.str) : "10",
+    statsDex: npc.stats?.dex != null ? String(npc.stats.dex) : "10",
+    statsCon: npc.stats?.con != null ? String(npc.stats.con) : "10",
+    statsInt: npc.stats?.int != null ? String(npc.stats.int) : "10",
+    statsWis: npc.stats?.wis != null ? String(npc.stats.wis) : "10",
+    statsCha: npc.stats?.cha != null ? String(npc.stats.cha) : "10",
   };
 }
 
@@ -132,17 +124,30 @@ export default function NPCSection({
     e.preventDefault();
     setSubmitError(null);
 
-    let stats: Record<string, number> | undefined;
-    try {
-      stats = parseStats(
-        form.statsJson,
-        t("statsInvalidObject"),
-        (key) => t("statsInvalidValue", { key }),
-      );
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : t("statsInvalidJson"));
-      return;
+    let stats: NpcStats | undefined;
+    if (form.statsEnabled) {
+      const fields: Array<[keyof NpcStats, string]> = [
+        ["str", form.statsStr],
+        ["dex", form.statsDex],
+        ["con", form.statsCon],
+        ["int", form.statsInt],
+        ["wis", form.statsWis],
+        ["cha", form.statsCha],
+      ];
+      const parsed: Partial<NpcStats> = {};
+      for (const [key, raw] of fields) {
+        const trimmed = raw.trim();
+        const n = Number.parseInt(trimmed, 10);
+        if (!Number.isFinite(n) || n < 1 || n > 30 || String(n) !== trimmed) {
+          setSubmitError(t("statsOutOfRange"));
+          return;
+        }
+        parsed[key] = n;
+      }
+      stats = parsed as NpcStats;
     }
+
+    const editingNpc = editId ? npcs.find((n) => n.id === editId) ?? null : null;
 
     const payload: NpcCreate = {
       name: form.name,
@@ -154,7 +159,11 @@ export default function NPCSection({
       ...(form.secrets.trim() && { secrets: form.secrets.trim() }),
       ...(form.location_id && { location_id: form.location_id }),
       is_alive: form.is_alive,
-      ...(stats !== undefined && { stats }),
+      ...(form.statsEnabled && stats
+        ? { stats }
+        : editingNpc?.stats != null
+          ? { stats: null }
+          : {}),
     };
 
     setSubmitting(true);
