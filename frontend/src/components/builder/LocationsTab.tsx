@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { Campaign, CampaignIdea, Location } from "@/types";
-import LocationTree from "./LocationTree";
-import LocationDetail from "./LocationDetail";
+import LocationTree from "@/components/locations/LocationTree";
+import LocationDetail from "@/components/locations/LocationDetail";
 import IdeasHelper from "./IdeasHelper";
 
 interface LocationsTabProps {
