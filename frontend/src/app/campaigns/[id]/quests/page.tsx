@@ -11,7 +11,6 @@ export default function QuestsPage() {
       <QuestSection
         campaignId={campaign.id}
         locations={locations}
-        partyLevel={campaign.party_level}
       />
     </div>
   );

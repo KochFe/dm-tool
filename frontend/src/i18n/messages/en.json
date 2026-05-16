@@ -489,8 +489,7 @@
     "personality": "Personality",
     "motivation": "Motivation",
     "secrets": "Secrets",
-    "reward": "Reward",
-    "recommendedLevel": "Recommended Level: {level}"
+    "reward": "Reward"
   },
   "ddbImport": {
     "heading": "Import from D&D Beyond",
@@ -576,7 +575,6 @@
     "locationNone": "— None —",
     "rewardLabel": "Reward (optional)",
     "rewardPlaceholder": "e.g. 500 gp, Magic Sword",
-    "levelLabel": "Recommended Level (optional)",
     "submitCreate": "Create Quest",
     "submitUpdate": "Update Quest",
     "empty": "No quests yet.",
@@ -584,9 +582,6 @@
     "statusInProgress": "In Progress",
     "statusCompleted": "Completed",
     "statusFailed": "Failed",
-    "levelAbove": "Quest Level {level} - Above party level ({partyLevel}), may be dangerous",
-    "levelEqual": "Quest Level {level} - Appropriate for party level",
-    "levelBelow": "Quest Level {level} - Below party level ({partyLevel})",
     "rewardPrefix": "Reward: {reward}",
     "editButton": "Edit",
     "deleteButton": "Delete",

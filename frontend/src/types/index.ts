@@ -188,7 +188,6 @@ export interface Quest {
   description: string | null;
   status: QuestStatus;
   reward: string | null;
-  level: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -198,7 +197,6 @@ export interface QuestCreate {
   description?: string;
   status?: QuestStatus;
   reward?: string;
-  level?: number;
   location_id?: string;
 }
 
@@ -207,7 +205,6 @@ export interface QuestUpdate {
   description?: string;
   status?: QuestStatus;
   reward?: string;
-  level?: number;
   location_id?: string | null;
 }
 

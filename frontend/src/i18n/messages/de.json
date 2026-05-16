@@ -489,8 +489,7 @@
     "personality": "Persönlichkeit",
     "motivation": "Motivation",
     "secrets": "Geheimnisse",
-    "reward": "Belohnung",
-    "recommendedLevel": "Empfohlenes Level: {level}"
+    "reward": "Belohnung"
   },
   "ddbImport": {
     "heading": "Aus D&D Beyond importieren",
@@ -576,7 +575,6 @@
     "locationNone": "— Kein Ort —",
     "rewardLabel": "Belohnung (optional)",
     "rewardPlaceholder": "z. B. 500 GM, Magisches Schwert",
-    "levelLabel": "Empfohlenes Level (optional)",
     "submitCreate": "Quest erstellen",
     "submitUpdate": "Quest aktualisieren",
     "empty": "Noch keine Quests.",
@@ -584,9 +582,6 @@
     "statusInProgress": "In Bearbeitung",
     "statusCompleted": "Abgeschlossen",
     "statusFailed": "Fehlgeschlagen",
-    "levelAbove": "Quest Level {level} – Über Partylevel ({partyLevel}), möglicherweise gefährlich",
-    "levelEqual": "Quest Level {level} – Passend für Partylevel",
-    "levelBelow": "Quest Level {level} – Unter Partylevel ({partyLevel})",
     "rewardPrefix": "Belohnung: {reward}",
     "editButton": "Bearbeiten",
     "deleteButton": "Löschen",

@@ -22,25 +22,15 @@ const EMPTY_FORM: QuestCreate = {
   description: "",
   status: "not_started",
   reward: "",
-  level: undefined,
   location_id: undefined,
 };
-
-function levelIndicatorClass(questLevel: number, partyLevel: number): string {
-  if (questLevel === partyLevel) return "text-muted-foreground";
-  if (questLevel > partyLevel + 2) return "text-red-400";
-  if (questLevel > partyLevel) return "text-primary";
-  return "text-muted-foreground";
-}
 
 export default function QuestSection({
   campaignId,
   locations,
-  partyLevel,
 }: {
   campaignId: string;
   locations: Location[];
-  partyLevel: number;
 }) {
   const t = useTranslations("questSection");
 
@@ -89,7 +79,6 @@ export default function QuestSection({
       status: form.status,
       ...(form.description?.trim() ? { description: form.description.trim() } : {}),
       ...(form.reward?.trim() ? { reward: form.reward.trim() } : {}),
-      ...(form.level !== undefined && form.level !== null ? { level: form.level } : {}),
       ...(form.location_id ? { location_id: form.location_id } : {}),
     };
 
@@ -117,7 +106,6 @@ export default function QuestSection({
       description: quest.description ?? "",
       status: quest.status,
       reward: quest.reward ?? "",
-      level: quest.level ?? undefined,
       location_id: quest.location_id ?? undefined,
     });
     setEditId(quest.id);
@@ -223,35 +211,14 @@ export default function QuestSection({
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs text-muted-foreground block mb-1">{t("rewardLabel")}</label>
-              <input
-                placeholder={t("rewardPlaceholder")}
-                value={form.reward ?? ""}
-                onChange={(e) => setForm({ ...form, reward: e.target.value })}
-                className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground block mb-1">
-                {t("levelLabel")}
-              </label>
-              <input
-                type="number"
-                min={1}
-                max={20}
-                placeholder="1–20"
-                value={form.level ?? ""}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    level: e.target.value === "" ? undefined : +e.target.value,
-                  })
-                }
-                className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
-              />
-            </div>
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">{t("rewardLabel")}</label>
+            <input
+              placeholder={t("rewardPlaceholder")}
+              value={form.reward ?? ""}
+              onChange={(e) => setForm({ ...form, reward: e.target.value })}
+              className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
+            />
           </div>
           {submitError && (
             <p className="text-sm text-red-400 bg-red-900/20 border border-red-800 rounded px-3 py-2">
@@ -303,20 +270,6 @@ export default function QuestSection({
                       >
                         {STATUS_LABELS[quest.status]}
                       </span>
-                      {quest.level !== null && quest.level !== undefined && (
-                        <span
-                          className={`text-xs font-medium ${levelIndicatorClass(quest.level, partyLevel)}`}
-                          title={
-                            quest.level > partyLevel
-                              ? t("levelAbove", { level: quest.level, partyLevel })
-                              : quest.level === partyLevel
-                              ? t("levelEqual", { level: quest.level })
-                              : t("levelBelow", { level: quest.level, partyLevel })
-                          }
-                        >
-                          Lv.{quest.level}
-                        </span>
-                      )}
                     </div>
                     <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
                       {quest.location_id && (() => {
