@@ -76,6 +76,15 @@
     "npcsLabel": "NPCs: ",
     "questsLabel": "Quests: "
   },
+  "locationDrawer": {
+    "title": "Orte",
+    "setCurrentButton": "Als aktuellen Ort festlegen",
+    "cancel": "Abbrechen",
+    "openTooltip": "Ortsnavigator öffnen",
+    "setLocationButton": "Ort festlegen",
+    "emptyTree": "Noch keine Orte vorhanden. Lege im Tab „Orte“ einen an.",
+    "noPendingHint": "Tippe einen Ort an, um ihn als aktuellen festzulegen."
+  },
   "builder": {
     "loading": "Wird geladen…",
     "backToCampaigns": "← Zurück zu Kampagnen",

@@ -21,6 +21,9 @@ interface CampaignContextValue {
   currentLocation: Location | null;
   loading: boolean;
   reload: () => Promise<void>;
+  isLocationDrawerOpen: boolean;
+  openLocationDrawer: () => void;
+  closeLocationDrawer: () => void;
 }
 
 const CampaignContext = createContext<CampaignContextValue | null>(null);
@@ -44,6 +47,9 @@ export function CampaignProvider({
   const [npcs, setNpcs] = useState<Npc[]>([]);
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLocationDrawerOpen, setIsLocationDrawerOpen] = useState(false);
+  const openLocationDrawer = useCallback(() => setIsLocationDrawerOpen(true), []);
+  const closeLocationDrawer = useCallback(() => setIsLocationDrawerOpen(false), []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -91,6 +97,9 @@ export function CampaignProvider({
         currentLocation,
         loading,
         reload: load,
+        isLocationDrawerOpen,
+        openLocationDrawer,
+        closeLocationDrawer,
       }}
     >
       {children}

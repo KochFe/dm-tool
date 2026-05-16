@@ -76,6 +76,15 @@
     "npcsLabel": "NPCs: ",
     "questsLabel": "Quests: "
   },
+  "locationDrawer": {
+    "title": "Locations",
+    "setCurrentButton": "Set as current location",
+    "cancel": "Cancel",
+    "openTooltip": "Open location navigator",
+    "setLocationButton": "Set location",
+    "emptyTree": "No locations yet. Create one from the Locations tab.",
+    "noPendingHint": "Tap a location to set it as the current one."
+  },
   "builder": {
     "loading": "Loading…",
     "backToCampaigns": "← Back to Campaigns",
