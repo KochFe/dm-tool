@@ -8,6 +8,7 @@ import type {
   GeneratedNpc,
   GeneratedLoot,
   GeneratedLootItem,
+  NpcStats,
   PlayerCharacter,
 } from '@/types';
 
@@ -336,20 +337,18 @@ function NpcEditView({ npc, onChange }: NpcEditViewProps) {
   function setStatValue(abbr: string, raw: string) {
     const parsed = parseInt(raw, 10);
     const value = isNaN(parsed) ? 10 : Math.max(1, Math.min(30, parsed));
-    const key = ABILITY_STAT_KEYS[abbr];
+    const key = ABILITY_STAT_KEYS[abbr] as keyof NpcStats;
+    const base = npc.stats ?? { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
     onChange({
       ...npc,
-      stats: {
-        ...(npc.stats ?? {}),
-        [key]: value,
-      },
+      stats: { ...base, [key]: value },
     });
   }
 
   function getStatValue(abbr: string): number {
     if (!npc.stats) return 10;
-    const key = ABILITY_STAT_KEYS[abbr];
-    return npc.stats[key] ?? npc.stats[abbr.toLowerCase()] ?? 10;
+    const key = ABILITY_STAT_KEYS[abbr] as keyof NpcStats;
+    return npc.stats[key] ?? 10;
   }
 
   return (

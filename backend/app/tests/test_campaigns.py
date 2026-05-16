@@ -9,7 +9,6 @@ async def test_create_campaign(client: AsyncClient, auth_headers):
     assert resp.status_code == 201
     data = resp.json()["data"]
     assert data["name"] == "Lost Mines"
-    assert data["party_level"] == 1
     assert data["in_game_time"] == "Day 1, Morning"
 
 
@@ -37,11 +36,10 @@ async def test_get_campaign_not_found(client: AsyncClient, auth_headers):
 async def test_update_campaign(client: AsyncClient, auth_headers):
     create = await client.post("/api/v1/campaigns", json={"name": "Old"}, headers=auth_headers)
     cid = create.json()["data"]["id"]
-    resp = await client.patch(f"/api/v1/campaigns/{cid}", json={"name": "New", "party_level": 5}, headers=auth_headers)
+    resp = await client.patch(f"/api/v1/campaigns/{cid}", json={"name": "New"}, headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()["data"]
     assert data["name"] == "New"
-    assert data["party_level"] == 5
 
 
 async def test_delete_campaign(client: AsyncClient, auth_headers):
@@ -55,6 +53,4 @@ async def test_delete_campaign(client: AsyncClient, auth_headers):
 
 async def test_create_campaign_validation(client: AsyncClient, auth_headers):
     resp = await client.post("/api/v1/campaigns", json={"name": ""}, headers=auth_headers)
-    assert resp.status_code == 422
-    resp = await client.post("/api/v1/campaigns", json={"name": "X", "party_level": 25}, headers=auth_headers)
     assert resp.status_code == 422

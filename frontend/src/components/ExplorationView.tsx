@@ -106,7 +106,6 @@ export default function ExplorationView() {
       <SmartPrompts
         campaignId={campaign.id}
         currentLocationName={currentLocationName}
-        partyLevel={campaign.party_level}
         onResult={(type, result) => setGeneratorResult({ type, result })}
       />
 

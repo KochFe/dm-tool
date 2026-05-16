@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, ForeignKey, Integer, Text, Uuid, func
+from sqlalchemy import CheckConstraint, ForeignKey, Text, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -25,7 +25,6 @@ class Quest(Base):
         Text, nullable=False, server_default="not_started"
     )
     reward: Mapped[str | None] = mapped_column(Text, nullable=True)
-    level: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         nullable=False, server_default=func.now()
     )

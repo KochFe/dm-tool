@@ -12,6 +12,7 @@ from app.models.location import Location
 from app.models.user import User
 from app.schemas.general_chat import CampaignScopedChatRequest, GeneralChatRequest
 from app.services import campaign_service
+from app.services.campaign_service import compute_party_level
 from app.services.general_chat_service import is_provider_configured, stream_general_chat
 
 logger = logging.getLogger(__name__)
@@ -68,7 +69,7 @@ async def chat_general_for_campaign(
     context = {
         "name": campaign.name,
         "world_description": campaign.description,
-        "party_level": campaign.party_level,
+        "party_level": await compute_party_level(db, campaign.id),
         "location_name": location_name,
     }
     context = {k: v for k, v in context.items() if v is not None}

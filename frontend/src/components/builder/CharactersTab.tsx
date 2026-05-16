@@ -3,17 +3,19 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { api, type PersonalityResult } from "@/lib/api";
 import type {
   Campaign,
   CampaignIdea,
   Npc,
+  NpcStats,
   NpcUpdate,
   PlayerCharacter,
   Location,
 } from "@/types";
 import CharacterList from "./CharacterList";
 import IdeasHelper from "./IdeasHelper";
+import { AIAssistModal } from "@/components/ai/AIAssistModal";
 
 // ---------------------------------------------------------------------------
 // NPC detail form
@@ -36,6 +38,15 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
   const [motivation, setMotivation] = useState(npc.motivation ?? "");
   const [secrets, setSecrets] = useState(npc.secrets ?? "");
   const [locationId, setLocationId] = useState<string>(npc.location_id ?? "");
+  const [isAlive, setIsAlive] = useState(npc.is_alive);
+  const [statsEnabled, setStatsEnabled] = useState(npc.stats != null);
+  const [statsStr, setStatsStr] = useState(npc.stats?.str != null ? String(npc.stats.str) : "10");
+  const [statsDex, setStatsDex] = useState(npc.stats?.dex != null ? String(npc.stats.dex) : "10");
+  const [statsCon, setStatsCon] = useState(npc.stats?.con != null ? String(npc.stats.con) : "10");
+  const [statsInt, setStatsInt] = useState(npc.stats?.int != null ? String(npc.stats.int) : "10");
+  const [statsWis, setStatsWis] = useState(npc.stats?.wis != null ? String(npc.stats.wis) : "10");
+  const [statsCha, setStatsCha] = useState(npc.stats?.cha != null ? String(npc.stats.cha) : "10");
+  const [aiOpen, setAiOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Sync state when the selected NPC changes
@@ -48,6 +59,15 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
     setMotivation(npc.motivation ?? "");
     setSecrets(npc.secrets ?? "");
     setLocationId(npc.location_id ?? "");
+    setIsAlive(npc.is_alive);
+    setStatsEnabled(npc.stats != null);
+    setStatsStr(npc.stats?.str != null ? String(npc.stats.str) : "10");
+    setStatsDex(npc.stats?.dex != null ? String(npc.stats.dex) : "10");
+    setStatsCon(npc.stats?.con != null ? String(npc.stats.con) : "10");
+    setStatsInt(npc.stats?.int != null ? String(npc.stats.int) : "10");
+    setStatsWis(npc.stats?.wis != null ? String(npc.stats.wis) : "10");
+    setStatsCha(npc.stats?.cha != null ? String(npc.stats.cha) : "10");
+    setAiOpen(false);
     setConfirmDelete(false);
   }, [npc.id]);
 
@@ -61,6 +81,66 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
   async function handleLocationChange(value: string) {
     setLocationId(value);
     await onSave(npc.id, { location_id: value === "" ? null : value });
+  }
+
+  async function handleAliveChange(checked: boolean) {
+    setIsAlive(checked);
+    if (checked === npc.is_alive) return;
+    await onSave(npc.id, { is_alive: checked });
+  }
+
+  function parseStat(raw: string): number | null {
+    const trimmed = raw.trim();
+    const n = Number.parseInt(trimmed, 10);
+    if (!Number.isFinite(n) || n < 1 || n > 30 || String(n) !== trimmed) {
+      return null;
+    }
+    return n;
+  }
+
+  async function handleStatsBlur() {
+    if (!statsEnabled) return;
+    const parsed = {
+      str: parseStat(statsStr),
+      dex: parseStat(statsDex),
+      con: parseStat(statsCon),
+      int: parseStat(statsInt),
+      wis: parseStat(statsWis),
+      cha: parseStat(statsCha),
+    };
+    if (Object.values(parsed).some((v) => v === null)) {
+      toast.error(t("statsOutOfRange"));
+      return;
+    }
+    const stats = parsed as NpcStats;
+    const same =
+      npc.stats != null &&
+      stats.str === npc.stats.str &&
+      stats.dex === npc.stats.dex &&
+      stats.con === npc.stats.con &&
+      stats.int === npc.stats.int &&
+      stats.wis === npc.stats.wis &&
+      stats.cha === npc.stats.cha;
+    if (same) return;
+    await onSave(npc.id, { stats });
+  }
+
+  async function handleStatsToggle(enable: boolean) {
+    setStatsEnabled(enable);
+    if (enable) {
+      const stats: NpcStats = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
+      setStatsStr("10");
+      setStatsDex("10");
+      setStatsCon("10");
+      setStatsInt("10");
+      setStatsWis("10");
+      setStatsCha("10");
+      if (npc.stats == null) {
+        await onSave(npc.id, { stats });
+      }
+    } else if (npc.stats != null) {
+      await onSave(npc.id, { stats: null });
+    }
   }
 
   return (
@@ -140,7 +220,20 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
 
       {/* Personality */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-muted-foreground">{t("personality")}</label>
+        <div className="flex items-center justify-between">
+          <label className="text-xs text-muted-foreground">{t("personality")}</label>
+          <button
+            type="button"
+            onClick={() => setAiOpen(true)}
+            aria-label={t("aiPersonalityAriaLabel")}
+            className="inline-flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 hover:border-blue-500/40 px-2 py-0.5 rounded-md transition-colors"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+            </svg>
+            {t("aiPersonalityButton")}
+          </button>
+        </div>
         <textarea
           value={personality}
           onChange={(e) => setPersonality(e.target.value)}
@@ -182,6 +275,69 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
         />
       </div>
 
+      {/* Alive toggle */}
+      <label className="flex items-center gap-2 text-sm text-foreground/80 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={isAlive}
+          onChange={(e) => handleAliveChange(e.target.checked)}
+          className="w-4 h-4 rounded accent-primary"
+        />
+        {t("isAliveLabel")}
+      </label>
+
+      {/* Combat stats */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <label className="text-xs text-muted-foreground">{t("combatStatsLabel")}</label>
+          {statsEnabled ? (
+            <button
+              type="button"
+              onClick={() => handleStatsToggle(false)}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              × {t("statsRemoveButton")}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleStatsToggle(true)}
+              className="text-xs text-primary hover:underline"
+            >
+              + {t("statsAddButton")}
+            </button>
+          )}
+        </div>
+        {statsEnabled && (
+          <div className="grid grid-cols-3 gap-2">
+            {(
+              [
+                ["str", statsStr, setStatsStr],
+                ["dex", statsDex, setStatsDex],
+                ["con", statsCon, setStatsCon],
+                ["int", statsInt, setStatsInt],
+                ["wis", statsWis, setStatsWis],
+                ["cha", statsCha, setStatsCha],
+              ] as const
+            ).map(([key, value, setter]) => (
+              <label key={key} className="flex items-center gap-2">
+                <span className="text-xs font-mono w-8">{t(key)}</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={30}
+                  step={1}
+                  value={value}
+                  onChange={(e) => setter(e.target.value)}
+                  onBlur={handleStatsBlur}
+                  className="bg-muted border border-border rounded-lg px-2 py-1 text-foreground text-sm w-16 text-center focus:outline-none focus:border-ring transition-colors"
+                />
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Delete */}
       <div className="pt-2 border-t border-border">
         {confirmDelete ? (
@@ -209,6 +365,39 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
           </button>
         )}
       </div>
+
+      {/* AI personality modal */}
+      <AIAssistModal<PersonalityResult>
+        open={aiOpen}
+        onClose={() => setAiOpen(false)}
+        title={t("aiPersonalityModalTitle")}
+        existingContent={
+          [
+            personality.trim() && `Personality: ${personality.trim()}`,
+            motivation.trim() && `Motivation: ${motivation.trim()}`,
+          ]
+            .filter(Boolean)
+            .join("\n\n") || undefined
+        }
+        placeholder={t("aiPersonalityModalPlaceholder")}
+        onGenerate={(req) => api.ai.generateNpcPersonality(npc.id, req)}
+        onAccept={async (result) => {
+          setPersonality(result.personality);
+          setMotivation(result.motivation);
+          setAiOpen(false);
+          await onSave(npc.id, {
+            personality: result.personality,
+            motivation: result.motivation,
+          });
+        }}
+        renderResult={(r) => (
+          <div className="space-y-2 text-sm">
+            <p><strong>Personality:</strong> {r.personality}</p>
+            <p><strong>Motivation:</strong> {r.motivation}</p>
+          </div>
+        )}
+        extractPrev={(r) => `${r.personality}\n\n${r.motivation}`}
+      />
     </div>
   );
 }

@@ -83,9 +83,6 @@ function QuestDetail({ quest }: { quest: Quest }) {
       </Badge>
       {quest.description && <Field label={t("description")} value={quest.description} />}
       {quest.reward && <Field label={t("reward")} value={quest.reward} />}
-      {quest.level && (
-        <p className="text-sm text-muted-foreground">{t("recommendedLevel", { level: quest.level })}</p>
-      )}
     </>
   );
 }

@@ -14,6 +14,7 @@ from app.schemas.chat import ChatRequest, ChatResponse
 from app.schemas.common import APIResponse
 from app.schemas.language import Language
 from app.services import campaign_service
+from app.services.campaign_service import compute_party_level
 from app.services.chat_service import process_chat
 
 router = APIRouter()
@@ -54,7 +55,7 @@ async def chat(
     campaign_context = {
         "location_name": location_name,
         "biome": biome,
-        "party_level": campaign.party_level,
+        "party_level": await compute_party_level(db, campaign_id),
         "in_game_time": campaign.in_game_time,
     }
 

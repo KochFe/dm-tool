@@ -12,7 +12,6 @@ interface ChatSidebarProps {
   isOpen: boolean;
   onClose: () => void;
   currentLocationName?: string | null;
-  partyLevel?: number;
   mode?: "overlay" | "panel";
 }
 
@@ -53,7 +52,7 @@ const SendIcon = () => (
   </svg>
 );
 
-export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocationName, partyLevel: _partyLevel, mode = "overlay" }: ChatSidebarProps) {
+export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocationName, mode = "overlay" }: ChatSidebarProps) {
   const t = useTranslations('chatSidebar');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');

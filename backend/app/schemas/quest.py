@@ -12,7 +12,6 @@ class QuestCreate(BaseModel):
         default="not_started", description="Current quest status"
     )
     reward: str | None = Field(default=None, description="Quest reward description")
-    level: int | None = Field(default=None, ge=1, le=20, description="Recommended party level (1-20)")
     location_id: uuid.UUID | None = Field(default=None, description="Associated location ID")
 
 
@@ -23,7 +22,6 @@ class QuestUpdate(BaseModel):
         default=None, description="Current quest status"
     )
     reward: str | None = Field(default=None, description="Quest reward description")
-    level: int | None = Field(default=None, ge=1, le=20, description="Recommended party level (1-20)")
     location_id: uuid.UUID | None = Field(default=None, description="Associated location ID")
 
 
@@ -35,7 +33,6 @@ class QuestResponse(BaseModel):
     description: str | None
     status: str
     reward: str | None
-    level: int | None
     created_at: datetime
     updated_at: datetime
 

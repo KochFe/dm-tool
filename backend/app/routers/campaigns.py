@@ -92,7 +92,7 @@ async def ai_campaign_description_endpoint(
         raise HTTPException(status_code=404, detail="Campaign not found")
 
     try:
-        result = await generate_campaign_description(campaign, request, language=language)
+        result = await generate_campaign_description(campaign, request, db, language=language)
     except RuntimeError:
         logger.exception("AI campaign-description error for campaign %s", campaign_id)
         raise HTTPException(status_code=503, detail="AI generation failed")

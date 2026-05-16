@@ -1,7 +1,20 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class NpcStats(BaseModel):
+    """Six D&D ability scores. Bounds 1-30 (canonical range)."""
+
+    str_: int = Field(alias="str", ge=1, le=30)
+    dex: int = Field(ge=1, le=30)
+    con: int = Field(ge=1, le=30)
+    int_: int = Field(alias="int", ge=1, le=30)
+    wis: int = Field(ge=1, le=30)
+    cha: int = Field(ge=1, le=30)
+
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
 
 class NpcCreate(BaseModel):
@@ -12,7 +25,7 @@ class NpcCreate(BaseModel):
     personality: str | None = None
     secrets: str | None = None
     motivation: str | None = None
-    stats: dict | None = None  # e.g. {"str": 10, "dex": 14, ...}
+    stats: NpcStats | None = None
     location_id: uuid.UUID | None = None
     is_alive: bool = True
 
@@ -25,7 +38,7 @@ class NpcUpdate(BaseModel):
     personality: str | None = None
     secrets: str | None = None
     motivation: str | None = None
-    stats: dict | None = None
+    stats: NpcStats | None = None
     location_id: uuid.UUID | None = None
     is_alive: bool | None = None
 
@@ -41,7 +54,7 @@ class NpcResponse(BaseModel):
     personality: str | None
     secrets: str | None
     motivation: str | None
-    stats: dict | None
+    stats: NpcStats | None
     is_alive: bool
     created_at: datetime
     updated_at: datetime

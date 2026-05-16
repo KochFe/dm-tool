@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { api, type PersonalityResult } from "@/lib/api";
-import type { Npc, NpcCreate, Location } from "@/types";
+import type { Npc, NpcCreate, NpcStats, Location } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
 import { CardListSkeleton } from "@/components/skeletons/CardSkeleton";
 import LocationHoverCard from "@/components/LocationHoverCard";
@@ -21,31 +21,17 @@ const EMPTY_FORM = {
   secrets: "",
   location_id: "",
   is_alive: true,
-  statsJson: "",
+  statsEnabled: false,
+  statsStr: "10",
+  statsDex: "10",
+  statsCon: "10",
+  statsInt: "10",
+  statsWis: "10",
+  statsCha: "10",
 };
 
 type FormState = typeof EMPTY_FORM;
 
-function parseStats(
-  raw: string,
-  tInvalidObject: string,
-  tInvalidValue: (key: string) => string,
-): Record<string, number> | undefined {
-  const trimmed = raw.trim();
-  if (!trimmed) return undefined;
-  const parsed = JSON.parse(trimmed) as unknown;
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new Error(tInvalidObject);
-  }
-  const result: Record<string, number> = {};
-  for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
-    if (typeof v !== "number") {
-      throw new Error(tInvalidValue(k));
-    }
-    result[k] = v;
-  }
-  return result;
-}
 
 function npcToForm(npc: Npc): FormState {
   return {
@@ -58,7 +44,13 @@ function npcToForm(npc: Npc): FormState {
     secrets: npc.secrets ?? "",
     location_id: npc.location_id ?? "",
     is_alive: npc.is_alive,
-    statsJson: npc.stats ? JSON.stringify(npc.stats, null, 2) : "",
+    statsEnabled: npc.stats != null,
+    statsStr: npc.stats?.str != null ? String(npc.stats.str) : "10",
+    statsDex: npc.stats?.dex != null ? String(npc.stats.dex) : "10",
+    statsCon: npc.stats?.con != null ? String(npc.stats.con) : "10",
+    statsInt: npc.stats?.int != null ? String(npc.stats.int) : "10",
+    statsWis: npc.stats?.wis != null ? String(npc.stats.wis) : "10",
+    statsCha: npc.stats?.cha != null ? String(npc.stats.cha) : "10",
   };
 }
 
@@ -132,17 +124,30 @@ export default function NPCSection({
     e.preventDefault();
     setSubmitError(null);
 
-    let stats: Record<string, number> | undefined;
-    try {
-      stats = parseStats(
-        form.statsJson,
-        t("statsInvalidObject"),
-        (key) => t("statsInvalidValue", { key }),
-      );
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : t("statsInvalidJson"));
-      return;
+    let stats: NpcStats | undefined;
+    if (form.statsEnabled) {
+      const fields: Array<[keyof NpcStats, string]> = [
+        ["str", form.statsStr],
+        ["dex", form.statsDex],
+        ["con", form.statsCon],
+        ["int", form.statsInt],
+        ["wis", form.statsWis],
+        ["cha", form.statsCha],
+      ];
+      const parsed: Partial<NpcStats> = {};
+      for (const [key, raw] of fields) {
+        const trimmed = raw.trim();
+        const n = Number.parseInt(trimmed, 10);
+        if (!Number.isFinite(n) || n < 1 || n > 30 || String(n) !== trimmed) {
+          setSubmitError(t("statsOutOfRange"));
+          return;
+        }
+        parsed[key] = n;
+      }
+      stats = parsed as NpcStats;
     }
+
+    const editingNpc = editId ? npcs.find((n) => n.id === editId) ?? null : null;
 
     const payload: NpcCreate = {
       name: form.name,
@@ -154,7 +159,11 @@ export default function NPCSection({
       ...(form.secrets.trim() && { secrets: form.secrets.trim() }),
       ...(form.location_id && { location_id: form.location_id }),
       is_alive: form.is_alive,
-      ...(stats !== undefined && { stats }),
+      ...(form.statsEnabled && stats
+        ? { stats }
+        : editingNpc?.stats != null
+          ? { stats: null }
+          : {}),
     };
 
     setSubmitting(true);
@@ -290,23 +299,57 @@ export default function NPCSection({
             rows={2}
           />
 
-          {/* Stats JSON */}
+          {/* Combat stats */}
           <div>
-            <label className="text-xs text-muted-foreground block mb-1">
-              {t("statsLabel")}{" "}
-              <span className="font-mono text-muted-foreground">
-                {"{"}
-                &quot;str&quot;: 10, &quot;dex&quot;: 14
-                {"}"}
-              </span>
-            </label>
-            <textarea
-              placeholder='{"str": 10, "dex": 14, "con": 12}'
-              value={form.statsJson}
-              onChange={(e) => setForm({ ...form, statsJson: e.target.value })}
-              className={`${TEXTAREA_CLS} font-mono text-sm`}
-              rows={2}
-            />
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs text-muted-foreground">
+                {t("statsSectionLabel")}
+              </label>
+              {form.statsEnabled ? (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, statsEnabled: false })}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  × {t("statsRemoveButton")}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, statsEnabled: true })}
+                  className="text-xs text-primary hover:underline"
+                >
+                  + {t("statsAddButton")}
+                </button>
+              )}
+            </div>
+            {form.statsEnabled && (
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    ["statsStr", "statsStr"],
+                    ["statsDex", "statsDex"],
+                    ["statsCon", "statsCon"],
+                    ["statsInt", "statsInt"],
+                    ["statsWis", "statsWis"],
+                    ["statsCha", "statsCha"],
+                  ] as const
+                ).map(([fieldKey, labelKey]) => (
+                  <label key={fieldKey} className="flex items-center gap-2">
+                    <span className="text-xs font-mono w-8">{t(labelKey)}</span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={30}
+                      step={1}
+                      value={form[fieldKey]}
+                      onChange={(e) => setForm({ ...form, [fieldKey]: e.target.value })}
+                      className="bg-muted border border-border text-foreground rounded-lg px-2 py-1 w-16 text-center focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
+                    />
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Location + Alive */}
@@ -458,6 +501,14 @@ export default function NPCSection({
                     {npc.description && (
                       <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                         {npc.description}
+                      </p>
+                    )}
+
+                    {/* Stats one-liner */}
+                    {npc.stats && (
+                      <p className="text-xs font-mono text-muted-foreground mt-1">
+                        STR {npc.stats.str} · DEX {npc.stats.dex} · CON {npc.stats.con}
+                        {" · "}INT {npc.stats.int} · WIS {npc.stats.wis} · CHA {npc.stats.cha}
                       </p>
                     )}
                   </div>

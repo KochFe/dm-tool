@@ -299,3 +299,101 @@ async def test_npc_response_envelope_structure(client: AsyncClient, auth_headers
     assert "error" in body
     assert "meta" in body
     assert body["error"] is None
+
+
+# ---------------------------------------------------------------------------
+# NpcStats schema tests
+# ---------------------------------------------------------------------------
+
+
+def test_npc_stats_accepts_valid_payload():
+    from app.schemas.npc import NpcStats
+
+    s = NpcStats(**{"str": 10, "dex": 14, "con": 12, "int": 11, "wis": 13, "cha": 9})
+    assert s.model_dump(by_alias=True) == {
+        "str": 10, "dex": 14, "con": 12, "int": 11, "wis": 13, "cha": 9
+    }
+
+
+def test_npc_stats_rejects_out_of_range_low():
+    from pydantic import ValidationError
+    from app.schemas.npc import NpcStats
+
+    with pytest.raises(ValidationError):
+        NpcStats(**{"str": 0, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10})
+
+
+def test_npc_stats_rejects_out_of_range_high():
+    from pydantic import ValidationError
+    from app.schemas.npc import NpcStats
+
+    with pytest.raises(ValidationError):
+        NpcStats(**{"str": 31, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10})
+
+
+def test_npc_stats_rejects_missing_key():
+    from pydantic import ValidationError
+    from app.schemas.npc import NpcStats
+
+    with pytest.raises(ValidationError):
+        NpcStats(**{"str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10})
+
+
+def test_npc_stats_rejects_non_int():
+    from pydantic import ValidationError
+    from app.schemas.npc import NpcStats
+
+    with pytest.raises(ValidationError):
+        NpcStats(**{"str": "ten", "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10})
+
+
+# ---------------------------------------------------------------------------
+# Endpoint behavior for typed stats
+# ---------------------------------------------------------------------------
+
+
+async def test_create_npc_with_valid_stats_round_trips(client: AsyncClient, auth_headers):
+    cid = await _create_campaign(client, auth_headers)
+    payload = {
+        "name": "Garrick",
+        "race": "Dwarf",
+        "stats": {"str": 16, "dex": 10, "con": 14, "int": 8, "wis": 12, "cha": 9},
+    }
+    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=payload, headers=auth_headers)
+    assert resp.status_code == 201
+    data = resp.json()["data"]
+    assert data["stats"] == {"str": 16, "dex": 10, "con": 14, "int": 8, "wis": 12, "cha": 9}
+
+
+async def test_create_npc_rejects_missing_stat_key(client: AsyncClient, auth_headers):
+    cid = await _create_campaign(client, auth_headers)
+    payload = {
+        "name": "Brokenstats",
+        "race": "Human",
+        "stats": {"str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10},  # missing cha
+    }
+    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=payload, headers=auth_headers)
+    assert resp.status_code == 422
+
+
+async def test_create_npc_rejects_out_of_range_stat(client: AsyncClient, auth_headers):
+    cid = await _create_campaign(client, auth_headers)
+    payload = {
+        "name": "Brokenstats",
+        "race": "Human",
+        "stats": {"str": 99, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10},
+    }
+    resp = await client.post(f"/api/v1/campaigns/{cid}/npcs", json=payload, headers=auth_headers)
+    assert resp.status_code == 422
+
+
+async def test_update_npc_can_clear_stats(client: AsyncClient, auth_headers):
+    cid = await _create_campaign(client, auth_headers)
+    npc = await _create_npc(client, cid, FULL_NPC, auth_headers)
+    resp = await client.patch(
+        f"/api/v1/npcs/{npc['id']}",
+        json={"stats": None},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 200
+    assert resp.json()["data"]["stats"] is None

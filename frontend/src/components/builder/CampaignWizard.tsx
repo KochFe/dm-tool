@@ -36,7 +36,6 @@ export default function CampaignWizard({
   const campaignDraft = {
     name: campaign.name || undefined,
     world_description: campaign.description || undefined,
-    party_level: campaign.party_level ?? undefined,
   };
   const router = useRouter();
 

@@ -8,7 +8,6 @@ import type { GeneratedEncounter, GeneratedNpc, GeneratedLoot } from '@/types';
 interface SmartPromptsProps {
   campaignId: string;
   currentLocationName: string | null;
-  partyLevel: number;
   onResult: (
     type: 'encounter' | 'npc' | 'loot',
     result: GeneratedEncounter | GeneratedNpc | GeneratedLoot
@@ -123,7 +122,6 @@ const BUTTON_TYPES: {
 export default function SmartPrompts({
   campaignId,
   currentLocationName,
-  partyLevel,
   onResult,
 }: SmartPromptsProps) {
   const t = useTranslations('smartPrompts');
@@ -192,7 +190,7 @@ export default function SmartPrompts({
         )}
         {!disabled && (
           <span className="text-xs text-muted-foreground">
-            {t('locationLabel', { location: currentLocationName ?? '', partyLevel })}
+            {currentLocationName ?? ''}
           </span>
         )}
       </div>

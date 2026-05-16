@@ -134,7 +134,7 @@ export default function CampaignsPage() {
                     {c.name}
                   </Link>
                   <p className="text-sm text-muted-foreground mt-0.5">
-                    Level {c.party_level} &middot; {c.in_game_time}
+                    {c.in_game_time}
                   </p>
                 </div>
                 <ConfirmButton

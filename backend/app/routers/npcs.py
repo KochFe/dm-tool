@@ -118,7 +118,7 @@ async def ai_npc_personality_endpoint(
         raise HTTPException(status_code=404, detail="Campaign not found")
 
     try:
-        result = await generate_npc_personality(npc, campaign, request, language=language)
+        result = await generate_npc_personality(npc, campaign, request, db, language=language)
     except RuntimeError:
         logger.exception("AI npc-personality error for npc %s", npc_id)
         raise HTTPException(status_code=503, detail="AI generation failed")

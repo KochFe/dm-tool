@@ -8,6 +8,7 @@ from app.models.npc import Npc
 from app.models.location import Location
 from app.schemas.language import Language
 from app.schemas.phase_expander import DraftPhaseBundle
+from app.services.campaign_service import compute_party_level
 
 
 NPC_CONTEXT_CAP = 50
@@ -49,7 +50,7 @@ async def _build_state(
         "campaign_context": {
             "name": campaign.name,
             "description": getattr(campaign, "description", None),
-            "party_level": campaign.party_level,
+            "party_level": await compute_party_level(db, campaign.id),
         },
         "prior_phases": [
             {"title": p.title, "excerpt": (p.description or "")[:140]}

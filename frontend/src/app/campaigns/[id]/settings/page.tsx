@@ -12,7 +12,6 @@ export default function SettingsPage() {
   const [form, setForm] = useState({
     name: campaign.name,
     description: campaign.description ?? "",
-    party_level: campaign.party_level,
     in_game_time: campaign.in_game_time,
   });
   const [saving, setSaving] = useState(false);
@@ -24,7 +23,6 @@ export default function SettingsPage() {
       await api.updateCampaign(campaign.id, {
         name: form.name,
         description: form.description.trim() || null,
-        party_level: form.party_level,
         in_game_time: form.in_game_time,
       });
       await reload();
@@ -65,26 +63,13 @@ export default function SettingsPage() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm text-muted-foreground mb-1">{t("partyLevelLabel")}</label>
-            <input
-              type="number"
-              min={1}
-              max={20}
-              value={form.party_level}
-              onChange={(e) => setForm({ ...form, party_level: parseInt(e.target.value) || 1 })}
-              className={inputCls}
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-muted-foreground mb-1">{t("inGameTimeLabel")}</label>
-            <input
-              value={form.in_game_time}
-              onChange={(e) => setForm({ ...form, in_game_time: e.target.value })}
-              className={inputCls}
-            />
-          </div>
+        <div>
+          <label className="block text-sm text-muted-foreground mb-1">{t("inGameTimeLabel")}</label>
+          <input
+            value={form.in_game_time}
+            onChange={(e) => setForm({ ...form, in_game_time: e.target.value })}
+            className={inputCls}
+          />
         </div>
 
         <button

@@ -20,6 +20,7 @@ from app.schemas.generators import (
     GeneratedNpc,
 )
 from app.services import campaign_service
+from app.services.campaign_service import compute_party_level
 from app.services.generator_service import (
     generate_encounter,
     generate_loot,
@@ -66,7 +67,7 @@ async def _build_campaign_context(
             biome = location.biome
 
     context: dict = {
-        "party_level": campaign.party_level,
+        "party_level": await compute_party_level(db, campaign.id),
         "location_name": location_name,
         "biome": biome,
     }

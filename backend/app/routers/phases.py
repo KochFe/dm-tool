@@ -180,7 +180,7 @@ async def ai_phase_description_endpoint(
 
     try:
         result = await generate_phase_description(
-            campaign, phase, prior_summaries, request, language=language,
+            campaign, phase, prior_summaries, request, db, language=language,
         )
     except RuntimeError:
         logger.exception("AI phase-description error for phase %s", phase_id)

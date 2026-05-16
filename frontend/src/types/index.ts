@@ -4,7 +4,6 @@ export interface Campaign {
   description: string | null;
   current_location_id: string | null;
   in_game_time: string;
-  party_level: number;
   notes: string | null;
   status: "draft" | "active";
   campaign_length: "one_shot" | "short" | "medium" | "long" | null;
@@ -127,6 +126,15 @@ export interface UpdateCombatantRequest {
 // NPC
 export type QuestStatus = "not_started" | "in_progress" | "completed" | "failed";
 
+export interface NpcStats {
+  str: number;
+  dex: number;
+  con: number;
+  int: number;
+  wis: number;
+  cha: number;
+}
+
 export interface Npc {
   id: string;
   campaign_id: string;
@@ -138,7 +146,7 @@ export interface Npc {
   personality: string | null;
   secrets: string | null;
   motivation: string | null;
-  stats: Record<string, number> | null;
+  stats: NpcStats | null;
   is_alive: boolean;
   created_at: string;
   updated_at: string;
@@ -152,7 +160,7 @@ export interface NpcCreate {
   personality?: string;
   secrets?: string;
   motivation?: string;
-  stats?: Record<string, number>;
+  stats?: NpcStats | null;
   location_id?: string;
   is_alive?: boolean;
 }
@@ -165,7 +173,7 @@ export interface NpcUpdate {
   personality?: string;
   secrets?: string;
   motivation?: string;
-  stats?: Record<string, number>;
+  stats?: NpcStats | null;
   location_id?: string | null;
   is_alive?: boolean;
 }
@@ -179,7 +187,6 @@ export interface Quest {
   description: string | null;
   status: QuestStatus;
   reward: string | null;
-  level: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -189,7 +196,6 @@ export interface QuestCreate {
   description?: string;
   status?: QuestStatus;
   reward?: string;
-  level?: number;
   location_id?: string;
 }
 
@@ -198,7 +204,6 @@ export interface QuestUpdate {
   description?: string;
   status?: QuestStatus;
   reward?: string;
-  level?: number;
   location_id?: string | null;
 }
 
@@ -240,7 +245,7 @@ export interface GeneratedNpc {
   personality: string;
   secrets: string;
   motivation: string;
-  stats: Record<string, number> | null;
+  stats: NpcStats | null;
 }
 
 export interface GeneratedLootItem {
@@ -426,5 +431,4 @@ export interface ProviderInfo {
 export interface CampaignDraft {
   name?: string;
   world_description?: string;
-  party_level?: number;
 }
