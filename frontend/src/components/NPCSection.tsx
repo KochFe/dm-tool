@@ -299,23 +299,57 @@ export default function NPCSection({
             rows={2}
           />
 
-          {/* Stats JSON */}
+          {/* Combat stats */}
           <div>
-            <label className="text-xs text-muted-foreground block mb-1">
-              {t("statsLabel")}{" "}
-              <span className="font-mono text-muted-foreground">
-                {"{"}
-                &quot;str&quot;: 10, &quot;dex&quot;: 14
-                {"}"}
-              </span>
-            </label>
-            <textarea
-              placeholder='{"str": 10, "dex": 14, "con": 12}'
-              value={form.statsJson}
-              onChange={(e) => setForm({ ...form, statsJson: e.target.value })}
-              className={`${TEXTAREA_CLS} font-mono text-sm`}
-              rows={2}
-            />
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs text-muted-foreground">
+                {t("statsSectionLabel")}
+              </label>
+              {form.statsEnabled ? (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, statsEnabled: false })}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  × {t("statsRemoveButton")}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, statsEnabled: true })}
+                  className="text-xs text-primary hover:underline"
+                >
+                  + {t("statsAddButton")}
+                </button>
+              )}
+            </div>
+            {form.statsEnabled && (
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    ["statsStr", "statsStr"],
+                    ["statsDex", "statsDex"],
+                    ["statsCon", "statsCon"],
+                    ["statsInt", "statsInt"],
+                    ["statsWis", "statsWis"],
+                    ["statsCha", "statsCha"],
+                  ] as const
+                ).map(([fieldKey, labelKey]) => (
+                  <label key={fieldKey} className="flex items-center gap-2">
+                    <span className="text-xs font-mono w-8">{t(labelKey)}</span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={30}
+                      step={1}
+                      value={form[fieldKey]}
+                      onChange={(e) => setForm({ ...form, [fieldKey]: e.target.value })}
+                      className="bg-muted border border-border text-foreground rounded-lg px-2 py-1 w-16 text-center focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
+                    />
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Location + Alive */}
