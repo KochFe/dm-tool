@@ -64,7 +64,6 @@
     "nameLabel": "Campaign Name",
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Campaign description (optional)",
-    "partyLevelLabel": "Party Level",
     "inGameTimeLabel": "In-Game Time",
     "saveButton": "Save Changes",
     "saving": "Saving…",
@@ -130,7 +129,6 @@
       "lengthShort": "Short",
       "lengthMedium": "Medium",
       "lengthLong": "Long",
-      "partyLevel": "Party Level",
       "campaignDescription": "Campaign description",
       "descriptionPlaceholder": "Describe the story, hook, and background…",
       "aiAriaDescription": "AI generate campaign description",
@@ -144,7 +142,6 @@
       "clickToChangeTag": "Click to change tag",
       "saveNameError": "Failed to save name",
       "saveCampaignLengthError": "Failed to save campaign length",
-      "savePartyLevelError": "Failed to save party level",
       "saveDescriptionError": "Failed to save description",
       "addIdeaError": "Failed to add idea",
       "updateTagError": "Failed to update tag",
@@ -363,9 +360,6 @@
     "allCampaigns": "All Campaigns",
     "openNavMenu": "Open navigation menu"
   },
-  "statusBar": {
-    "level": "Level {level}"
-  },
   "commandPalette": {
     "placeholder": "Search campaigns, NPCs, locations… or type dice like 2d6+3",
     "noResults": "No results found.",
@@ -450,7 +444,6 @@
   "smartPrompts": {
     "header": "AI Generators",
     "noLocationHint": "Set a location first",
-    "locationLabel": "{location} · Party Level {partyLevel}",
     "labelEncounter": "Generate Encounter",
     "labelNpc": "Generate NPC",
     "labelLoot": "Generate Loot",

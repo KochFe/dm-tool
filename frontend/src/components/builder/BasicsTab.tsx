@@ -39,7 +39,6 @@ export default function BasicsTab({
 }: BasicsTabProps) {
   const t = useTranslations("builder.basics");
   const [name, setName] = useState(campaign.name);
-  const [partyLevel, setPartyLevel] = useState(String(campaign.party_level));
   const [description, setDescription] = useState(campaign.description ?? "");
   const [descriptionAiOpen, setDescriptionAiOpen] = useState(false);
   const [newIdeaText, setNewIdeaText] = useState("");
@@ -52,10 +51,6 @@ export default function BasicsTab({
   useEffect(() => {
     setName(campaign.name);
   }, [campaign.name]);
-
-  useEffect(() => {
-    setPartyLevel(String(campaign.party_level));
-  }, [campaign.party_level]);
 
   useEffect(() => {
     setDescription(campaign.description ?? "");
@@ -89,22 +84,6 @@ export default function BasicsTab({
       onCampaignUpdate(updated);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("saveCampaignLengthError"));
-    }
-  }
-
-  async function savePartyLevel() {
-    const level = parseInt(partyLevel, 10);
-    if (isNaN(level) || level < 1 || level > 20) {
-      setPartyLevel(String(campaign.party_level));
-      return;
-    }
-    if (level === campaign.party_level) return;
-    try {
-      const updated = await api.updateCampaign(campaign.id, { party_level: level });
-      onCampaignUpdate(updated);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("savePartyLevelError"));
-      setPartyLevel(String(campaign.party_level));
     }
   }
 
@@ -223,22 +202,6 @@ export default function BasicsTab({
             </button>
           ))}
         </div>
-      </section>
-
-      {/* Party Level */}
-      <section className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-          {t("partyLevel")}
-        </label>
-        <input
-          type="number"
-          min={1}
-          max={20}
-          value={partyLevel}
-          onChange={(e) => setPartyLevel(e.target.value)}
-          onBlur={savePartyLevel}
-          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm w-24 focus:outline-none focus:border-ring transition-colors"
-        />
       </section>
 
       {/* Campaign Description */}

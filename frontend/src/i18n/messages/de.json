@@ -64,7 +64,6 @@
     "nameLabel": "Kampagnenname",
     "descriptionLabel": "Beschreibung",
     "descriptionPlaceholder": "Kampagnenbeschreibung (optional)",
-    "partyLevelLabel": "Partylevel",
     "inGameTimeLabel": "Spielweltzeit",
     "saveButton": "Änderungen speichern",
     "saving": "Wird gespeichert…",
@@ -130,7 +129,6 @@
       "lengthShort": "Kurz",
       "lengthMedium": "Mittel",
       "lengthLong": "Lang",
-      "partyLevel": "Gruppenstufe",
       "campaignDescription": "Kampagnenbeschreibung",
       "descriptionPlaceholder": "Beschreibe Geschichte, Aufhänger und Hintergrund…",
       "aiAriaDescription": "KI-Generierung der Kampagnenbeschreibung",
@@ -144,7 +142,6 @@
       "clickToChangeTag": "Klicken, um Tag zu ändern",
       "saveNameError": "Name konnte nicht gespeichert werden",
       "saveCampaignLengthError": "Kampagnenlänge konnte nicht gespeichert werden",
-      "savePartyLevelError": "Gruppenstufe konnte nicht gespeichert werden",
       "saveDescriptionError": "Beschreibung konnte nicht gespeichert werden",
       "addIdeaError": "Idee konnte nicht hinzugefügt werden",
       "updateTagError": "Tag konnte nicht aktualisiert werden",
@@ -363,9 +360,6 @@
     "allCampaigns": "Alle Kampagnen",
     "openNavMenu": "Navigationsmenü öffnen"
   },
-  "statusBar": {
-    "level": "Level {level}"
-  },
   "commandPalette": {
     "placeholder": "Kampagnen, NPCs, Orte suchen… oder Würfelnotation wie 2d6+3 eingeben",
     "noResults": "Keine Ergebnisse gefunden.",
@@ -450,7 +444,6 @@
   "smartPrompts": {
     "header": "AI-Generatoren",
     "noLocationHint": "Erst einen Ort setzen",
-    "locationLabel": "{location} · Party Level {partyLevel}",
     "labelEncounter": "Encounter generieren",
     "labelNpc": "NPC generieren",
     "labelLoot": "Loot generieren",

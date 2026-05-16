@@ -4,7 +4,6 @@ export interface Campaign {
   description: string | null;
   current_location_id: string | null;
   in_game_time: string;
-  party_level: number;
   notes: string | null;
   status: "draft" | "active";
   campaign_length: "one_shot" | "short" | "medium" | "long" | null;
@@ -432,5 +431,4 @@ export interface ProviderInfo {
 export interface CampaignDraft {
   name?: string;
   world_description?: string;
-  party_level?: number;
 }

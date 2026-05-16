@@ -68,7 +68,6 @@ export default function SessionPage() {
               isOpen={true}
               onClose={() => setIsChatOpen(false)}
               currentLocationName={currentLocationName}
-              partyLevel={campaign.party_level}
               mode="panel"
             />
           </div>
