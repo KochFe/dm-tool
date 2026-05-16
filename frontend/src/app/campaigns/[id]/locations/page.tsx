@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
-import LocationSection from "@/components/LocationSection";
+import LocationsEditor from "@/components/locations/LocationsEditor";
 import NpcHoverCard from "@/components/NpcHoverCard";
 import { Badge } from "@/components/ui/badge";
 
@@ -11,15 +11,17 @@ export default function LocationsPage() {
   const { campaign, locations, npcs, quests, reload } = useCampaign();
 
   return (
-    <div className="max-w-4xl space-y-6">
-      <LocationSection
-        campaignId={campaign.id}
-        locations={locations}
-        currentLocationId={campaign.current_location_id}
-        onUpdate={reload}
-      />
+    <div className="space-y-6 h-full flex flex-col">
+      {/* Editor: tree + detail */}
+      <div className="flex-1 min-h-[600px]">
+        <LocationsEditor
+          campaignId={campaign.id}
+          currentLocationId={campaign.current_location_id}
+          onCurrentLocationChanged={reload}
+        />
+      </div>
 
-      {/* Cross-references: NPCs and quests by location */}
+      {/* Cross-references: NPCs and quests by location (preserved from prior implementation) */}
       {locations.length > 0 && (
         <div>
           <h3 className="text-sm font-semibold text-foreground/80 mb-3">{t("crossRefsHeading")}</h3>

@@ -70,34 +70,20 @@
     "updateSuccess": "Campaign updated",
     "updateError": "Failed to update campaign"
   },
-  "locationSection": {
-    "heading": "Locations",
-    "add": "+ Add",
-    "cancel": "Cancel",
-    "namePlaceholder": "Name",
-    "descriptionPlaceholder": "Description (optional)",
-    "biomeLabel": "Biome",
-    "submitCreate": "Create",
-    "submitUpdate": "Update",
-    "empty": "No locations yet.",
-    "badgeCurrent": "Current",
-    "setCurrent": "Set Current",
-    "editButton": "Edit",
-    "deleteButton": "Delete",
-    "deleteConfirm": "Are you sure?",
-    "toastCreated": "Location created",
-    "toastUpdated": "Location updated",
-    "toastDeleted": "Location deleted",
-    "toastDeleteFailed": "Failed to delete location: {message}",
-    "toastSetCurrentUpdated": "Current location updated",
-    "toastSetCurrentFailed": "Failed to set current location: {message}",
-    "validationError": "Validation error — check all fields."
-  },
   "locations": {
     "crossRefsHeading": "Location Cross-References",
     "currentBadge": "Current",
     "npcsLabel": "NPCs: ",
     "questsLabel": "Quests: "
+  },
+  "locationDrawer": {
+    "title": "Locations",
+    "setCurrentButton": "Set as current location",
+    "cancel": "Cancel",
+    "openTooltip": "Open location navigator",
+    "setLocationButton": "Set location",
+    "emptyTree": "No locations yet. Create one from the Locations tab.",
+    "noPendingHint": "Tap a location to set it as the current one."
   },
   "builder": {
     "loading": "Loading…",
@@ -237,7 +223,10 @@
       "deletePrompt": "Delete \"{name}\"?",
       "yesDelete": "Yes, delete",
       "cancel": "Cancel",
-      "deleteLocation": "Delete location"
+      "deleteLocation": "Delete location",
+      "currentLocationBadge": "Current location",
+      "setAsCurrent": "Set as current location",
+      "setCurrentError": "Failed to set current location"
     },
     "characters": {
       "loading": "Loading…",

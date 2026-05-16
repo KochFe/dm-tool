@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { MapPin } from "lucide-react";
 import type { Location } from "@/types";
 
 // Biome values are stored canonically in English on the backend; only the
@@ -41,6 +42,8 @@ interface LocationDetailProps {
   allLocations: Location[];
   onSave: (id: string, data: Record<string, unknown>) => void;
   onDelete: (id: string) => void;
+  isCurrent?: boolean;
+  onSetCurrent?: () => void;
 }
 
 export default function LocationDetail({
@@ -48,6 +51,8 @@ export default function LocationDetail({
   allLocations,
   onSave,
   onDelete,
+  isCurrent,
+  onSetCurrent,
 }: LocationDetailProps) {
   const t = useTranslations("builder.locationDetail");
   const [name, setName] = useState(location.name);
@@ -92,6 +97,22 @@ export default function LocationDetail({
           {breadcrumb}
         </p>
       )}
+
+      {/* Current-location indicator / action */}
+      {isCurrent ? (
+        <div className="flex items-center gap-2 text-xs text-primary font-medium">
+          <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
+          <span>{t("currentLocationBadge")}</span>
+        </div>
+      ) : onSetCurrent ? (
+        <button
+          onClick={onSetCurrent}
+          className="self-start flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
+        >
+          <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
+          <span>{t("setAsCurrent")}</span>
+        </button>
+      ) : null}
 
       {/* Name */}
       <section className="flex flex-col gap-2">

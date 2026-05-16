@@ -70,34 +70,20 @@
     "updateSuccess": "Kampagne aktualisiert",
     "updateError": "Kampagne konnte nicht aktualisiert werden"
   },
-  "locationSection": {
-    "heading": "Orte",
-    "add": "+ Hinzufügen",
-    "cancel": "Abbrechen",
-    "namePlaceholder": "Name",
-    "descriptionPlaceholder": "Beschreibung (optional)",
-    "biomeLabel": "Biome",
-    "submitCreate": "Erstellen",
-    "submitUpdate": "Aktualisieren",
-    "empty": "Noch keine Orte.",
-    "badgeCurrent": "Aktuell",
-    "setCurrent": "Als aktuell setzen",
-    "editButton": "Bearbeiten",
-    "deleteButton": "Löschen",
-    "deleteConfirm": "Bist du sicher?",
-    "toastCreated": "Ort erstellt",
-    "toastUpdated": "Ort aktualisiert",
-    "toastDeleted": "Ort gelöscht",
-    "toastDeleteFailed": "Ort konnte nicht gelöscht werden: {message}",
-    "toastSetCurrentUpdated": "Aktueller Ort aktualisiert",
-    "toastSetCurrentFailed": "Aktueller Ort konnte nicht gesetzt werden: {message}",
-    "validationError": "Validierungsfehler – bitte alle Felder prüfen."
-  },
   "locations": {
     "crossRefsHeading": "Orts-Querverweise",
     "currentBadge": "Aktuell",
     "npcsLabel": "NPCs: ",
     "questsLabel": "Quests: "
+  },
+  "locationDrawer": {
+    "title": "Orte",
+    "setCurrentButton": "Als aktuellen Ort festlegen",
+    "cancel": "Abbrechen",
+    "openTooltip": "Ortsnavigator öffnen",
+    "setLocationButton": "Ort festlegen",
+    "emptyTree": "Noch keine Orte vorhanden. Lege im Tab „Orte“ einen an.",
+    "noPendingHint": "Tippe einen Ort an, um ihn als aktuellen festzulegen."
   },
   "builder": {
     "loading": "Wird geladen…",
@@ -237,7 +223,10 @@
       "deletePrompt": "„{name}“ löschen?",
       "yesDelete": "Ja, löschen",
       "cancel": "Abbrechen",
-      "deleteLocation": "Ort löschen"
+      "deleteLocation": "Ort löschen",
+      "currentLocationBadge": "Aktueller Ort",
+      "setAsCurrent": "Als aktuellen Ort festlegen",
+      "setCurrentError": "Aktueller Ort konnte nicht festgelegt werden"
     },
     "characters": {
       "loading": "Wird geladen…",

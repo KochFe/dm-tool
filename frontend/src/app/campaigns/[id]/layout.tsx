@@ -6,6 +6,7 @@ import { CampaignProvider } from "@/contexts/CampaignContext";
 import CampaignSidebar from "@/components/CampaignSidebar";
 import CampaignStatusBar from "@/components/CampaignStatusBar";
 import CommandPalette from "@/components/CommandPalette";
+import LocationDrawer from "@/components/locations/LocationDrawer";
 
 export default function CampaignLayout({
   children,
@@ -36,6 +37,7 @@ export default function CampaignLayout({
         </div>
       </div>
       <CommandPalette />
+      <LocationDrawer />
     </CampaignProvider>
   );
 }

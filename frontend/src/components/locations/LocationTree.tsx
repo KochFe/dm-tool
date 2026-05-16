@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { MapPin } from "lucide-react";
 import type { Location } from "@/types";
 
 interface TreeNode {
@@ -30,9 +31,10 @@ interface LocationNodeProps {
   node: TreeNode;
   depth: number;
   selectedId: string | null;
+  currentLocationId: string | null | undefined;
   onSelect: (location: Location) => void;
-  onAddChild: (parentId: string) => void;
-  onReparent: (draggedId: string, newParentId: string | null) => void;
+  onAddChild?: (parentId: string) => void;
+  onReparent?: (draggedId: string, newParentId: string | null) => void;
   draggedId: string | null;
   setDraggedId: (id: string | null) => void;
 }
@@ -41,6 +43,7 @@ function LocationNode({
   node,
   depth,
   selectedId,
+  currentLocationId,
   onSelect,
   onAddChild,
   onReparent,
@@ -52,6 +55,8 @@ function LocationNode({
   const [isDragOver, setIsDragOver] = useState(false);
   const hasChildren = node.children.length > 0;
   const isSelected = selectedId === node.location.id;
+  const isCurrent = currentLocationId === node.location.id;
+  const canDrag = Boolean(onReparent);
 
   function handleDragStart(e: React.DragEvent) {
     setDraggedId(node.location.id);
@@ -79,7 +84,7 @@ function LocationNode({
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
-    if (draggedId && draggedId !== node.location.id) {
+    if (draggedId && draggedId !== node.location.id && onReparent) {
       onReparent(draggedId, node.location.id);
     }
   }
@@ -95,12 +100,12 @@ function LocationNode({
             : "hover:bg-muted border border-transparent"
         }`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
-        draggable
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        draggable={canDrag}
+        onDragStart={canDrag ? handleDragStart : undefined}
+        onDragEnd={canDrag ? handleDragEnd : undefined}
+        onDragOver={canDrag ? handleDragOver : undefined}
+        onDragLeave={canDrag ? handleDragLeave : undefined}
+        onDrop={canDrag ? handleDrop : undefined}
         onClick={() => onSelect(node.location)}
       >
         {/* Expand/collapse arrow */}
@@ -126,6 +131,11 @@ function LocationNode({
           </svg>
         </button>
 
+        {/* Current location pin badge */}
+        {isCurrent && (
+          <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" aria-hidden="true" />
+        )}
+
         {/* Location name */}
         <span
           className={`flex-1 text-sm truncate ${
@@ -141,22 +151,24 @@ function LocationNode({
         </span>
 
         {/* Add child button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddChild(node.location.id);
-          }}
-          className="hidden group-hover:flex items-center justify-center w-5 h-5 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0"
-          title={t("addSublocation")}
-        >
-          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
+        {onAddChild && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddChild(node.location.id);
+            }}
+            className="hidden group-hover:flex items-center justify-center w-5 h-5 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0"
+            title={t("addSublocation")}
+          >
+            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Children */}
@@ -168,6 +180,7 @@ function LocationNode({
               node={child}
               depth={depth + 1}
               selectedId={selectedId}
+              currentLocationId={currentLocationId}
               onSelect={onSelect}
               onAddChild={onAddChild}
               onReparent={onReparent}
@@ -185,15 +198,17 @@ interface LocationTreeProps {
   locations: Location[];
   selectedId: string | null;
   onSelect: (location: Location) => void;
-  onAddRoot: () => void;
-  onAddChild: (parentId: string) => void;
-  onReparent: (draggedId: string, newParentId: string | null) => void;
+  currentLocationId?: string | null;
+  onAddRoot?: () => void;
+  onAddChild?: (parentId: string) => void;
+  onReparent?: (draggedId: string, newParentId: string | null) => void;
 }
 
 export default function LocationTree({
   locations,
   selectedId,
   onSelect,
+  currentLocationId,
   onAddRoot,
   onAddChild,
   onReparent,
@@ -219,7 +234,7 @@ export default function LocationTree({
   function handleRootDrop(e: React.DragEvent) {
     e.preventDefault();
     setRootDropOver(false);
-    if (draggedId) {
+    if (draggedId && onReparent) {
       onReparent(draggedId, null);
     }
   }
@@ -231,16 +246,18 @@ export default function LocationTree({
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           {t("heading")}
         </span>
-        <button
-          onClick={onAddRoot}
-          className="text-xs text-primary hover:text-primary transition-colors"
-        >
-          {t("addLocation")}
-        </button>
+        {onAddRoot && (
+          <button
+            onClick={onAddRoot}
+            className="text-xs text-primary hover:text-primary transition-colors"
+          >
+            {t("addLocation")}
+          </button>
+        )}
       </div>
 
-      {/* Root drop zone */}
-      {draggedId && (
+      {/* Root drop zone — only shown when reparenting is enabled and a drag is in progress */}
+      {onReparent && draggedId && (
         <div
           onDragOver={handleRootDragOver}
           onDragLeave={handleRootDragLeave}
@@ -269,6 +286,7 @@ export default function LocationTree({
                 node={node}
                 depth={0}
                 selectedId={selectedId}
+                currentLocationId={currentLocationId}
                 onSelect={onSelect}
                 onAddChild={onAddChild}
                 onReparent={onReparent}
@@ -280,8 +298,8 @@ export default function LocationTree({
         )}
       </div>
 
-      {/* Hint */}
-      {locations.length > 0 && (
+      {/* Drag hint — only when reparenting is enabled */}
+      {onReparent && locations.length > 0 && (
         <p className="mt-3 text-xs text-muted-foreground/40 text-center">
           {t("dragHint")}
         </p>
