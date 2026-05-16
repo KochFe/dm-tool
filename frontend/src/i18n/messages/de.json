@@ -237,7 +237,10 @@
       "deletePrompt": "„{name}“ löschen?",
       "yesDelete": "Ja, löschen",
       "cancel": "Abbrechen",
-      "deleteLocation": "Ort löschen"
+      "deleteLocation": "Ort löschen",
+      "currentLocationBadge": "Aktueller Ort",
+      "setAsCurrent": "Als aktuellen Ort festlegen",
+      "setCurrentError": "Aktueller Ort konnte nicht festgelegt werden"
     },
     "characters": {
       "loading": "Wird geladen…",

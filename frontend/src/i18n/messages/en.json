@@ -237,7 +237,10 @@
       "deletePrompt": "Delete \"{name}\"?",
       "yesDelete": "Yes, delete",
       "cancel": "Cancel",
-      "deleteLocation": "Delete location"
+      "deleteLocation": "Delete location",
+      "currentLocationBadge": "Current location",
+      "setAsCurrent": "Set as current location",
+      "setCurrentError": "Failed to set current location"
     },
     "characters": {
       "loading": "Loading…",
