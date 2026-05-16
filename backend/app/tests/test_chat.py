@@ -204,6 +204,22 @@ async def test_chat_context_includes_campaign_data(client: AsyncClient, auth_hea
     )
     assert patch_resp.status_code == 200
 
+    # Party level is now derived from PCs; create one at level 7.
+    pc_resp = await client.post(
+        f"/api/v1/campaigns/{cid}/characters",
+        json={
+            "name": "Aragorn",
+            "race": "Human",
+            "character_class": "Ranger",
+            "level": 7,
+            "hp_current": 50,
+            "hp_max": 50,
+            "armor_class": 14,
+        },
+        headers=auth_headers,
+    )
+    assert pc_resp.status_code == 201
+
     mock_response = ChatResponse(message=ChatMessage(role="assistant", content="Hello!"))
     with patch("app.routers.chat.process_chat", new_callable=AsyncMock) as mock_chat:
         mock_chat.return_value = mock_response

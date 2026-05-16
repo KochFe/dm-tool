@@ -117,7 +117,7 @@ async def test_generate_phase_description_augment_mode(client: AsyncClient, auth
             },
             headers=auth_headers,
         )
-    _campaign, _phase, _prior, called_req = mock_gen.await_args.args
+    _campaign, _phase, _prior, called_req, _db = mock_gen.await_args.args
     assert called_req.existing_content == "The party arrives in town."
 
 

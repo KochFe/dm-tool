@@ -1,4 +1,5 @@
 from langchain_groq import ChatGroq
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.prompts import (
     build_ai_assist_prompt,
@@ -75,17 +76,21 @@ async def generate_encounter(
 async def generate_campaign_description(
     campaign: object,  # app.models.campaign.Campaign
     req: AIAssistRequest,
+    db: AsyncSession,
     *,
     language: Language = Language.EN,
 ) -> TextResult:
     """Generate or augment a campaign description (premise/hook/background)."""
+    from app.services.campaign_service import compute_party_level
+
     llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(TextResult)
 
+    party_level = await compute_party_level(db, campaign.id)
     context_block = (
         "## Campaign context\n"
         f"- Name: {campaign.name}\n"
-        f"- Party level: {campaign.party_level}\n"
+        f"- Party level: {party_level}\n"
     )
 
     prompt = build_ai_assist_prompt(
@@ -156,6 +161,7 @@ async def generate_phase_description(
     phase: object,  # app.models.campaign_phase.CampaignPhase with .locations eagerly loaded
     prior_phase_summaries: list[str],
     req: AIAssistRequest,
+    db: AsyncSession,
     *,
     language: Language = Language.EN,
 ) -> PhasePrepResult:
@@ -170,15 +176,18 @@ async def generate_phase_description(
     phase: must have .locations eagerly loaded; each location should have
         .npcs eagerly loaded.
     """
+    from app.services.campaign_service import compute_party_level
+
     llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(PhasePrepResult)
 
+    party_level = await compute_party_level(db, campaign.id)
     prior_block = "\n".join(f"- {s}" for s in prior_phase_summaries) or "- (none)"
 
     base_context = (
         "## Campaign context\n"
         f"- Name: {campaign.name}\n"
-        f"- Party level: {campaign.party_level}\n"
+        f"- Party level: {party_level}\n"
         "\n## This phase\n"
         f"- Title: {phase.title}\n"
         f"- Position: phase #{phase.sort_order + 1}\n"
@@ -263,17 +272,21 @@ async def generate_npc_personality(
     npc: object,      # app.models.npc.Npc
     campaign: object,
     req: AIAssistRequest,
+    db: AsyncSession,
     *,
     language: Language = Language.EN,
 ) -> PersonalityResult:
     """Generate or augment NPC personality + motivation based on user steer."""
+    from app.services.campaign_service import compute_party_level
+
     llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(PersonalityResult)
 
+    party_level = await compute_party_level(db, campaign.id)
     context_block = (
         "## Campaign context\n"
         f"- Name: {campaign.name}\n"
-        f"- Party level: {campaign.party_level}\n"
+        f"- Party level: {party_level}\n"
         "\n## This NPC\n"
         f"- Name: {npc.name}\n"
         f"- Race: {getattr(npc, 'race', None) or '(unspecified)'}\n"

@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.campaign import Campaign
@@ -48,3 +48,22 @@ async def update_campaign(
 async def delete_campaign(db: AsyncSession, campaign: Campaign) -> None:
     await db.delete(campaign)
     await db.commit()
+
+
+async def compute_party_level(db: AsyncSession, campaign_id: uuid.UUID) -> int:
+    """Derive party level from the campaign's player characters.
+
+    Returns rounded average of PC levels, clamped to 1-20.
+    Falls back to 1 if the campaign has no PCs.
+    """
+    from app.models.player_character import PlayerCharacter
+
+    result = await db.execute(
+        select(func.avg(PlayerCharacter.level)).where(
+            PlayerCharacter.campaign_id == campaign_id
+        )
+    )
+    avg = result.scalar()
+    if avg is None:
+        return 1
+    return max(1, min(20, round(float(avg))))
