@@ -753,5 +753,52 @@
       "completed": "completed",
       "failed": "failed"
     }
+  },
+  "encounters": {
+    "tabTitle": "Encounters",
+    "list": {
+      "empty": "No prepared encounters yet.",
+      "noLocationGroup": "Unassigned location",
+      "addButton": "New encounter",
+      "combatantsSummary": "{count} combatants",
+      "loading": "Loading…"
+    },
+    "detail": {
+      "empty": "Select an encounter to edit, or create a new one.",
+      "namePlaceholder": "Encounter name",
+      "locationLabel": "Location",
+      "noLocationOption": "(no location)",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Optional notes for the DM",
+      "startButton": "Start encounter",
+      "deleteButton": "Delete encounter",
+      "deleteConfirm": "Delete this encounter?",
+      "cancelButton": "Cancel",
+      "saveError": "Could not save changes"
+    },
+    "combatantsTable": {
+      "title": "Combatants",
+      "addRow": "Add combatant",
+      "headerName": "Name",
+      "headerSide": "Side",
+      "headerCount": "Count",
+      "headerHp": "HP",
+      "headerAc": "AC",
+      "headerInit": "Init",
+      "headerNotes": "Notes",
+      "sideEnemy": "Enemy",
+      "sideAlly": "Ally",
+      "removeRowLabel": "Remove row",
+      "emptyRow": "No combatants yet — add one to enable starting this encounter."
+    },
+    "startModal": {
+      "title": "Start encounter",
+      "subtitle": "Who's in the party for this fight?",
+      "rollAllButton": "Roll all initiatives",
+      "initLabel": "Initiative",
+      "startButton": "Start",
+      "cancelButton": "Cancel",
+      "startError": "Could not start encounter"
+    }
   }
 }

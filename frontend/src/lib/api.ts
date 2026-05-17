@@ -348,6 +348,58 @@ export const api = {
       method: "POST",
     }),
 
+  // Encounter Templates (Phase 14)
+  listEncounterTemplates: (campaignId: string) =>
+    request<import("@/types").EncounterTemplate[]>(
+      `/api/v1/campaigns/${campaignId}/encounter-templates`
+    ),
+
+  createEncounterTemplate: (
+    campaignId: string,
+    data: import("@/types").EncounterTemplateCreate
+  ) =>
+    request<import("@/types").EncounterTemplate>(
+      `/api/v1/campaigns/${campaignId}/encounter-templates`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    ),
+
+  getEncounterTemplate: (templateId: string) =>
+    request<import("@/types").EncounterTemplate>(
+      `/api/v1/encounter-templates/${templateId}`
+    ),
+
+  updateEncounterTemplate: (
+    templateId: string,
+    data: import("@/types").EncounterTemplateUpdate
+  ) =>
+    request<import("@/types").EncounterTemplate>(
+      `/api/v1/encounter-templates/${templateId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }
+    ),
+
+  deleteEncounterTemplate: (templateId: string) =>
+    request<void>(`/api/v1/encounter-templates/${templateId}`, {
+      method: "DELETE",
+    }),
+
+  startEncounter: (
+    templateId: string,
+    data: import("@/types").StartEncounterRequest
+  ) =>
+    request<import("@/types").CombatSession>(
+      `/api/v1/encounter-templates/${templateId}/start`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    ),
+
   // NPCs
   createNpc: (campaignId: string, data: import("@/types").NpcCreate) =>
     request<import("@/types").Npc>(`/api/v1/campaigns/${campaignId}/npcs`, {

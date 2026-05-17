@@ -432,3 +432,51 @@ export interface CampaignDraft {
   name?: string;
   world_description?: string;
 }
+
+// Encounter Templates (Phase 14)
+export type CombatantSide = "enemy" | "ally";
+
+export interface TemplateCombatant {
+  name: string;
+  side: CombatantSide;
+  count: number;
+  hp_max: number;
+  armor_class: number;
+  initiative_bonus: number;
+  notes: string | null;
+}
+
+export interface EncounterTemplate {
+  id: string;
+  campaign_id: string;
+  location_id: string | null;
+  name: string;
+  notes: string | null;
+  combatants: TemplateCombatant[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EncounterTemplateCreate {
+  name: string;
+  location_id?: string | null;
+  notes?: string | null;
+  combatants?: TemplateCombatant[];
+}
+
+export interface EncounterTemplateUpdate {
+  name?: string;
+  location_id?: string | null;
+  notes?: string | null;
+  combatants?: TemplateCombatant[];
+}
+
+export interface PresentPC {
+  player_character_id: string;
+  initiative: number;
+}
+
+export interface StartEncounterRequest {
+  present_pcs: PresentPC[];
+  name?: string | null;
+}
