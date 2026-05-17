@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useCampaign } from "@/contexts/CampaignContext";
+import { api } from "@/lib/api";
 import type {
   EncounterTemplate,
   EncounterTemplateUpdate,
+  PresentPC,
   Location,
   TemplateCombatant,
 } from "@/types";
 import CombatantsTable from "./CombatantsTable";
+import StartEncounterModal from "./StartEncounterModal";
 
 type Props = {
   template: EncounterTemplate;
@@ -24,6 +29,8 @@ export default function EncounterDetail({
   onDelete,
 }: Props) {
   const t = useTranslations("encounters.detail");
+  const router = useRouter();
+  const { campaign } = useCampaign();
   const [name, setName] = useState(template.name);
   const [notes, setNotes] = useState(template.notes ?? "");
   const [locationId, setLocationId] = useState<string | null>(
@@ -33,6 +40,14 @@ export default function EncounterDetail({
     template.combatants
   );
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [startOpen, setStartOpen] = useState(false);
+  const canStart = combatants.length > 0;
+
+  const handleConfirmStart = async (presentPcs: PresentPC[]) => {
+    await api.startEncounter(template.id, { present_pcs: presentPcs });
+    setStartOpen(false);
+    router.push(`/campaigns/${campaign.id}/session?mode=combat`);
+  };
 
   const lastIdRef = useRef(template.id);
   useEffect(() => {
@@ -110,9 +125,9 @@ export default function EncounterDetail({
       <div className="flex gap-2 pt-4 border-t border-border">
         <button
           type="button"
-          disabled
-          title="Wired in Phase C"
-          className="bg-primary/50 text-primary-foreground/50 rounded px-4 py-2 cursor-not-allowed"
+          disabled={!canStart}
+          onClick={() => setStartOpen(true)}
+          className="bg-primary text-primary-foreground rounded px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {t("startButton")}
         </button>
@@ -146,6 +161,12 @@ export default function EncounterDetail({
           </div>
         )}
       </div>
+
+      <StartEncounterModal
+        open={startOpen}
+        onClose={() => setStartOpen(false)}
+        onConfirm={handleConfirmStart}
+      />
     </div>
   );
 }

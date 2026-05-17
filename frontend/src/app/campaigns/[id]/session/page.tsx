@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import PartyPanel from "@/components/PartyPanel";
@@ -15,7 +16,10 @@ type SessionMode = "exploration" | "combat";
 export default function SessionPage() {
   const t = useTranslations("session");
   const { campaign, characters, currentLocation } = useCampaign();
-  const [mode, setMode] = useState<SessionMode>("exploration");
+  const searchParams = useSearchParams();
+  const initialMode: SessionMode =
+    searchParams?.get("mode") === "combat" ? "combat" : "exploration";
+  const [mode, setMode] = useState<SessionMode>(initialMode);
   const [isChatOpen, setIsChatOpen] = useState(true);
   const switchToExploration = useCallback(() => setMode("exploration"), []);
 
