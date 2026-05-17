@@ -515,6 +515,7 @@
     "noActiveCombat": "No active combat. Click \"Start Combat\" to begin.",
     "preparedEncountersHeading": "Prepared encounters",
     "startTemplateButton": "Start",
+    "viewDetailsTitle": "View details",
     "showCompleted": "Show completed sessions ({count})",
     "hideCompleted": "Hide completed sessions ({count})",
     "unnamedSession": "Unnamed session",
@@ -803,5 +804,22 @@
       "cancelButton": "Cancel",
       "startError": "Could not start encounter"
     }
+  },
+  "combatantDetail": {
+    "empty": "Click a combatant in the tracker to see their details.",
+    "typePc": "PC",
+    "typeMonster": "Monster",
+    "sidePc": "Party",
+    "sideAlly": "Ally",
+    "sideEnemy": "Enemy",
+    "hpLabel": "HP",
+    "acLabel": "AC",
+    "initLabel": "Init",
+    "ppLabel": "Passive",
+    "speedLabel": "Speed",
+    "pbLabel": "Prof",
+    "conditionsLabel": "Conditions",
+    "notesLabel": "Notes",
+    "pcSummary": "{race} {cls}, level {level}"
   }
 }

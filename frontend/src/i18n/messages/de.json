@@ -515,6 +515,7 @@
     "noActiveCombat": "Kein aktiver Combat. Klicke auf \"Combat starten\".",
     "preparedEncountersHeading": "Vorbereitete Begegnungen",
     "startTemplateButton": "Starten",
+    "viewDetailsTitle": "Details anzeigen",
     "showCompleted": "Abgeschlossene Sessions zeigen ({count})",
     "hideCompleted": "Abgeschlossene Sessions ausblenden ({count})",
     "unnamedSession": "Unbenannte Session",
@@ -803,5 +804,22 @@
       "cancelButton": "Abbrechen",
       "startError": "Begegnung konnte nicht gestartet werden"
     }
+  },
+  "combatantDetail": {
+    "empty": "Klicke auf einen Kämpfer im Tracker, um die Details zu sehen.",
+    "typePc": "SC",
+    "typeMonster": "Monster",
+    "sidePc": "Party",
+    "sideAlly": "Verbündeter",
+    "sideEnemy": "Feind",
+    "hpLabel": "TP",
+    "acLabel": "RK",
+    "initLabel": "Ini",
+    "ppLabel": "Passiv",
+    "speedLabel": "Bewegung",
+    "pbLabel": "Übung",
+    "conditionsLabel": "Zustände",
+    "notesLabel": "Notizen",
+    "pcSummary": "{race} {cls}, Stufe {level}"
   }
 }

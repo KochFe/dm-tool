@@ -7,9 +7,11 @@ import { useCampaign } from "@/contexts/CampaignContext";
 import PartyPanel from "@/components/PartyPanel";
 import ExplorationView from "@/components/ExplorationView";
 import CombatView from "@/components/CombatView";
+import CombatantDetailPanel from "@/components/combat/CombatantDetailPanel";
 import CompactDiceRoller from "@/components/CompactDiceRoller";
 import ChatSidebar from "@/components/ChatSidebar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Combatant } from "@/types";
 
 type SessionMode = "exploration" | "combat";
 
@@ -21,6 +23,7 @@ export default function SessionPage() {
     searchParams?.get("mode") === "combat" ? "combat" : "exploration";
   const [mode, setMode] = useState<SessionMode>(initialMode);
   const [isChatOpen, setIsChatOpen] = useState(true);
+  const [selectedCombatant, setSelectedCombatant] = useState<Combatant | null>(null);
   const switchToExploration = useCallback(() => setMode("exploration"), []);
 
   const currentLocationName = currentLocation?.name ?? null;
@@ -61,8 +64,25 @@ export default function SessionPage() {
           <PartyPanel characters={characters} />
         </div>
 
+        {/* Combatant detail panel — only in Combat mode */}
+        {mode === "combat" && (
+          <div className="hidden xl:block w-64 shrink-0 border-r border-border bg-card/20">
+            <CombatantDetailPanel
+              combatant={selectedCombatant}
+              characters={characters}
+            />
+          </div>
+        )}
+
         {/* Center: Main content */}
-        {mode === "exploration" ? <ExplorationView /> : <CombatView onCombatEnd={switchToExploration} />}
+        {mode === "exploration" ? (
+          <ExplorationView />
+        ) : (
+          <CombatView
+            onCombatEnd={switchToExploration}
+            onSelectionChange={setSelectedCombatant}
+          />
+        )}
 
         {/* Right: Chat Panel (inline panel mode) — hidden below lg */}
         {isChatOpen && (

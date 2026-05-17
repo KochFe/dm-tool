@@ -41,6 +41,7 @@ interface InitiativeTrackerProps {
   characters: PlayerCharacter[];
   refreshKey?: number;
   onCombatEnd?: () => void;
+  onSelectionChange?: (combatant: Combatant | null) => void;
 }
 
 interface StagedCombatant {
@@ -144,12 +145,14 @@ interface CombatantRowProps {
   combatant: Combatant;
   index: number;
   isCurrent: boolean;
+  isSelected: boolean;
+  onSelect: () => void;
   sessionId: string;
   onUpdate: (updated: CombatSession) => void;
   onError: (msg: string) => void;
 }
 
-function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onError }: CombatantRowProps) {
+function CombatantRow({ combatant, index, isCurrent, isSelected, onSelect, sessionId, onUpdate, onError }: CombatantRowProps) {
   const t = useTranslations('initiative');
   const [removing, setRemoving] = useState(false);
 
@@ -169,7 +172,9 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors ${
         isCurrent
           ? 'bg-blue-900/30 border-l-4 border-l-blue-500 border-r border-r-blue-500/30 border-t border-t-blue-500/30 border-b border-b-blue-500/30'
-          : 'border-border hover:bg-muted/40'
+          : isSelected
+            ? 'border-primary bg-primary/5'
+            : 'border-border hover:bg-muted/40'
       }`}
     >
       {/* Turn arrow */}
@@ -186,9 +191,14 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
       {/* Name + type badge + conditions */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className={`font-medium truncate ${isCurrent ? 'text-blue-200' : 'text-foreground'}`}>
+          <button
+            type="button"
+            onClick={onSelect}
+            className={`font-medium truncate text-left hover:underline ${isCurrent ? 'text-blue-200' : 'text-foreground'}`}
+            title={t('viewDetailsTitle')}
+          >
             {combatant.name}
-          </span>
+          </button>
           {combatant.type === 'pc' ? (
             <span className="shrink-0 text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded">{t('typePc')}</span>
           ) : (
@@ -423,7 +433,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
 
 // ---- Main component ----
 
-export default function InitiativeTracker({ campaignId, characters, refreshKey = 0, onCombatEnd }: InitiativeTrackerProps) {
+export default function InitiativeTracker({ campaignId, characters, refreshKey = 0, onCombatEnd, onSelectionChange }: InitiativeTrackerProps) {
   const t = useTranslations('initiative');
   const [sessions, setSessions] = useState<CombatSession[]>([]);
   const [activeSession, setActiveSession] = useState<CombatSession | null>(null);
@@ -437,6 +447,30 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   const [showCompleted, setShowCompleted] = useState(false);
   const [templates, setTemplates] = useState<EncounterTemplate[]>([]);
   const [startingTemplateId, setStartingTemplateId] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  // Notify parent of selection changes (and keep selection in sync with live session updates).
+  useEffect(() => {
+    if (!onSelectionChange) return;
+    if (selectedIndex === null || !activeSession) {
+      onSelectionChange(null);
+      return;
+    }
+    const selected = activeSession.combatants[selectedIndex] ?? null;
+    onSelectionChange(selected);
+  }, [selectedIndex, activeSession, onSelectionChange]);
+
+  // Drop selection if it falls out of range after a removal.
+  useEffect(() => {
+    if (
+      selectedIndex !== null &&
+      activeSession &&
+      selectedIndex >= activeSession.combatants.length
+    ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedIndex(null);
+    }
+  }, [activeSession, selectedIndex]);
 
   // ---- Data loading ----
 
@@ -719,6 +753,8 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
                     combatant={combatant}
                     index={i}
                     isCurrent={i === activeSession.current_turn_index}
+                    isSelected={i === selectedIndex}
+                    onSelect={() => setSelectedIndex((prev) => (prev === i ? null : i))}
                     sessionId={activeSession.id}
                     onUpdate={handleSessionUpdate}
                     onError={handleCombatError}
