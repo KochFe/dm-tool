@@ -33,7 +33,7 @@ export function UsersTable({ users, loading, onChanged }: Props) {
   };
 
   if (loading) {
-    return <div className="text-sm text-neutral-400">Loading…</div>;
+    return <div className="text-sm text-muted-foreground">Loading…</div>;
   }
 
   return (
@@ -52,13 +52,13 @@ export function UsersTable({ users, loading, onChanged }: Props) {
       </div>
 
       {error && (
-        <div className="rounded border border-red-700 bg-red-950 p-3 text-sm text-red-200">
+        <div className="rounded border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       <table className="w-full text-sm">
-        <thead className="border-b border-neutral-800 text-left text-neutral-400">
+        <thead className="border-b border-border text-left text-muted-foreground">
           <tr>
             <th className="py-2 pr-4 font-medium">{t("columns.display_name")}</th>
             <th className="py-2 pr-4 font-medium">{t("columns.email")}</th>
@@ -70,14 +70,14 @@ export function UsersTable({ users, loading, onChanged }: Props) {
         </thead>
         <tbody>
           {users.map((u) => (
-            <tr key={u.id} className="border-b border-neutral-900">
+            <tr key={u.id} className="border-b border-border">
               <td className="py-2 pr-4">{u.display_name}</td>
-              <td className="py-2 pr-4 text-neutral-400">{u.email}</td>
+              <td className="py-2 pr-4 text-muted-foreground">{u.email}</td>
               <td className="py-2 pr-4">{t(`roles.${u.role as Role}`)}</td>
               <td className="py-2 pr-4">
                 {u.is_active ? t("status_active") : t("status_inactive")}
               </td>
-              <td className="py-2 pr-4 text-neutral-500">
+              <td className="py-2 pr-4 text-muted-foreground">
                 {new Date(u.created_at).toLocaleDateString()}
               </td>
               <td className="py-2 pr-4 text-right">
@@ -88,14 +88,14 @@ export function UsersTable({ users, loading, onChanged }: Props) {
                       setFormInitial(u);
                       setFormMode("edit");
                     }}
-                    className="rounded border border-neutral-700 px-2 py-1 hover:bg-neutral-900"
+                    className="rounded border border-border px-2 py-1 hover:bg-muted"
                   >
                     {t("actions.edit")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setPwUser(u)}
-                    className="rounded border border-neutral-700 px-2 py-1 hover:bg-neutral-900"
+                    className="rounded border border-border px-2 py-1 hover:bg-muted"
                   >
                     {t("actions.reset_password")}
                   </button>
@@ -103,7 +103,7 @@ export function UsersTable({ users, loading, onChanged }: Props) {
                     <button
                       type="button"
                       onClick={() => setDeactivating(u)}
-                      className="rounded border border-red-800 px-2 py-1 text-red-300 hover:bg-red-950"
+                      className="rounded border border-destructive/50 px-2 py-1 text-destructive hover:bg-destructive/10"
                     >
                       {t("actions.deactivate")}
                     </button>
@@ -111,7 +111,7 @@ export function UsersTable({ users, loading, onChanged }: Props) {
                     <button
                       type="button"
                       onClick={() => toggleActive(u)}
-                      className="rounded border border-neutral-700 px-2 py-1 hover:bg-neutral-900"
+                      className="rounded border border-border px-2 py-1 hover:bg-muted"
                     >
                       {t("actions.activate")}
                     </button>

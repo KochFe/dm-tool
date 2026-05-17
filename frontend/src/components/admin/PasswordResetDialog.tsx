@@ -51,13 +51,13 @@ export function PasswordResetDialog({ open, user, onClose, onSaved }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <form
         onSubmit={submit}
-        className="w-full max-w-md space-y-3 rounded-lg border border-neutral-800 bg-neutral-950 p-5"
+        className="w-full max-w-md space-y-3 rounded-lg border border-border bg-background p-5"
       >
         <h2 className="text-lg font-semibold">{t("password_reset.title")}</h2>
-        <p className="text-sm text-neutral-400">{user.email}</p>
+        <p className="text-sm text-muted-foreground">{user.email}</p>
 
         <label className="block text-sm">
-          <span className="mb-1 block text-neutral-400">
+          <span className="mb-1 block text-muted-foreground">
             {t("password_reset.new_password")}
           </span>
           <input
@@ -66,12 +66,12 @@ export function PasswordResetDialog({ open, user, onClose, onSaved }: Props) {
             onChange={(e) => setPw(e.target.value)}
             required
             minLength={8}
-            className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1"
+            className="w-full rounded border border-border bg-muted px-2 py-1"
           />
         </label>
 
         <label className="block text-sm">
-          <span className="mb-1 block text-neutral-400">
+          <span className="mb-1 block text-muted-foreground">
             {t("password_reset.confirm_password")}
           </span>
           <input
@@ -80,12 +80,12 @@ export function PasswordResetDialog({ open, user, onClose, onSaved }: Props) {
             onChange={(e) => setConfirm(e.target.value)}
             required
             minLength={8}
-            className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1"
+            className="w-full rounded border border-border bg-muted px-2 py-1"
           />
         </label>
 
         {error && (
-          <div className="rounded border border-red-700 bg-red-950 p-2 text-xs text-red-200">
+          <div className="rounded border border-destructive/50 bg-destructive/10 p-2 text-xs text-destructive">
             {error}
           </div>
         )}
@@ -94,7 +94,7 @@ export function PasswordResetDialog({ open, user, onClose, onSaved }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
+            className="rounded border border-border px-3 py-1.5 text-sm hover:bg-muted"
           >
             {t("form.cancel")}
           </button>

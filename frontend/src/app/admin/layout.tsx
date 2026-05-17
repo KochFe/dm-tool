@@ -22,9 +22,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <header className="border-b border-neutral-800 px-6 py-4">
-        <h1 className="text-2xl font-semibold text-amber-400">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border px-6 py-4">
+        <h1 className="text-2xl font-semibold text-primary">
           {t("users_title")}
         </h1>
       </header>

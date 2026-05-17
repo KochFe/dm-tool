@@ -77,26 +77,26 @@ export function UserFormDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <form
         onSubmit={submit}
-        className="w-full max-w-md space-y-3 rounded-lg border border-neutral-800 bg-neutral-950 p-5"
+        className="w-full max-w-md space-y-3 rounded-lg border border-border bg-background p-5"
       >
         <h2 className="text-lg font-semibold">
           {mode === "create" ? t("form.title_create") : t("form.title_edit")}
         </h2>
 
         <label className="block text-sm">
-          <span className="mb-1 block text-neutral-400">{t("form.email")}</span>
+          <span className="mb-1 block text-muted-foreground">{t("form.email")}</span>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={mode === "edit"}
             required
-            className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1 disabled:opacity-50"
+            className="w-full rounded border border-border bg-muted px-2 py-1 disabled:opacity-50"
           />
         </label>
 
         <label className="block text-sm">
-          <span className="mb-1 block text-neutral-400">
+          <span className="mb-1 block text-muted-foreground">
             {t("form.display_name")}
           </span>
           <input
@@ -104,13 +104,13 @@ export function UserFormDialog({
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             required
-            className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1"
+            className="w-full rounded border border-border bg-muted px-2 py-1"
           />
         </label>
 
         {mode === "create" && (
           <label className="block text-sm">
-            <span className="mb-1 block text-neutral-400">
+            <span className="mb-1 block text-muted-foreground">
               {t("form.password")}
             </span>
             <input
@@ -119,17 +119,17 @@ export function UserFormDialog({
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1"
+              className="w-full rounded border border-border bg-muted px-2 py-1"
             />
           </label>
         )}
 
         <label className="block text-sm">
-          <span className="mb-1 block text-neutral-400">{t("form.role")}</span>
+          <span className="mb-1 block text-muted-foreground">{t("form.role")}</span>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as Role)}
-            className="w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1"
+            className="w-full rounded border border-border bg-muted px-2 py-1"
           >
             <option value="admin">{t("roles.admin")}</option>
             <option value="dm">{t("roles.dm")}</option>
@@ -138,7 +138,7 @@ export function UserFormDialog({
         </label>
 
         {error && (
-          <div className="rounded border border-red-700 bg-red-950 p-2 text-xs text-red-200">
+          <div className="rounded border border-destructive/50 bg-destructive/10 p-2 text-xs text-destructive">
             {error}
           </div>
         )}
@@ -147,7 +147,7 @@ export function UserFormDialog({
           <button
             type="button"
             onClick={onClose}
-            className="rounded border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-900"
+            className="rounded border border-border px-3 py-1.5 text-sm hover:bg-muted"
           >
             {t("form.cancel")}
           </button>

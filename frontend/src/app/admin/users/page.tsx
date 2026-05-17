@@ -31,9 +31,9 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-neutral-400">{t("users_subtitle")}</p>
+      <p className="text-sm text-muted-foreground">{t("users_subtitle")}</p>
       {error && (
-        <div className="rounded border border-red-700 bg-red-950 p-3 text-sm text-red-200">
+        <div className="rounded border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
           {error}
         </div>
       )}
