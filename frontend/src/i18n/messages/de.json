@@ -226,7 +226,12 @@
       "deleteLocation": "Ort löschen",
       "currentLocationBadge": "Aktueller Ort",
       "setAsCurrent": "Als aktuellen Ort festlegen",
-      "setCurrentError": "Aktueller Ort konnte nicht festgelegt werden"
+      "setCurrentError": "Aktueller Ort konnte nicht festgelegt werden",
+      "saveButton": "Speichern",
+      "saving": "Speichern…",
+      "closeButton": "Schließen",
+      "discardButton": "Verwerfen",
+      "saveError": "Änderungen konnten nicht gespeichert werden"
     },
     "characters": {
       "loading": "Wird geladen…",

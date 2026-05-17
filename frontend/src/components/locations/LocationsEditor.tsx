@@ -77,6 +77,7 @@ export default function LocationsEditor({
       );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("saveError"));
+      throw err;
     }
   }
 
@@ -148,6 +149,7 @@ export default function LocationsEditor({
               allLocations={locations}
               onSave={handleSave}
               onDelete={handleDelete}
+              onClose={() => setSelectedId(null)}
               isCurrent={isSelectedCurrent}
               onSetCurrent={
                 onCurrentLocationChanged

@@ -226,7 +226,12 @@
       "deleteLocation": "Delete location",
       "currentLocationBadge": "Current location",
       "setAsCurrent": "Set as current location",
-      "setCurrentError": "Failed to set current location"
+      "setCurrentError": "Failed to set current location",
+      "saveButton": "Save",
+      "saving": "Saving…",
+      "closeButton": "Close",
+      "discardButton": "Discard",
+      "saveError": "Could not save changes"
     },
     "characters": {
       "loading": "Loading…",
