@@ -84,7 +84,11 @@
     "setLocationButton": "Ort festlegen",
     "emptyTree": "Noch keine Orte vorhanden. Lege im Tab „Orte“ einen an.",
     "noPendingHint": "Tippe einen Ort an, um ihn als aktuellen festzulegen.",
-    "committing": "Ort wird gesetzt…"
+    "committing": "Ort wird gesetzt…",
+    "hintClickToInspect": "Klicke einen Ort an, um ihn zu inspizieren. Doppelklick legt ihn als aktuell fest.",
+    "hintDoubleClickToSet": "Doppelklick, um diesen Ort als aktuell festzulegen.",
+    "hintAlreadyCurrent": "Dies ist der aktuelle Ort.",
+    "noDescription": "Noch keine Beschreibung."
   },
   "builder": {
     "loading": "Wird geladen…",

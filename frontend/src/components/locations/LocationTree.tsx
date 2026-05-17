@@ -33,6 +33,7 @@ interface LocationNodeProps {
   selectedId: string | null;
   currentLocationId: string | null | undefined;
   onSelect: (location: Location) => void;
+  onActivate?: (location: Location) => void;
   onAddChild?: (parentId: string) => void;
   onReparent?: (draggedId: string, newParentId: string | null) => void;
   draggedId: string | null;
@@ -45,6 +46,7 @@ function LocationNode({
   selectedId,
   currentLocationId,
   onSelect,
+  onActivate,
   onAddChild,
   onReparent,
   draggedId,
@@ -107,6 +109,9 @@ function LocationNode({
         onDragLeave={canDrag ? handleDragLeave : undefined}
         onDrop={canDrag ? handleDrop : undefined}
         onClick={() => onSelect(node.location)}
+        onDoubleClick={
+          onActivate ? () => onActivate(node.location) : undefined
+        }
       >
         {/* Expand/collapse arrow */}
         <button
@@ -182,6 +187,7 @@ function LocationNode({
               selectedId={selectedId}
               currentLocationId={currentLocationId}
               onSelect={onSelect}
+              onActivate={onActivate}
               onAddChild={onAddChild}
               onReparent={onReparent}
               draggedId={draggedId}
@@ -198,6 +204,7 @@ interface LocationTreeProps {
   locations: Location[];
   selectedId: string | null;
   onSelect: (location: Location) => void;
+  onActivate?: (location: Location) => void;
   currentLocationId?: string | null;
   onAddRoot?: () => void;
   onAddChild?: (parentId: string) => void;
@@ -208,6 +215,7 @@ export default function LocationTree({
   locations,
   selectedId,
   onSelect,
+  onActivate,
   currentLocationId,
   onAddRoot,
   onAddChild,
@@ -288,6 +296,7 @@ export default function LocationTree({
                 selectedId={selectedId}
                 currentLocationId={currentLocationId}
                 onSelect={onSelect}
+                onActivate={onActivate}
                 onAddChild={onAddChild}
                 onReparent={onReparent}
                 draggedId={draggedId}

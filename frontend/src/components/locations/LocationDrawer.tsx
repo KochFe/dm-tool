@@ -3,10 +3,25 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { X } from "lucide-react";
+import { MapPin, X } from "lucide-react";
 import { useCampaign } from "@/contexts/CampaignContext";
 import { api } from "@/lib/api";
+import type { Location } from "@/types";
 import LocationTree from "./LocationTree";
+
+function breadcrumbFor(location: Location, all: Location[]): string {
+  const byId = new Map(all.map((l) => [l.id, l]));
+  const parts: string[] = [location.name];
+  let current = location;
+  for (let i = 0; i < 20; i++) {
+    if (!current.parent_id) break;
+    const parent = byId.get(current.parent_id);
+    if (!parent) break;
+    parts.push(parent.name);
+    current = parent;
+  }
+  return parts.join(" ← ");
+}
 
 export default function LocationDrawer() {
   const t = useTranslations("locationDrawer");
@@ -18,7 +33,16 @@ export default function LocationDrawer() {
     closeLocationDrawer,
     reload,
   } = useCampaign();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [committing, setCommitting] = useState(false);
+
+  // Reset selection whenever the drawer closes
+  useEffect(() => {
+    if (!isLocationDrawerOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedId(null);
+    }
+  }, [isLocationDrawerOpen]);
 
   // Escape-to-close
   useEffect(() => {
@@ -30,23 +54,31 @@ export default function LocationDrawer() {
     return () => window.removeEventListener("keydown", onKey);
   }, [isLocationDrawerOpen, closeLocationDrawer]);
 
-  async function handleSelect(locationId: string) {
+  async function handleActivate(location: Location) {
     if (committing) return;
-    if (locationId === campaign.current_location_id) {
+    if (location.id === campaign.current_location_id) {
       closeLocationDrawer();
       return;
     }
     setCommitting(true);
     try {
-      await api.updateCampaign(campaign.id, { current_location_id: locationId });
+      await api.updateCampaign(campaign.id, {
+        current_location_id: location.id,
+      });
       await reload();
       closeLocationDrawer();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : tDetail("setCurrentError"));
+      toast.error(
+        err instanceof Error ? err.message : tDetail("setCurrentError"),
+      );
     } finally {
       setCommitting(false);
     }
   }
+
+  const selected = locations.find((l) => l.id === selectedId) ?? null;
+  const isSelectedCurrent =
+    selected !== null && selected.id === campaign.current_location_id;
 
   return (
     <>
@@ -81,7 +113,11 @@ export default function LocationDrawer() {
         </div>
 
         {/* Tree (read-only navigator: no add/reparent callbacks passed) */}
-        <div className={`flex-1 overflow-y-auto p-4 ${committing ? "opacity-60 pointer-events-none" : ""}`}>
+        <div
+          className={`flex-1 overflow-y-auto p-4 min-h-0 ${
+            committing ? "opacity-60 pointer-events-none" : ""
+          }`}
+        >
           {locations.length === 0 ? (
             <p className="text-xs text-muted-foreground/60 text-center py-4">
               {t("emptyTree")}
@@ -89,17 +125,58 @@ export default function LocationDrawer() {
           ) : (
             <LocationTree
               locations={locations}
-              selectedId={null}
+              selectedId={selectedId}
               currentLocationId={campaign.current_location_id}
-              onSelect={(loc) => void handleSelect(loc.id)}
+              onSelect={(loc) => setSelectedId(loc.id)}
+              onActivate={(loc) => void handleActivate(loc)}
             />
           )}
         </div>
 
+        {/* Info panel for the selected location */}
+        {selected && (
+          <div className="border-t border-border p-4 bg-muted/30 max-h-[40%] overflow-y-auto flex flex-col gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm font-semibold text-foreground">
+                {selected.name}
+              </h3>
+              <span className="text-[10px] bg-muted text-foreground/80 px-1.5 py-0.5 rounded uppercase tracking-wide">
+                {selected.biome}
+              </span>
+              {isSelectedCurrent && (
+                <span className="flex items-center gap-1 text-[10px] text-primary font-medium">
+                  <MapPin className="w-3 h-3" aria-hidden="true" />
+                  {tDetail("currentLocationBadge")}
+                </span>
+              )}
+            </div>
+            {selected.parent_id && locations.length > 1 && (
+              <p className="text-[11px] text-muted-foreground/70">
+                {breadcrumbFor(selected, locations)}
+              </p>
+            )}
+            {selected.description ? (
+              <p className="text-xs text-foreground/90 whitespace-pre-wrap break-words">
+                {selected.description}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground/60 italic">
+                {t("noDescription")}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Footer hint */}
-        <div className="p-4 border-t border-border">
+        <div className="p-3 border-t border-border">
           <p className="text-xs text-muted-foreground/60 text-center">
-            {committing ? t("committing") : t("noPendingHint")}
+            {committing
+              ? t("committing")
+              : selected
+                ? isSelectedCurrent
+                  ? t("hintAlreadyCurrent")
+                  : t("hintDoubleClickToSet")
+                : t("hintClickToInspect")}
           </p>
         </div>
       </aside>

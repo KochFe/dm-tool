@@ -84,7 +84,11 @@
     "setLocationButton": "Set location",
     "emptyTree": "No locations yet. Create one from the Locations tab.",
     "noPendingHint": "Tap a location to set it as the current one.",
-    "committing": "Setting location…"
+    "committing": "Setting location…",
+    "hintClickToInspect": "Click a location to inspect it. Double-click to set it as current.",
+    "hintDoubleClickToSet": "Double-click to set this as the current location.",
+    "hintAlreadyCurrent": "This is the current location.",
+    "noDescription": "No description yet."
   },
   "builder": {
     "loading": "Loading…",
