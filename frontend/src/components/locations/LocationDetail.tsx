@@ -16,8 +16,12 @@ const BIOMES = [
   { value: "Underground", labelKey: "biomeUnderground" },
 ] as const;
 
-function buildBreadcrumb(location: Location, allLocations: Location[]): string {
-  const parts: string[] = [location.name];
+function buildBreadcrumb(
+  location: Location,
+  allLocations: Location[],
+  leafName: string,
+): string {
+  const parts: string[] = [leafName || location.name];
   const byId = new Map<string, Location>();
   for (const loc of allLocations) {
     byId.set(loc.id, loc);
@@ -102,7 +106,7 @@ export default function LocationDetail({
     }
   }
 
-  const breadcrumb = buildBreadcrumb(location, allLocations);
+  const breadcrumb = buildBreadcrumb(location, allLocations, name);
 
   return (
     <div className="flex flex-col gap-6">
