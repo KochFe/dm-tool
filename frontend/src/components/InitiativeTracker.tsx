@@ -12,8 +12,11 @@ import type {
   Combatant,
   PlayerCharacter,
   AddCombatantRequest,
+  EncounterTemplate,
+  PresentPC,
 } from '@/types';
 import ConfirmButton from '@/components/ConfirmButton';
+import StartEncounterModal from '@/components/encounters/StartEncounterModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const CONDITIONS = [
@@ -432,6 +435,8 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [templates, setTemplates] = useState<EncounterTemplate[]>([]);
+  const [startingTemplateId, setStartingTemplateId] = useState<string | null>(null);
 
   // ---- Data loading ----
 
@@ -453,6 +458,32 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   useEffect(() => {
     loadSessions();
   }, [loadSessions, refreshKey]);
+
+  const loadTemplates = useCallback(async () => {
+    try {
+      const list = await api.listEncounterTemplates(campaignId);
+      setTemplates(list);
+    } catch {
+      // Non-fatal: prepared-encounters list just won't render.
+    }
+  }, [campaignId]);
+
+  useEffect(() => {
+    if (!activeSession) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      void loadTemplates();
+    }
+  }, [activeSession, loadTemplates]);
+
+  const handleStartTemplate = async (presentPcs: PresentPC[]) => {
+    if (!startingTemplateId) return;
+    const session = await api.startEncounter(startingTemplateId, {
+      present_pcs: presentPcs,
+    });
+    setStartingTemplateId(null);
+    setActiveSession(session);
+    setSessions((prev) => [session, ...prev]);
+  };
 
   // ---- Handlers ----
 
@@ -815,10 +846,52 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         </div>
       )}
 
+      {/* Prepared encounters */}
+      {!isCreating && templates.length > 0 && (
+        <div className="mb-4 bg-card border border-border rounded-xl p-4 space-y-2">
+          <h3 className="font-medium text-foreground text-sm">{t('preparedEncountersHeading')}</h3>
+          <div className="space-y-1.5">
+            {templates.map((tpl) => {
+              const summary = tpl.combatants
+                .map((c) => (c.count > 1 ? `${c.name} ×${c.count}` : c.name))
+                .join(', ');
+              const startable = tpl.combatants.length > 0;
+              return (
+                <div
+                  key={tpl.id}
+                  className="flex items-center justify-between gap-3 bg-muted/30 border border-border rounded-lg px-3 py-2"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-foreground truncate">{tpl.name}</div>
+                    {summary && (
+                      <div className="text-xs text-muted-foreground truncate">{summary}</div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    disabled={!startable}
+                    onClick={() => setStartingTemplateId(tpl.id)}
+                    className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground px-2.5 py-1 rounded disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {t('startTemplateButton')}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* No active combat message */}
       {!isCreating && (
         <p className="text-muted-foreground text-sm mb-4">{t('noActiveCombat')}</p>
       )}
+
+      <StartEncounterModal
+        open={startingTemplateId !== null}
+        onClose={() => setStartingTemplateId(null)}
+        onConfirm={handleStartTemplate}
+      />
 
       {/* Completed sessions (collapsed) */}
       {completedSessions.length > 0 && (

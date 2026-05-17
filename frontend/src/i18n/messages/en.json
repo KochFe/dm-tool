@@ -513,6 +513,8 @@
     "starting": "Starting…",
     "cancel": "Cancel",
     "noActiveCombat": "No active combat. Click \"Start Combat\" to begin.",
+    "preparedEncountersHeading": "Prepared encounters",
+    "startTemplateButton": "Start",
     "showCompleted": "Show completed sessions ({count})",
     "hideCompleted": "Hide completed sessions ({count})",
     "unnamedSession": "Unnamed session",

@@ -513,6 +513,8 @@
     "starting": "Wird gestartet…",
     "cancel": "Abbrechen",
     "noActiveCombat": "Kein aktiver Combat. Klicke auf \"Combat starten\".",
+    "preparedEncountersHeading": "Vorbereitete Begegnungen",
+    "startTemplateButton": "Starten",
     "showCompleted": "Abgeschlossene Sessions zeigen ({count})",
     "hideCompleted": "Abgeschlossene Sessions ausblenden ({count})",
     "unnamedSession": "Unbenannte Session",
