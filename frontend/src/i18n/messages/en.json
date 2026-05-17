@@ -516,6 +516,8 @@
     "preparedEncountersHeading": "Prepared encounters",
     "startTemplateButton": "Start",
     "viewDetailsTitle": "View details",
+    "resumeHeading": "Resume in progress",
+    "resumeButton": "Resume",
     "showCompleted": "Show completed sessions ({count})",
     "hideCompleted": "Hide completed sessions ({count})",
     "unnamedSession": "Unnamed session",

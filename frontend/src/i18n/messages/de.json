@@ -516,6 +516,8 @@
     "preparedEncountersHeading": "Vorbereitete Begegnungen",
     "startTemplateButton": "Starten",
     "viewDetailsTitle": "Details anzeigen",
+    "resumeHeading": "Laufende Begegnungen",
+    "resumeButton": "Fortsetzen",
     "showCompleted": "Abgeschlossene Sessions zeigen ({count})",
     "hideCompleted": "Abgeschlossene Sessions ausblenden ({count})",
     "unnamedSession": "Unbenannte Session",
