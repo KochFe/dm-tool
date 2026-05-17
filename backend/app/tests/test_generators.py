@@ -395,3 +395,45 @@ def test_loot_prompt_renders_for_all_tier_amount_combos(tier, amount):
     assert "in the goblin chief's hut" in rendered_en
     assert TIER_GUIDANCE_DE[t] in rendered_de
     assert AMOUNT_RANGE_DE[a] in rendered_de
+
+
+async def test_generate_loot_passes_tier_and_amount_into_prompt(monkeypatch):
+    from app.services import generator_service
+    from app.schemas.generators import (
+        GeneratedLoot,
+        GeneratedLootItem,
+    )
+
+    captured_prompt: dict[str, str] = {}
+
+    class FakeStructured:
+        async def ainvoke(self, prompt: str):
+            captured_prompt["text"] = prompt
+            return GeneratedLoot(
+                items=[GeneratedLootItem(
+                    name="x", description="y", rarity="common", value="1 gp",
+                )],
+                total_value="1 gp",
+                context="here",
+            )
+
+    class FakeLLM:
+        def with_structured_output(self, _schema):
+            return FakeStructured()
+
+    monkeypatch.setattr(generator_service, "_get_llm", lambda temperature=1.0: FakeLLM())
+
+    await generator_service.generate_loot(
+        campaign_context={
+            "party_level": 5,
+            "location_name": "Cave",
+            "biome": "cavern",
+        },
+        context="in the chief's hut",
+        tier=LootTier.legendary,
+        amount=LootAmount.hoard,
+    )
+
+    assert "legendary" in captured_prompt["text"].lower()
+    assert "8–12" in captured_prompt["text"]
+    assert "in the chief's hut" in captured_prompt["text"]
