@@ -8,6 +8,12 @@ interface LootGeneratorDialogProps {
   open: boolean;
   loading: boolean;
   error: string | null;
+  autoContext: {
+    partyLevel: number;
+    hasPcs: boolean;
+    locationName: string | null;
+    biome: string | null;
+  };
   onCancel: () => void;
   onGenerate: (params: { tier: LootTier; amount: LootAmount; context: string }) => void;
 }
@@ -33,6 +39,7 @@ export default function LootGeneratorDialog({
   open,
   loading,
   error,
+  autoContext,
   onCancel,
   onGenerate,
 }: LootGeneratorDialogProps) {
@@ -74,6 +81,30 @@ export default function LootGeneratorDialog({
         <h2 id="loot-dialog-title" className="text-lg font-semibold text-primary">
           {t('title')}
         </h2>
+
+        <div className="bg-muted/50 border border-border rounded px-3 py-2 text-xs space-y-1">
+          <div className="font-semibold uppercase tracking-wide text-muted-foreground">
+            {t('autoContextLabel')}
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">{t('autoPartyLevel')}</span>
+            <span className="text-foreground">
+              {autoContext.partyLevel}
+              {!autoContext.hasPcs && (
+                <span className="text-amber-400 ml-1">({t('autoPartyLevelNoPcs')})</span>
+              )}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">{t('autoLocation')}</span>
+            <span className="text-foreground">
+              {autoContext.locationName ?? '—'}
+              {autoContext.biome && (
+                <span className="text-muted-foreground"> ({autoContext.biome})</span>
+              )}
+            </span>
+          </div>
+        </div>
 
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

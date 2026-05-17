@@ -468,6 +468,10 @@
   },
   "lootDialog": {
     "title": "Generate loot",
+    "autoContextLabel": "Auto context",
+    "autoPartyLevel": "Party level",
+    "autoPartyLevelNoPcs": "no PCs — defaulting to 1",
+    "autoLocation": "Location",
     "tierLabel": "Tier",
     "tierMundane": "Mundane",
     "tierStandard": "Standard",

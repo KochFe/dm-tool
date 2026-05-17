@@ -468,6 +468,10 @@
   },
   "lootDialog": {
     "title": "Loot erzeugen",
+    "autoContextLabel": "Auto-Kontext",
+    "autoPartyLevel": "Party-Level",
+    "autoPartyLevelNoPcs": "keine PCs — Standard 1",
+    "autoLocation": "Ort",
     "tierLabel": "Stufe",
     "tierMundane": "Alltäglich",
     "tierStandard": "Solide",

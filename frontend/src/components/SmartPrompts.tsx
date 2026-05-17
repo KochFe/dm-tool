@@ -9,6 +9,12 @@ import LootGeneratorDialog from './LootGeneratorDialog';
 interface SmartPromptsProps {
   campaignId: string;
   currentLocationName: string | null;
+  lootAutoContext: {
+    partyLevel: number;
+    hasPcs: boolean;
+    locationName: string | null;
+    biome: string | null;
+  };
   onResult: (
     type: 'encounter' | 'npc' | 'loot',
     result: GeneratedEncounter | GeneratedNpc | GeneratedLoot
@@ -123,6 +129,7 @@ const BUTTON_TYPES: {
 export default function SmartPrompts({
   campaignId,
   currentLocationName,
+  lootAutoContext,
   onResult,
 }: SmartPromptsProps) {
   const t = useTranslations('smartPrompts');
@@ -346,6 +353,7 @@ export default function SmartPrompts({
         open={showLootDialog}
         loading={lootLoading}
         error={lootError}
+        autoContext={lootAutoContext}
         onCancel={() => {
           if (!lootLoading) {
             setShowLootDialog(false);
