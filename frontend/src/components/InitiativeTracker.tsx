@@ -787,6 +787,18 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
             <span className="text-muted-foreground/60 ml-2">{t('spaceToAdvance')}</span>
           </p>
         )}
+
+        {/* Encounter notes carried over from the template */}
+        {activeSession.notes && (
+          <div className="mt-6 bg-card border border-border rounded-xl p-4">
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+              {t('encounterNotesLabel')}
+            </div>
+            <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words">
+              {activeSession.notes}
+            </p>
+          </div>
+        )}
       </div>
     );
   }

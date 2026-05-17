@@ -518,6 +518,7 @@
     "viewDetailsTitle": "Details anzeigen",
     "resumeHeading": "Laufende Begegnungen",
     "resumeButton": "Fortsetzen",
+    "encounterNotesLabel": "Begegnungs-Notizen",
     "showCompleted": "Abgeschlossene Sessions zeigen ({count})",
     "hideCompleted": "Abgeschlossene Sessions ausblenden ({count})",
     "unnamedSession": "Unbenannte Session",

@@ -518,6 +518,7 @@
     "viewDetailsTitle": "View details",
     "resumeHeading": "Resume in progress",
     "resumeButton": "Resume",
+    "encounterNotesLabel": "Encounter notes",
     "showCompleted": "Show completed sessions ({count})",
     "hideCompleted": "Hide completed sessions ({count})",
     "unnamedSession": "Unnamed session",
