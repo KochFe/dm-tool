@@ -25,6 +25,18 @@ export default function ExplorationView() {
   } | null>(null);
 
   const currentLocationName = currentLocation?.name ?? null;
+
+  const partyLevel = (() => {
+    if (characters.length === 0) return 1;
+    const avg = characters.reduce((sum, c) => sum + c.level, 0) / characters.length;
+    return Math.max(1, Math.min(20, Math.round(avg)));
+  })();
+  const lootAutoContext = {
+    partyLevel,
+    hasPcs: characters.length > 0,
+    locationName: currentLocationName,
+    biome: currentLocation?.biome ?? null,
+  };
   const locationNpcs = currentLocation
     ? npcs.filter((n) => n.location_id === currentLocation.id)
     : [];
@@ -106,6 +118,7 @@ export default function ExplorationView() {
       <SmartPrompts
         campaignId={campaign.id}
         currentLocationName={currentLocationName}
+        lootAutoContext={lootAutoContext}
         onResult={(type, result) => setGeneratorResult({ type, result })}
       />
 

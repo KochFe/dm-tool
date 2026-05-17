@@ -14,7 +14,7 @@ from app.schemas.ai_assist import (
     PhasePrepResult,
     TextResult,
 )
-from app.schemas.generators import GeneratedEncounter, GeneratedLoot, GeneratedNpc
+from app.schemas.generators import GeneratedEncounter, GeneratedLoot, GeneratedNpc, LootAmount, LootTier
 from app.schemas.language import Language
 
 
@@ -230,6 +230,8 @@ async def generate_loot(
     campaign_context: dict,
     context: str | None = None,
     *,
+    tier: LootTier | None = None,
+    amount: LootAmount | None = None,
     language: Language = Language.EN,
 ) -> GeneratedLoot:
     """Generate a D&D 5e loot collection scaled to the campaign context.
@@ -237,8 +239,13 @@ async def generate_loot(
     Args:
         campaign_context: Dict with keys party_level (int), location_name (str),
             and biome (str).
-        context: Optional narrative context, e.g. 'dragon hoard' or 'bandit chest'.
-            Defaults to 'general treasure' when not provided.
+        context: Optional 'where/from whom' free text. When None or blank the
+            prompt falls back to an 'unspecified — infer from location and tier'
+            note (language-appropriate).
+        tier: Rarity bias (mundane / standard / valuable / legendary). Defaults
+            to standard.
+        amount: Item count bucket (few / some / several / hoard). Defaults to
+            some.
 
     Returns:
         A GeneratedLoot with items, total_value, and context fields populated
@@ -248,13 +255,31 @@ async def generate_loot(
         RuntimeError: If GROQ_API_KEY is missing or structured output fails
             after one retry.
     """
+    effective_tier = tier or LootTier.standard
+    effective_amount = amount or LootAmount.some
+    effective_context = (
+        context.strip() if context and context.strip()
+        else (
+            "unspecified — infer from the location and tier"
+            if language == Language.EN
+            else "nicht angegeben — leite aus Ort und Tier ab"
+        )
+    )
+
+    if language == Language.EN:
+        from app.ai.prompts.en import AMOUNT_RANGE, TIER_GUIDANCE
+    else:
+        from app.ai.prompts.de import AMOUNT_RANGE, TIER_GUIDANCE
+
     llm = _get_llm(temperature=1.0)
     structured_llm = llm.with_structured_output(GeneratedLoot)
     prompt = get_prompt("LOOT_GENERATOR_PROMPT", language).format(
         party_level=campaign_context["party_level"],
         location_name=campaign_context["location_name"],
         biome=campaign_context["biome"],
-        context=context or "general treasure",
+        tier_guidance=TIER_GUIDANCE[effective_tier],
+        count_range=AMOUNT_RANGE[effective_amount],
+        context=effective_context,
     )
 
     try:

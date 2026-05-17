@@ -275,7 +275,12 @@ export interface GenerateNpcRequest {
   role?: string;
 }
 
+export type LootTier = 'mundane' | 'standard' | 'valuable' | 'legendary';
+export type LootAmount = 'few' | 'some' | 'several' | 'hoard';
+
 export interface GenerateLootRequest {
+  tier?: LootTier;
+  amount?: LootAmount;
   context?: string;
 }
 

@@ -1,4 +1,5 @@
 import uuid
+from enum import Enum
 
 from pydantic import BaseModel, Field
 
@@ -17,8 +18,27 @@ class GenerateNpcRequest(BaseModel):
     role: str | None = Field(default=None, description="Optional role or archetype hint, e.g. 'blacksmith' or 'bandit captain'")
 
 
+class LootTier(str, Enum):
+    mundane = "mundane"
+    standard = "standard"
+    valuable = "valuable"
+    legendary = "legendary"
+
+
+class LootAmount(str, Enum):
+    few = "few"          # 1–2 items
+    some = "some"        # 3–4 items
+    several = "several"  # 5–7 items
+    hoard = "hoard"      # 8–12 items
+
+
 class GenerateLootRequest(BaseModel):
-    context: str | None = Field(default=None, description="Optional narrative context for the loot, e.g. 'dragon hoard' or 'bandit chest'")
+    tier: LootTier = Field(default=LootTier.standard, description="Rarity bias for the loot")
+    amount: LootAmount = Field(default=LootAmount.some, description="How many items to generate")
+    context: str | None = Field(
+        default=None,
+        description="Free-text 'where / from whom' — e.g. 'in the bandit captain's pocket', 'corner of a damp cellar', 'dragon's hoard'.",
+    )
 
 
 # ---------------------------------------------------------------------------

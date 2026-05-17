@@ -1,6 +1,10 @@
+import itertools
+
 import pytest
 from httpx import AsyncClient
 from unittest.mock import patch, AsyncMock
+
+from pydantic import ValidationError
 
 from app.schemas.generators import (
     GeneratedEncounter,
@@ -8,6 +12,9 @@ from app.schemas.generators import (
     GeneratedNpc,
     GeneratedLoot,
     GeneratedLootItem,
+    GenerateLootRequest,
+    LootTier,
+    LootAmount,
 )
 
 pytestmark = pytest.mark.asyncio
@@ -308,3 +315,160 @@ async def test_encounter_endpoint_defaults_to_english_when_header_missing(
 
     assert resp.status_code == 200
     assert mock_gen.await_args.kwargs.get("language") == Language.EN
+
+
+# ---------------------------------------------------------------------------
+# GenerateLootRequest schema unit tests
+# ---------------------------------------------------------------------------
+
+
+def test_generate_loot_request_defaults():
+    req = GenerateLootRequest()
+    assert req.tier == LootTier.standard
+    assert req.amount == LootAmount.some
+    assert req.context is None
+
+
+def test_generate_loot_request_rejects_invalid_tier():
+    with pytest.raises(ValidationError):
+        GenerateLootRequest(tier="epic")
+
+
+def test_tier_guidance_dicts_complete():
+    from app.ai.prompts.en import TIER_GUIDANCE as TIER_GUIDANCE_EN, AMOUNT_RANGE as AMOUNT_RANGE_EN
+    from app.ai.prompts.de import TIER_GUIDANCE as TIER_GUIDANCE_DE, AMOUNT_RANGE as AMOUNT_RANGE_DE
+
+    for tier in LootTier:
+        assert tier in TIER_GUIDANCE_EN, f"missing EN tier: {tier}"
+        assert tier in TIER_GUIDANCE_DE, f"missing DE tier: {tier}"
+        assert TIER_GUIDANCE_EN[tier].strip()
+        assert TIER_GUIDANCE_DE[tier].strip()
+
+    for amount in LootAmount:
+        assert amount in AMOUNT_RANGE_EN, f"missing EN amount: {amount}"
+        assert amount in AMOUNT_RANGE_DE, f"missing DE amount: {amount}"
+        assert AMOUNT_RANGE_EN[amount].strip()
+        assert AMOUNT_RANGE_DE[amount].strip()
+
+
+@pytest.mark.parametrize(
+    "tier,amount",
+    list(itertools.product(
+        ["mundane", "standard", "valuable", "legendary"],
+        ["few", "some", "several", "hoard"],
+    )),
+)
+def test_loot_prompt_renders_for_all_tier_amount_combos(tier, amount):
+    from app.ai.prompts.en import (
+        AMOUNT_RANGE as AMOUNT_RANGE_EN,
+        LOOT_GENERATOR_PROMPT as PROMPT_EN,
+        TIER_GUIDANCE as TIER_GUIDANCE_EN,
+    )
+    from app.ai.prompts.de import (
+        AMOUNT_RANGE as AMOUNT_RANGE_DE,
+        LOOT_GENERATOR_PROMPT as PROMPT_DE,
+        TIER_GUIDANCE as TIER_GUIDANCE_DE,
+    )
+
+    t = LootTier(tier)
+    a = LootAmount(amount)
+
+    rendered_en = PROMPT_EN.format(
+        party_level=5,
+        location_name="Goblin Cave",
+        biome="cavern",
+        tier_guidance=TIER_GUIDANCE_EN[t],
+        count_range=AMOUNT_RANGE_EN[a],
+        context="in the goblin chief's hut",
+    )
+    rendered_de = PROMPT_DE.format(
+        party_level=5,
+        location_name="Goblin Cave",
+        biome="cavern",
+        tier_guidance=TIER_GUIDANCE_DE[t],
+        count_range=AMOUNT_RANGE_DE[a],
+        context="in the goblin chief's hut",
+    )
+
+    assert TIER_GUIDANCE_EN[t] in rendered_en
+    assert AMOUNT_RANGE_EN[a] in rendered_en
+    assert "in the goblin chief's hut" in rendered_en
+    assert TIER_GUIDANCE_DE[t] in rendered_de
+    assert AMOUNT_RANGE_DE[a] in rendered_de
+
+
+async def test_generate_loot_passes_tier_and_amount_into_prompt(monkeypatch):
+    from app.services import generator_service
+    from app.schemas.generators import (
+        GeneratedLoot,
+        GeneratedLootItem,
+    )
+
+    captured_prompt: dict[str, str] = {}
+
+    class FakeStructured:
+        async def ainvoke(self, prompt: str):
+            captured_prompt["text"] = prompt
+            return GeneratedLoot(
+                items=[GeneratedLootItem(
+                    name="x", description="y", rarity="common", value="1 gp",
+                )],
+                total_value="1 gp",
+                context="here",
+            )
+
+    class FakeLLM:
+        def with_structured_output(self, _schema):
+            return FakeStructured()
+
+    monkeypatch.setattr(generator_service, "_get_llm", lambda temperature=1.0: FakeLLM())
+
+    await generator_service.generate_loot(
+        campaign_context={
+            "party_level": 5,
+            "location_name": "Cave",
+            "biome": "cavern",
+        },
+        context="in the chief's hut",
+        tier=LootTier.legendary,
+        amount=LootAmount.hoard,
+    )
+
+    assert "legendary" in captured_prompt["text"].lower()
+    assert "8–12" in captured_prompt["text"]
+    assert "in the chief's hut" in captured_prompt["text"]
+
+
+async def test_generate_loot_endpoint_forwards_tier_and_amount(
+    client: AsyncClient,
+    auth_headers,
+    monkeypatch,
+):
+    from app.routers import generators as generators_router
+    from app.schemas.generators import GeneratedLoot, GeneratedLootItem
+
+    captured: dict = {}
+
+    async def fake_generate_loot(campaign_context, context=None, *, tier=None, amount=None, language=None):
+        captured["tier"] = tier
+        captured["amount"] = amount
+        captured["context"] = context
+        return GeneratedLoot(
+            items=[GeneratedLootItem(name="x", description="y", rarity="common", value="1 gp")],
+            total_value="1 gp",
+            context="here",
+        )
+
+    monkeypatch.setattr(generators_router, "generate_loot", fake_generate_loot)
+
+    cid = await _create_campaign(client, auth_headers)
+
+    response = await client.post(
+        LOOT_URL.format(campaign_id=cid),
+        json={"tier": "valuable", "amount": "hoard", "context": "in the captain's pocket"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+    assert captured["tier"].value == "valuable"
+    assert captured["amount"].value == "hoard"
+    assert captured["context"] == "in the captain's pocket"
