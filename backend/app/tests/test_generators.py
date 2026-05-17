@@ -330,3 +330,20 @@ def test_generate_loot_request_defaults():
 def test_generate_loot_request_rejects_invalid_tier():
     with pytest.raises(ValidationError):
         GenerateLootRequest(tier="epic")
+
+
+def test_tier_guidance_dicts_complete():
+    from app.ai.prompts.en import TIER_GUIDANCE_EN, AMOUNT_RANGE_EN
+    from app.ai.prompts.de import TIER_GUIDANCE_DE, AMOUNT_RANGE_DE
+
+    for tier in LootTier:
+        assert tier in TIER_GUIDANCE_EN, f"missing EN tier: {tier}"
+        assert tier in TIER_GUIDANCE_DE, f"missing DE tier: {tier}"
+        assert TIER_GUIDANCE_EN[tier].strip()
+        assert TIER_GUIDANCE_DE[tier].strip()
+
+    for amount in LootAmount:
+        assert amount in AMOUNT_RANGE_EN, f"missing EN amount: {amount}"
+        assert amount in AMOUNT_RANGE_DE, f"missing DE amount: {amount}"
+        assert AMOUNT_RANGE_EN[amount].strip()
+        assert AMOUNT_RANGE_DE[amount].strip()

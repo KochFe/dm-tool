@@ -100,6 +100,35 @@ NPC_GENERATOR_PROMPT = (
     + _GERMAN_DND_TERM_INSTRUCTION
 )
 
+from app.schemas.generators import LootAmount, LootTier
+
+TIER_GUIDANCE_DE: dict[LootTier, str] = {
+    LootTier.mundane: (
+        "Der Loot ist alltäglich — ausschließlich Common-Gegenstände, geringer "
+        "Geldwert, überwiegend praktische Gebrauchsgegenstände. Keine magischen Items."
+    ),
+    LootTier.standard: (
+        "Der Loot ist solide — überwiegend Common mit ein bis zwei Uncommon-Items, "
+        "Wert passend zum Party Level."
+    ),
+    LootTier.valuable: (
+        "Der Loot ist wertvoll — Uncommon- bis Rare-Items, mindestens ein Rare-Item, "
+        "Goldwert über dem Party-Level-Durchschnitt."
+    ),
+    LootTier.legendary: (
+        "Der Loot ist legendär — mindestens ein Very-Rare- oder Legendary-Item, "
+        "der Rest Rare oder Uncommon, herausragender Goldwert. Behandle ihn als "
+        "Höhepunkt einer großen Begegnung."
+    ),
+}
+
+AMOUNT_RANGE_DE: dict[LootAmount, str] = {
+    LootAmount.few: "Inkludiere 1–2 Gegenstände.",
+    LootAmount.some: "Inkludiere 3–4 Gegenstände.",
+    LootAmount.several: "Inkludiere 5–7 Gegenstände.",
+    LootAmount.hoard: "Inkludiere 8–12 Gegenstände.",
+}
+
 LOOT_GENERATOR_PROMPT = (
     "Erzeuge eine D&D-5e-Loot-Sammlung passend für eine Gruppe auf Level "
     "{party_level}.\n"

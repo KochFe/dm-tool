@@ -73,6 +73,35 @@ NPC_GENERATOR_PROMPT = (
     "Never repeat common fantasy tropes."
 )
 
+from app.schemas.generators import LootAmount, LootTier
+
+TIER_GUIDANCE_EN: dict[LootTier, str] = {
+    LootTier.mundane: (
+        "Loot is mundane — common rarity only, low monetary value, "
+        "mostly practical/utility items. No magic items."
+    ),
+    LootTier.standard: (
+        "Loot is standard — mostly common with one or two uncommon items, "
+        "value appropriate for the party level."
+    ),
+    LootTier.valuable: (
+        "Loot is valuable — uncommon to rare items, at least one rare item, "
+        "gold value above the party-level baseline."
+    ),
+    LootTier.legendary: (
+        "Loot is legendary — at least one very rare or legendary item, "
+        "the rest rare or uncommon, exceptional gold value. Treat as the "
+        "highlight of a major encounter."
+    ),
+}
+
+AMOUNT_RANGE_EN: dict[LootAmount, str] = {
+    LootAmount.few: "Include 1–2 items.",
+    LootAmount.some: "Include 3–4 items.",
+    LootAmount.several: "Include 5–7 items.",
+    LootAmount.hoard: "Include 8–12 items.",
+}
+
 LOOT_GENERATOR_PROMPT = (
     "Generate a D&D 5e loot collection appropriate for a party of level {party_level} characters.\n"
     "Current location: {location_name} ({biome}).\n"
