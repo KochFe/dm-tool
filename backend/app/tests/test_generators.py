@@ -308,3 +308,28 @@ async def test_encounter_endpoint_defaults_to_english_when_header_missing(
 
     assert resp.status_code == 200
     assert mock_gen.await_args.kwargs.get("language") == Language.EN
+
+
+# ---------------------------------------------------------------------------
+# GenerateLootRequest schema unit tests
+# ---------------------------------------------------------------------------
+
+
+def test_generate_loot_request_defaults():
+    from app.schemas.generators import GenerateLootRequest, LootTier, LootAmount
+
+    req = GenerateLootRequest()
+    assert req.tier == LootTier.standard
+    assert req.amount == LootAmount.some
+    assert req.context is None
+
+
+def test_generate_loot_request_rejects_invalid_tier():
+    from pydantic import ValidationError
+    from app.schemas.generators import GenerateLootRequest
+
+    try:
+        GenerateLootRequest(tier="epic")
+    except ValidationError:
+        return
+    raise AssertionError("expected ValidationError for invalid tier")
