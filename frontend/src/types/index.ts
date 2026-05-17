@@ -78,14 +78,17 @@ export interface Combatant {
   hp_max: number;
   armor_class: number;
   type: "pc" | "monster";
+  side: "enemy" | "ally" | "pc" | null;
   player_character_id: string | null;
   conditions: string[];
+  notes: string | null;
 }
 
 export interface CombatSession {
   id: string;
   campaign_id: string;
   name: string | null;
+  notes: string | null;
   combatants: Combatant[];
   current_turn_index: number;
   round_number: number;
@@ -96,6 +99,7 @@ export interface CombatSession {
 
 export interface CombatSessionCreate {
   name?: string;
+  notes?: string | null;
   combatants?: Combatant[];
 }
 
