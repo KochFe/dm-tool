@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class CombatantData(BaseModel):
@@ -12,10 +12,20 @@ class CombatantData(BaseModel):
     hp_max: int = Field(..., ge=1, description="Maximum hit points")
     armor_class: int = Field(..., ge=0, description="Armor class")
     type: Literal["pc", "monster"] = Field(..., description="Combatant type")
+    side: Literal["enemy", "ally", "pc"] | None = Field(
+        default=None,
+        description="Side flag. Defaults from type when None: pc->pc, monster->enemy.",
+    )
     player_character_id: uuid.UUID | None = Field(
         default=None, description="Linked player character ID, if type is 'pc'"
     )
     conditions: list[str] = Field(default_factory=list, description="Active conditions (e.g. Poisoned, Stunned)")
+
+    @model_validator(mode="after")
+    def _default_side_from_type(self) -> "CombatantData":
+        if self.side is None:
+            self.side = "pc" if self.type == "pc" else "enemy"
+        return self
 
 
 class CombatSessionCreate(BaseModel):
