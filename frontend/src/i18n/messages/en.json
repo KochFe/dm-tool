@@ -466,6 +466,25 @@
     "modalCancel": "Cancel",
     "modalGenerate": "Generate"
   },
+  "lootDialog": {
+    "title": "Generate loot",
+    "tierLabel": "Tier",
+    "tierMundane": "Mundane",
+    "tierStandard": "Standard",
+    "tierValuable": "Valuable",
+    "tierLegendary": "Legendary",
+    "amountLabel": "Amount",
+    "amountFew": "Few",
+    "amountSome": "Some",
+    "amountSeveral": "Several",
+    "amountHoard": "Hoard",
+    "contextLabel": "Where / from whom",
+    "contextPlaceholder": "e.g. in the bandit captain's pocket",
+    "generate": "Generate",
+    "cancel": "Cancel",
+    "errFallback": "Something went wrong. Please try again.",
+    "errUnexpected": "Unexpected error"
+  },
   "chatSidebar": {
     "ariaLabel": "Lore Oracle chat",
     "title": "Lore Oracle",

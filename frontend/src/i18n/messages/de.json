@@ -466,6 +466,25 @@
     "modalCancel": "Abbrechen",
     "modalGenerate": "Generieren"
   },
+  "lootDialog": {
+    "title": "Loot erzeugen",
+    "tierLabel": "Stufe",
+    "tierMundane": "Alltäglich",
+    "tierStandard": "Solide",
+    "tierValuable": "Wertvoll",
+    "tierLegendary": "Legendär",
+    "amountLabel": "Menge",
+    "amountFew": "Wenig",
+    "amountSome": "Etwas",
+    "amountSeveral": "Mehrere",
+    "amountHoard": "Hort",
+    "contextLabel": "Wo / von wem",
+    "contextPlaceholder": "z. B. in der Tasche des Banditenhauptmanns",
+    "generate": "Erzeugen",
+    "cancel": "Abbrechen",
+    "errFallback": "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
+    "errUnexpected": "Unerwarteter Fehler"
+  },
   "chatSidebar": {
     "ariaLabel": "Lore-Oracle-Chat",
     "title": "Lore Oracle",
