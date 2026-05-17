@@ -676,6 +676,15 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
     setError(null);
   };
 
+  const handleDeleteCompletedSession = async (id: string) => {
+    try {
+      await api.deleteCombatSession(id);
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('errDeleteSession'));
+    }
+  };
+
   // ---- Render: loading ----
 
   if (loading) {
@@ -993,14 +1002,20 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
               {completedSessions.map((s) => (
                 <div
                   key={s.id}
-                  className="bg-muted/30 border border-border rounded-lg px-3 py-2 text-sm text-muted-foreground flex items-center justify-between"
+                  className="bg-muted/30 border border-border rounded-lg px-3 py-2 text-sm text-muted-foreground flex items-center justify-between gap-2"
                 >
-                  <span>
+                  <span className="min-w-0 flex-1 truncate">
                     {t('completedSummary', { name: s.name ?? t('unnamedSession'), round: s.round_number, count: s.combatants.length })}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground shrink-0">
                     {new Date(s.created_at).toLocaleDateString()}
                   </span>
+                  <ConfirmButton
+                    onConfirm={() => handleDeleteCompletedSession(s.id)}
+                    label={t('deleteCompletedSession')}
+                    confirmLabel={t('confirmDeleteCompletedSession')}
+                    className="text-xs text-muted-foreground hover:text-destructive shrink-0"
+                  />
                 </div>
               ))}
             </div>

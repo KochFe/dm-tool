@@ -501,7 +501,7 @@
     "charSummary": "{race} {charClass} (Lv {level})"
   },
   "initiative": {
-    "heading": "Initiative Tracker",
+    "heading": "Kampf",
     "startCombat": "Combat starten",
     "newSession": "Neue Combat Session",
     "sessionNamePlaceholder": "Session-Name (optional)",
@@ -519,6 +519,9 @@
     "resumeHeading": "Laufende Begegnungen",
     "resumeButton": "Fortsetzen",
     "encounterNotesLabel": "Begegnungs-Notizen",
+    "deleteCompletedSession": "Löschen",
+    "confirmDeleteCompletedSession": "Löschen?",
+    "errDeleteSession": "Session konnte nicht gelöscht werden",
     "showCompleted": "Abgeschlossene Sessions zeigen ({count})",
     "hideCompleted": "Abgeschlossene Sessions ausblenden ({count})",
     "unnamedSession": "Unbenannte Session",
