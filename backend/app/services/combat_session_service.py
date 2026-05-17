@@ -35,6 +35,7 @@ async def create_combat_session(
     session = CombatSession(
         campaign_id=campaign_id,
         name=data.name,
+        notes=data.notes,
         combatants=sorted_combatants,
     )
     db.add(session)

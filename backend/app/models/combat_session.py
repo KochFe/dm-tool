@@ -17,6 +17,7 @@ class CombatSession(Base):
         Uuid, ForeignKey("campaigns.id", ondelete="CASCADE"), nullable=False
     )
     name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     combatants: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     current_turn_index: Mapped[int] = mapped_column(
         Integer, nullable=False, server_default="0"

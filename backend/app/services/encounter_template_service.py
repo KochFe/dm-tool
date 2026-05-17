@@ -128,6 +128,7 @@ async def start_encounter(
                     armor_class=tc.armor_class,
                     type="monster",
                     side=tc.side,
+                    notes=tc.notes,
                 )
             )
 
@@ -148,6 +149,7 @@ async def start_encounter(
 
     session_create = CombatSessionCreate(
         name=body.name or template.name,
+        notes=template.notes,
         combatants=combatants,
     )
     return await combat_session_service.create_combat_session(

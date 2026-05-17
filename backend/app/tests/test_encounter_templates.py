@@ -239,6 +239,41 @@ async def test_start_encounter_expands_count_and_creates_session(
     assert sides["Gandalf"] == "pc"
 
 
+async def test_start_encounter_carries_notes_to_session_and_combatants(
+    client: AsyncClient, auth_headers
+):
+    cid = await _create_campaign(client, auth_headers)
+    res = await client.post(
+        f"/api/v1/campaigns/{cid}/encounter-templates",
+        headers=auth_headers,
+        json={
+            "name": "Tomb fight",
+            "notes": "Set the scene: torches flicker.",
+            "combatants": [
+                {
+                    "name": "Skeleton",
+                    "count": 2,
+                    "hp_max": 13,
+                    "armor_class": 13,
+                    "initiative_bonus": 2,
+                    "notes": "Shortbow +4, Shortsword +4",
+                }
+            ],
+        },
+    )
+    template_id = res.json()["data"]["id"]
+    res = await client.post(
+        f"/api/v1/encounter-templates/{template_id}/start",
+        headers=auth_headers,
+        json={"present_pcs": []},
+    )
+    assert res.status_code == 201
+    data = res.json()["data"]
+    assert data["notes"] == "Set the scene: torches flicker."
+    for c in data["combatants"]:
+        assert c["notes"] == "Shortbow +4, Shortsword +4"
+
+
 async def test_start_encounter_422_when_pc_not_in_campaign(
     client: AsyncClient, auth_headers, auth_headers_b
 ):
