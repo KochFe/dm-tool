@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { MapPin } from "lucide-react";
 import type { Location } from "@/types";
@@ -16,8 +16,12 @@ const BIOMES = [
   { value: "Underground", labelKey: "biomeUnderground" },
 ] as const;
 
-function buildBreadcrumb(location: Location, allLocations: Location[]): string {
-  const parts: string[] = [location.name];
+function buildBreadcrumb(
+  location: Location,
+  allLocations: Location[],
+  leafName: string,
+): string {
+  const parts: string[] = [leafName || location.name];
   const byId = new Map<string, Location>();
   for (const loc of allLocations) {
     byId.set(loc.id, loc);
@@ -34,14 +38,15 @@ function buildBreadcrumb(location: Location, allLocations: Location[]): string {
   }
 
   // Reverse so topmost ancestor is on the right, matching "Cellar ← Inn ← Town"
-  return parts.join(" \u2190 ");
+  return parts.join(" ← ");
 }
 
 interface LocationDetailProps {
   location: Location;
   allLocations: Location[];
-  onSave: (id: string, data: Record<string, unknown>) => void;
+  onSave: (id: string, data: Record<string, unknown>) => Promise<void>;
   onDelete: (id: string) => void;
+  onClose: () => void;
   isCurrent?: boolean;
   onSetCurrent?: () => void;
 }
@@ -51,43 +56,57 @@ export default function LocationDetail({
   allLocations,
   onSave,
   onDelete,
+  onClose,
   isCurrent,
   onSetCurrent,
 }: LocationDetailProps) {
   const t = useTranslations("builder.locationDetail");
   const [name, setName] = useState(location.name);
   const [description, setDescription] = useState(location.description ?? "");
+  const [biome, setBiome] = useState(location.biome);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Sync local state when the selected location changes
   useEffect(() => {
     setName(location.name);
     setDescription(location.description ?? "");
+    setBiome(location.biome);
     setConfirmDelete(false);
-  }, [location.id, location.name, location.description]);
+    setSaveError(null);
+  }, [location.id, location.name, location.description, location.biome]);
 
-  function saveName() {
-    const trimmed = name.trim();
-    if (!trimmed || trimmed === location.name) {
-      setName(location.name);
-      return;
+  const patch = useMemo<Record<string, unknown>>(() => {
+    const p: Record<string, unknown> = {};
+    const trimmedName = name.trim();
+    if (trimmedName && trimmedName !== location.name) p.name = trimmedName;
+    const trimmedDesc = description.trim();
+    if (trimmedDesc !== (location.description ?? "")) {
+      p.description = trimmedDesc || null;
     }
-    onSave(location.id, { name: trimmed });
+    if (biome !== location.biome) p.biome = biome;
+    return p;
+  }, [name, description, biome, location]);
+
+  const isDirty = Object.keys(patch).length > 0;
+  const canSave = isDirty && name.trim().length > 0;
+
+  async function handleSave() {
+    if (!canSave || saving) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await onSave(location.id, patch);
+      onClose();
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : t("saveError"));
+    } finally {
+      setSaving(false);
+    }
   }
 
-  function saveDescription() {
-    const trimmed = description.trim();
-    const current = location.description ?? "";
-    if (trimmed === current) return;
-    onSave(location.id, { description: trimmed || null });
-  }
-
-  function selectBiome(biome: string) {
-    if (biome === location.biome) return;
-    onSave(location.id, { biome });
-  }
-
-  const breadcrumb = buildBreadcrumb(location, allLocations);
+  const breadcrumb = buildBreadcrumb(location, allLocations, name);
 
   return (
     <div className="flex flex-col gap-6">
@@ -123,7 +142,6 @@ export default function LocationDetail({
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onBlur={saveName}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
           placeholder={t("namePlaceholder")}
         />
@@ -137,7 +155,6 @@ export default function LocationDetail({
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          onBlur={saveDescription}
           rows={5}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
           placeholder={t("descriptionPlaceholder")}
@@ -153,9 +170,9 @@ export default function LocationDetail({
           {BIOMES.map(({ value, labelKey }) => (
             <button
               key={value}
-              onClick={() => selectBiome(value)}
+              onClick={() => setBiome(value)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                location.biome === value
+                biome === value
                   ? "bg-primary border-primary text-primary-foreground"
                   : "bg-muted border-border text-foreground/80 hover:border-border"
               }`}
@@ -166,32 +183,55 @@ export default function LocationDetail({
         </div>
       </section>
 
-      {/* Delete */}
-      <section className="pt-2 border-t border-border">
-        {confirmDelete ? (
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">{t("deletePrompt", { name: location.name })}</span>
+      {saveError && (
+        <div className="text-destructive text-sm">{saveError}</div>
+      )}
+
+      {/* Save / Discard */}
+      <section className="flex items-center gap-2 pt-2 border-t border-border">
+        <button
+          type="button"
+          onClick={() => void handleSave()}
+          disabled={!canSave || saving}
+          className="bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving ? t("saving") : t("saveButton")}
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-sm text-muted-foreground hover:text-foreground px-3 py-2"
+        >
+          {isDirty ? t("discardButton") : t("closeButton")}
+        </button>
+
+        {/* Delete on the right */}
+        <div className="ml-auto">
+          {confirmDelete ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">{t("deletePrompt", { name: location.name })}</span>
+              <button
+                onClick={() => onDelete(location.id)}
+                className="text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-800 dark:hover:bg-red-700 dark:text-white px-3 py-1 rounded transition-colors"
+              >
+                {t("yesDelete")}
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="text-sm text-muted-foreground hover:text-foreground/80 px-2 py-1 transition-colors"
+              >
+                {t("cancel")}
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={() => onDelete(location.id)}
-              className="text-sm bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-800 dark:hover:bg-red-700 dark:text-white px-3 py-1 rounded transition-colors"
+              onClick={() => setConfirmDelete(true)}
+              className="text-sm text-red-500 hover:text-red-400 transition-colors"
             >
-              {t("yesDelete")}
+              {t("deleteLocation")}
             </button>
-            <button
-              onClick={() => setConfirmDelete(false)}
-              className="text-sm text-muted-foreground hover:text-foreground/80 px-2 py-1 transition-colors"
-            >
-              {t("cancel")}
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setConfirmDelete(true)}
-            className="text-sm text-red-500 hover:text-red-400 transition-colors"
-          >
-            {t("deleteLocation")}
-          </button>
-        )}
+          )}
+        </div>
       </section>
     </div>
   );

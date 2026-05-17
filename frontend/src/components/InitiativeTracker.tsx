@@ -12,8 +12,11 @@ import type {
   Combatant,
   PlayerCharacter,
   AddCombatantRequest,
+  EncounterTemplate,
+  PresentPC,
 } from '@/types';
 import ConfirmButton from '@/components/ConfirmButton';
+import StartEncounterModal from '@/components/encounters/StartEncounterModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const CONDITIONS = [
@@ -38,6 +41,7 @@ interface InitiativeTrackerProps {
   characters: PlayerCharacter[];
   refreshKey?: number;
   onCombatEnd?: () => void;
+  onSelectionChange?: (combatant: Combatant | null) => void;
 }
 
 interface StagedCombatant {
@@ -141,12 +145,14 @@ interface CombatantRowProps {
   combatant: Combatant;
   index: number;
   isCurrent: boolean;
+  isSelected: boolean;
+  onSelect: () => void;
   sessionId: string;
   onUpdate: (updated: CombatSession) => void;
   onError: (msg: string) => void;
 }
 
-function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onError }: CombatantRowProps) {
+function CombatantRow({ combatant, index, isCurrent, isSelected, onSelect, sessionId, onUpdate, onError }: CombatantRowProps) {
   const t = useTranslations('initiative');
   const [removing, setRemoving] = useState(false);
 
@@ -166,7 +172,9 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors ${
         isCurrent
           ? 'bg-blue-900/30 border-l-4 border-l-blue-500 border-r border-r-blue-500/30 border-t border-t-blue-500/30 border-b border-b-blue-500/30'
-          : 'border-border hover:bg-muted/40'
+          : isSelected
+            ? 'border-primary bg-primary/5'
+            : 'border-border hover:bg-muted/40'
       }`}
     >
       {/* Turn arrow */}
@@ -183,9 +191,14 @@ function CombatantRow({ combatant, index, isCurrent, sessionId, onUpdate, onErro
       {/* Name + type badge + conditions */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className={`font-medium truncate ${isCurrent ? 'text-blue-200' : 'text-foreground'}`}>
+          <button
+            type="button"
+            onClick={onSelect}
+            className={`font-medium truncate text-left hover:underline ${isCurrent ? 'text-blue-200' : 'text-foreground'}`}
+            title={t('viewDetailsTitle')}
+          >
             {combatant.name}
-          </span>
+          </button>
           {combatant.type === 'pc' ? (
             <span className="shrink-0 text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded">{t('typePc')}</span>
           ) : (
@@ -420,7 +433,7 @@ function AddCombatantForm({ characters, onAdd, addedPcIds }: AddCombatantFormPro
 
 // ---- Main component ----
 
-export default function InitiativeTracker({ campaignId, characters, refreshKey = 0, onCombatEnd }: InitiativeTrackerProps) {
+export default function InitiativeTracker({ campaignId, characters, refreshKey = 0, onCombatEnd, onSelectionChange }: InitiativeTrackerProps) {
   const t = useTranslations('initiative');
   const [sessions, setSessions] = useState<CombatSession[]>([]);
   const [activeSession, setActiveSession] = useState<CombatSession | null>(null);
@@ -432,6 +445,32 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [templates, setTemplates] = useState<EncounterTemplate[]>([]);
+  const [startingTemplateId, setStartingTemplateId] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  // Notify parent of selection changes (and keep selection in sync with live session updates).
+  useEffect(() => {
+    if (!onSelectionChange) return;
+    if (selectedIndex === null || !activeSession) {
+      onSelectionChange(null);
+      return;
+    }
+    const selected = activeSession.combatants[selectedIndex] ?? null;
+    onSelectionChange(selected);
+  }, [selectedIndex, activeSession, onSelectionChange]);
+
+  // Drop selection if it falls out of range after a removal.
+  useEffect(() => {
+    if (
+      selectedIndex !== null &&
+      activeSession &&
+      selectedIndex >= activeSession.combatants.length
+    ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedIndex(null);
+    }
+  }, [activeSession, selectedIndex]);
 
   // ---- Data loading ----
 
@@ -441,8 +480,8 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
     try {
       const all = await api.getCombatSessions(campaignId);
       setSessions(all);
-      const active = all.find((s) => s.status === 'active') ?? null;
-      setActiveSession(active);
+      // Do NOT auto-resume an existing active session. The DM picks
+      // explicitly from the picker (Resume card / prepared encounter / blank).
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errLoadSessions'));
     } finally {
@@ -453,6 +492,32 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   useEffect(() => {
     loadSessions();
   }, [loadSessions, refreshKey]);
+
+  const loadTemplates = useCallback(async () => {
+    try {
+      const list = await api.listEncounterTemplates(campaignId);
+      setTemplates(list);
+    } catch {
+      // Non-fatal: prepared-encounters list just won't render.
+    }
+  }, [campaignId]);
+
+  useEffect(() => {
+    if (!activeSession) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      void loadTemplates();
+    }
+  }, [activeSession, loadTemplates]);
+
+  const handleStartTemplate = async (presentPcs: PresentPC[]) => {
+    if (!startingTemplateId) return;
+    const session = await api.startEncounter(startingTemplateId, {
+      present_pcs: presentPcs,
+    });
+    setStartingTemplateId(null);
+    setActiveSession(session);
+    setSessions((prev) => [session, ...prev]);
+  };
 
   // ---- Handlers ----
 
@@ -604,6 +669,21 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
   // ---- Render helpers ----
 
   const completedSessions = sessions.filter((s) => s.status === 'completed');
+  const resumableSessions = sessions.filter((s) => s.status === 'active');
+
+  const handleResumeSession = (session: CombatSession) => {
+    setActiveSession(session);
+    setError(null);
+  };
+
+  const handleDeleteCompletedSession = async (id: string) => {
+    try {
+      await api.deleteCombatSession(id);
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('errDeleteSession'));
+    }
+  };
 
   // ---- Render: loading ----
 
@@ -688,6 +768,8 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
                     combatant={combatant}
                     index={i}
                     isCurrent={i === activeSession.current_turn_index}
+                    isSelected={i === selectedIndex}
+                    onSelect={() => setSelectedIndex((prev) => (prev === i ? null : i))}
                     sessionId={activeSession.id}
                     onUpdate={handleSessionUpdate}
                     onError={handleCombatError}
@@ -713,6 +795,18 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
             {t('currentTurn', { name: activeSession.combatants[activeSession.current_turn_index]?.name ?? '—' })}
             <span className="text-muted-foreground/60 ml-2">{t('spaceToAdvance')}</span>
           </p>
+        )}
+
+        {/* Encounter notes carried over from the template */}
+        {activeSession.notes && (
+          <div className="mt-6 bg-card border border-border rounded-xl p-4">
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+              {t('encounterNotesLabel')}
+            </div>
+            <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words">
+              {activeSession.notes}
+            </p>
+          </div>
         )}
       </div>
     );
@@ -815,10 +909,83 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         </div>
       )}
 
+      {/* Resume in-progress combats */}
+      {!isCreating && resumableSessions.length > 0 && (
+        <div className="mb-4 bg-card border border-border rounded-xl p-4 space-y-2">
+          <h3 className="font-medium text-foreground text-sm">{t('resumeHeading')}</h3>
+          <div className="space-y-1.5">
+            {resumableSessions.map((s) => (
+              <div
+                key={s.id}
+                className="flex items-center justify-between gap-3 bg-muted/30 border border-border rounded-lg px-3 py-2"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium text-foreground truncate">
+                    {s.name ?? t('defaultName')}
+                  </div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {t('roundCombatants', { round: s.round_number, count: s.combatants.length })}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleResumeSession(s)}
+                  className="text-xs bg-accent hover:bg-muted text-foreground px-2.5 py-1 rounded"
+                >
+                  {t('resumeButton')}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Prepared encounters */}
+      {!isCreating && templates.length > 0 && (
+        <div className="mb-4 bg-card border border-border rounded-xl p-4 space-y-2">
+          <h3 className="font-medium text-foreground text-sm">{t('preparedEncountersHeading')}</h3>
+          <div className="space-y-1.5">
+            {templates.map((tpl) => {
+              const summary = tpl.combatants
+                .map((c) => (c.count > 1 ? `${c.name} ×${c.count}` : c.name))
+                .join(', ');
+              const startable = tpl.combatants.length > 0;
+              return (
+                <div
+                  key={tpl.id}
+                  className="flex items-center justify-between gap-3 bg-muted/30 border border-border rounded-lg px-3 py-2"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-foreground truncate">{tpl.name}</div>
+                    {summary && (
+                      <div className="text-xs text-muted-foreground truncate">{summary}</div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    disabled={!startable}
+                    onClick={() => setStartingTemplateId(tpl.id)}
+                    className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground px-2.5 py-1 rounded disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {t('startTemplateButton')}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* No active combat message */}
       {!isCreating && (
         <p className="text-muted-foreground text-sm mb-4">{t('noActiveCombat')}</p>
       )}
+
+      <StartEncounterModal
+        open={startingTemplateId !== null}
+        onClose={() => setStartingTemplateId(null)}
+        onConfirm={handleStartTemplate}
+      />
 
       {/* Completed sessions (collapsed) */}
       {completedSessions.length > 0 && (
@@ -835,14 +1002,20 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
               {completedSessions.map((s) => (
                 <div
                   key={s.id}
-                  className="bg-muted/30 border border-border rounded-lg px-3 py-2 text-sm text-muted-foreground flex items-center justify-between"
+                  className="bg-muted/30 border border-border rounded-lg px-3 py-2 text-sm text-muted-foreground flex items-center justify-between gap-2"
                 >
-                  <span>
+                  <span className="min-w-0 flex-1 truncate">
                     {t('completedSummary', { name: s.name ?? t('unnamedSession'), round: s.round_number, count: s.combatants.length })}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground shrink-0">
                     {new Date(s.created_at).toLocaleDateString()}
                   </span>
+                  <ConfirmButton
+                    onConfirm={() => handleDeleteCompletedSession(s.id)}
+                    label={t('deleteCompletedSession')}
+                    confirmLabel={t('confirmDeleteCompletedSession')}
+                    className="text-xs text-muted-foreground hover:text-destructive shrink-0"
+                  />
                 </div>
               ))}
             </div>

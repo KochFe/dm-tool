@@ -83,7 +83,12 @@
     "openTooltip": "Open location navigator",
     "setLocationButton": "Set location",
     "emptyTree": "No locations yet. Create one from the Locations tab.",
-    "noPendingHint": "Tap a location to set it as the current one."
+    "noPendingHint": "Tap a location to set it as the current one.",
+    "committing": "Setting location…",
+    "hintClickToInspect": "Click a location to inspect it. Double-click to set it as current.",
+    "hintDoubleClickToSet": "Double-click to set this as the current location.",
+    "hintAlreadyCurrent": "This is the current location.",
+    "noDescription": "No description yet."
   },
   "builder": {
     "loading": "Loading…",
@@ -226,7 +231,12 @@
       "deleteLocation": "Delete location",
       "currentLocationBadge": "Current location",
       "setAsCurrent": "Set as current location",
-      "setCurrentError": "Failed to set current location"
+      "setCurrentError": "Failed to set current location",
+      "saveButton": "Save",
+      "saving": "Saving…",
+      "closeButton": "Close",
+      "discardButton": "Discard",
+      "saveError": "Could not save changes"
     },
     "characters": {
       "loading": "Loading…",
@@ -353,6 +363,7 @@
     "locations": "Locations",
     "npcs": "NPCs",
     "quests": "Quests",
+    "encounters": "Encounters",
     "session": "Session",
     "settings": "Settings",
     "allCampaigns": "All Campaigns",
@@ -500,7 +511,7 @@
     "charSummary": "{race} {charClass} (Lv {level})"
   },
   "initiative": {
-    "heading": "Initiative Tracker",
+    "heading": "Combat",
     "startCombat": "Start Combat",
     "newSession": "New Combat Session",
     "sessionNamePlaceholder": "Session name (optional)",
@@ -512,6 +523,15 @@
     "starting": "Starting…",
     "cancel": "Cancel",
     "noActiveCombat": "No active combat. Click \"Start Combat\" to begin.",
+    "preparedEncountersHeading": "Prepared encounters",
+    "startTemplateButton": "Start",
+    "viewDetailsTitle": "View details",
+    "resumeHeading": "Resume in progress",
+    "resumeButton": "Resume",
+    "encounterNotesLabel": "Encounter notes",
+    "deleteCompletedSession": "Delete",
+    "confirmDeleteCompletedSession": "Delete?",
+    "errDeleteSession": "Could not delete session",
     "showCompleted": "Show completed sessions ({count})",
     "hideCompleted": "Hide completed sessions ({count})",
     "unnamedSession": "Unnamed session",
@@ -753,5 +773,74 @@
       "completed": "completed",
       "failed": "failed"
     }
+  },
+  "encounters": {
+    "tabTitle": "Encounters",
+    "list": {
+      "empty": "No prepared encounters yet.",
+      "noLocationGroup": "Unassigned location",
+      "addButton": "New encounter",
+      "combatantsSummary": "{count} combatants",
+      "loading": "Loading…"
+    },
+    "detail": {
+      "empty": "Select an encounter to edit, or create a new one.",
+      "namePlaceholder": "Encounter name",
+      "locationLabel": "Location",
+      "noLocationOption": "(no location)",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Optional notes for the DM",
+      "saveButton": "Save",
+      "saving": "Saving…",
+      "closeButton": "Close",
+      "discardButton": "Discard",
+      "startButton": "Start encounter",
+      "saveBeforeStart": "Save changes before starting",
+      "deleteButton": "Delete encounter",
+      "deleteConfirm": "Delete this encounter?",
+      "cancelButton": "Cancel",
+      "saveError": "Could not save changes"
+    },
+    "combatantsTable": {
+      "title": "Combatants",
+      "addRow": "Add combatant",
+      "headerName": "Name",
+      "headerSide": "Side",
+      "headerCount": "Count",
+      "headerHp": "HP",
+      "headerAc": "AC",
+      "headerInit": "Init",
+      "headerNotes": "Notes",
+      "sideEnemy": "Enemy",
+      "sideAlly": "Ally",
+      "removeRowLabel": "Remove row",
+      "emptyRow": "No combatants yet — add one to enable starting this encounter."
+    },
+    "startModal": {
+      "title": "Start encounter",
+      "subtitle": "Who's in the party for this fight?",
+      "rollAllButton": "Roll all initiatives",
+      "initLabel": "Initiative",
+      "startButton": "Start",
+      "cancelButton": "Cancel",
+      "startError": "Could not start encounter"
+    }
+  },
+  "combatantDetail": {
+    "empty": "Click a combatant in the tracker to see their details.",
+    "typePc": "PC",
+    "typeMonster": "Monster",
+    "sidePc": "Party",
+    "sideAlly": "Ally",
+    "sideEnemy": "Enemy",
+    "hpLabel": "HP",
+    "acLabel": "AC",
+    "initLabel": "Init",
+    "ppLabel": "Passive",
+    "speedLabel": "Speed",
+    "pbLabel": "Prof",
+    "conditionsLabel": "Conditions",
+    "notesLabel": "Notes",
+    "pcSummary": "{race} {cls}, level {level}"
   }
 }

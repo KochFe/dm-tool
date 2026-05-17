@@ -83,7 +83,12 @@
     "openTooltip": "Ortsnavigator öffnen",
     "setLocationButton": "Ort festlegen",
     "emptyTree": "Noch keine Orte vorhanden. Lege im Tab „Orte“ einen an.",
-    "noPendingHint": "Tippe einen Ort an, um ihn als aktuellen festzulegen."
+    "noPendingHint": "Tippe einen Ort an, um ihn als aktuellen festzulegen.",
+    "committing": "Ort wird gesetzt…",
+    "hintClickToInspect": "Klicke einen Ort an, um ihn zu inspizieren. Doppelklick legt ihn als aktuell fest.",
+    "hintDoubleClickToSet": "Doppelklick, um diesen Ort als aktuell festzulegen.",
+    "hintAlreadyCurrent": "Dies ist der aktuelle Ort.",
+    "noDescription": "Noch keine Beschreibung."
   },
   "builder": {
     "loading": "Wird geladen…",
@@ -226,7 +231,12 @@
       "deleteLocation": "Ort löschen",
       "currentLocationBadge": "Aktueller Ort",
       "setAsCurrent": "Als aktuellen Ort festlegen",
-      "setCurrentError": "Aktueller Ort konnte nicht festgelegt werden"
+      "setCurrentError": "Aktueller Ort konnte nicht festgelegt werden",
+      "saveButton": "Speichern",
+      "saving": "Speichern…",
+      "closeButton": "Schließen",
+      "discardButton": "Verwerfen",
+      "saveError": "Änderungen konnten nicht gespeichert werden"
     },
     "characters": {
       "loading": "Wird geladen…",
@@ -353,6 +363,7 @@
     "locations": "Orte",
     "npcs": "NPCs",
     "quests": "Quests",
+    "encounters": "Begegnungen",
     "session": "Session",
     "settings": "Einstellungen",
     "allCampaigns": "Alle Kampagnen",
@@ -500,7 +511,7 @@
     "charSummary": "{race} {charClass} (Lv {level})"
   },
   "initiative": {
-    "heading": "Initiative Tracker",
+    "heading": "Kampf",
     "startCombat": "Combat starten",
     "newSession": "Neue Combat Session",
     "sessionNamePlaceholder": "Session-Name (optional)",
@@ -512,6 +523,15 @@
     "starting": "Wird gestartet…",
     "cancel": "Abbrechen",
     "noActiveCombat": "Kein aktiver Combat. Klicke auf \"Combat starten\".",
+    "preparedEncountersHeading": "Vorbereitete Begegnungen",
+    "startTemplateButton": "Starten",
+    "viewDetailsTitle": "Details anzeigen",
+    "resumeHeading": "Laufende Begegnungen",
+    "resumeButton": "Fortsetzen",
+    "encounterNotesLabel": "Begegnungs-Notizen",
+    "deleteCompletedSession": "Löschen",
+    "confirmDeleteCompletedSession": "Löschen?",
+    "errDeleteSession": "Session konnte nicht gelöscht werden",
     "showCompleted": "Abgeschlossene Sessions zeigen ({count})",
     "hideCompleted": "Abgeschlossene Sessions ausblenden ({count})",
     "unnamedSession": "Unbenannte Session",
@@ -753,5 +773,74 @@
       "completed": "abgeschlossen",
       "failed": "gescheitert"
     }
+  },
+  "encounters": {
+    "tabTitle": "Begegnungen",
+    "list": {
+      "empty": "Noch keine vorbereiteten Begegnungen.",
+      "noLocationGroup": "Ohne Ort",
+      "addButton": "Neue Begegnung",
+      "combatantsSummary": "{count} Kämpfer",
+      "loading": "Lädt…"
+    },
+    "detail": {
+      "empty": "Wähle eine Begegnung zum Bearbeiten oder erstelle eine neue.",
+      "namePlaceholder": "Name der Begegnung",
+      "locationLabel": "Ort",
+      "noLocationOption": "(kein Ort)",
+      "notesLabel": "Notizen",
+      "notesPlaceholder": "Optionale Notizen für den DM",
+      "saveButton": "Speichern",
+      "saving": "Speichern…",
+      "closeButton": "Schließen",
+      "discardButton": "Verwerfen",
+      "startButton": "Begegnung starten",
+      "saveBeforeStart": "Vor dem Starten speichern",
+      "deleteButton": "Begegnung löschen",
+      "deleteConfirm": "Diese Begegnung löschen?",
+      "cancelButton": "Abbrechen",
+      "saveError": "Änderungen konnten nicht gespeichert werden"
+    },
+    "combatantsTable": {
+      "title": "Kämpfer",
+      "addRow": "Kämpfer hinzufügen",
+      "headerName": "Name",
+      "headerSide": "Seite",
+      "headerCount": "Anzahl",
+      "headerHp": "TP",
+      "headerAc": "RK",
+      "headerInit": "Ini",
+      "headerNotes": "Notizen",
+      "sideEnemy": "Feind",
+      "sideAlly": "Verbündeter",
+      "removeRowLabel": "Zeile entfernen",
+      "emptyRow": "Noch keine Kämpfer — füge mindestens einen hinzu, um die Begegnung starten zu können."
+    },
+    "startModal": {
+      "title": "Begegnung starten",
+      "subtitle": "Wer ist bei diesem Kampf dabei?",
+      "rollAllButton": "Alle Initiativen würfeln",
+      "initLabel": "Initiative",
+      "startButton": "Start",
+      "cancelButton": "Abbrechen",
+      "startError": "Begegnung konnte nicht gestartet werden"
+    }
+  },
+  "combatantDetail": {
+    "empty": "Klicke auf einen Kämpfer im Tracker, um die Details zu sehen.",
+    "typePc": "SC",
+    "typeMonster": "Monster",
+    "sidePc": "Party",
+    "sideAlly": "Verbündeter",
+    "sideEnemy": "Feind",
+    "hpLabel": "TP",
+    "acLabel": "RK",
+    "initLabel": "Ini",
+    "ppLabel": "Passiv",
+    "speedLabel": "Bewegung",
+    "pbLabel": "Übung",
+    "conditionsLabel": "Zustände",
+    "notesLabel": "Notizen",
+    "pcSummary": "{race} {cls}, Stufe {level}"
   }
 }

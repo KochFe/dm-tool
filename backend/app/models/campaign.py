@@ -59,6 +59,9 @@ class Campaign(Base):
     ideas: Mapped[list["CampaignIdea"]] = relationship(
         back_populates="campaign", cascade="all, delete-orphan"
     )
+    encounter_templates: Mapped[list["EncounterTemplate"]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
     owner: Mapped["User"] = relationship(lazy="select")
 
     __table_args__ = (
