@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 from app.config import settings
 from app.database import engine
-from app.routers import auth, campaigns, player_characters, locations, dice, combat_sessions, npcs, quests, chat, generators, ddb_import, phases, ideas, admin, providers, general_chat
+from app.routers import auth, campaigns, player_characters, locations, dice, combat_sessions, npcs, quests, chat, generators, ddb_import, phases, ideas, admin, providers, general_chat, encounter_templates
 
 app = FastAPI(title="DM Co-Pilot API", version="0.1.0")
 
@@ -32,6 +32,7 @@ app.include_router(ideas.router, prefix="/api/v1", tags=["ideas"])
 app.include_router(admin.router, prefix="/api/v1", tags=["admin"])
 app.include_router(providers.router, prefix="/api/v1", tags=["providers"])
 app.include_router(general_chat.router, prefix="/api/v1", tags=["general-chat"])
+app.include_router(encounter_templates.router, prefix="/api/v1", tags=["encounters"])
 
 
 @app.get("/health")
