@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
@@ -20,6 +20,7 @@ type Props = {
   locations: Location[];
   onUpdate: (patch: EncounterTemplateUpdate) => Promise<void>;
   onDelete: () => Promise<void>;
+  onClose: () => void;
 };
 
 export default function EncounterDetail({
@@ -27,6 +28,7 @@ export default function EncounterDetail({
   locations,
   onUpdate,
   onDelete,
+  onClose,
 }: Props) {
   const t = useTranslations("encounters.detail");
   const router = useRouter();
@@ -41,6 +43,8 @@ export default function EncounterDetail({
   );
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [startOpen, setStartOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const canStart = combatants.length > 0;
 
   const handleConfirmStart = async (presentPcs: PresentPC[]) => {
@@ -57,28 +61,37 @@ export default function EncounterDetail({
       setLocationId(template.location_id);
       setCombatants(template.combatants);
       setConfirmDelete(false);
+      setSaveError(null);
       lastIdRef.current = template.id;
     }
   }, [template]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const patch: EncounterTemplateUpdate = {};
-      if (name !== template.name) patch.name = name;
-      if (notes !== (template.notes ?? "")) patch.notes = notes || null;
-      if (locationId !== template.location_id) patch.location_id = locationId;
-      if (
-        JSON.stringify(combatants) !== JSON.stringify(template.combatants)
-      ) {
-        patch.combatants = combatants;
-      }
-      if (Object.keys(patch).length > 0) {
-        void onUpdate(patch);
-      }
-    }, 400);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, notes, locationId, combatants]);
+  const patch = useMemo<EncounterTemplateUpdate>(() => {
+    const p: EncounterTemplateUpdate = {};
+    if (name !== template.name) p.name = name;
+    if (notes !== (template.notes ?? "")) p.notes = notes || null;
+    if (locationId !== template.location_id) p.location_id = locationId;
+    if (JSON.stringify(combatants) !== JSON.stringify(template.combatants)) {
+      p.combatants = combatants;
+    }
+    return p;
+  }, [name, notes, locationId, combatants, template]);
+
+  const isDirty = Object.keys(patch).length > 0;
+
+  const handleSave = async () => {
+    if (!isDirty || saving) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await onUpdate(patch);
+      onClose();
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : t("saveError"));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4 p-6">
@@ -122,12 +135,32 @@ export default function EncounterDetail({
 
       <CombatantsTable rows={combatants} onChange={setCombatants} />
 
-      <div className="flex gap-2 pt-4 border-t border-border">
+      {saveError && (
+        <div className="text-destructive text-sm">{saveError}</div>
+      )}
+
+      <div className="flex gap-2 pt-4 border-t border-border items-center">
         <button
           type="button"
-          disabled={!canStart}
-          onClick={() => setStartOpen(true)}
+          onClick={() => void handleSave()}
+          disabled={!isDirty || saving}
           className="bg-primary text-primary-foreground rounded px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving ? t("saving") : t("saveButton")}
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-sm text-muted-foreground hover:text-foreground px-3 py-2"
+        >
+          {isDirty ? t("discardButton") : t("closeButton")}
+        </button>
+        <button
+          type="button"
+          disabled={!canStart || isDirty}
+          onClick={() => setStartOpen(true)}
+          title={isDirty ? t("saveBeforeStart") : undefined}
+          className="bg-accent text-foreground rounded px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {t("startButton")}
         </button>

@@ -80,6 +80,7 @@ export default function EncountersEditor() {
             locations={locations}
             onUpdate={(patch) => handleUpdate(selected.id, patch)}
             onDelete={() => handleDelete(selected.id)}
+            onClose={() => setSelectedId(null)}
           />
         ) : (
           <div className="text-muted-foreground p-8">{t("detail.empty")}</div>
