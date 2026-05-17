@@ -335,8 +335,8 @@ def test_generate_loot_request_rejects_invalid_tier():
 
 
 def test_tier_guidance_dicts_complete():
-    from app.ai.prompts.en import TIER_GUIDANCE_EN, AMOUNT_RANGE_EN
-    from app.ai.prompts.de import TIER_GUIDANCE_DE, AMOUNT_RANGE_DE
+    from app.ai.prompts.en import TIER_GUIDANCE as TIER_GUIDANCE_EN, AMOUNT_RANGE as AMOUNT_RANGE_EN
+    from app.ai.prompts.de import TIER_GUIDANCE as TIER_GUIDANCE_DE, AMOUNT_RANGE as AMOUNT_RANGE_DE
 
     for tier in LootTier:
         assert tier in TIER_GUIDANCE_EN, f"missing EN tier: {tier}"
@@ -360,14 +360,14 @@ def test_tier_guidance_dicts_complete():
 )
 def test_loot_prompt_renders_for_all_tier_amount_combos(tier, amount):
     from app.ai.prompts.en import (
-        AMOUNT_RANGE_EN,
+        AMOUNT_RANGE as AMOUNT_RANGE_EN,
         LOOT_GENERATOR_PROMPT as PROMPT_EN,
-        TIER_GUIDANCE_EN,
+        TIER_GUIDANCE as TIER_GUIDANCE_EN,
     )
     from app.ai.prompts.de import (
-        AMOUNT_RANGE_DE,
+        AMOUNT_RANGE as AMOUNT_RANGE_DE,
         LOOT_GENERATOR_PROMPT as PROMPT_DE,
-        TIER_GUIDANCE_DE,
+        TIER_GUIDANCE as TIER_GUIDANCE_DE,
     )
 
     t = LootTier(tier)

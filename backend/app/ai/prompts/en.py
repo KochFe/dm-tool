@@ -75,7 +75,7 @@ NPC_GENERATOR_PROMPT = (
 
 from app.schemas.generators import LootAmount, LootTier
 
-TIER_GUIDANCE_EN: dict[LootTier, str] = {
+TIER_GUIDANCE: dict[LootTier, str] = {
     LootTier.mundane: (
         "Loot is mundane — common rarity only, low monetary value, "
         "mostly practical/utility items. No magic items."
@@ -95,7 +95,7 @@ TIER_GUIDANCE_EN: dict[LootTier, str] = {
     ),
 }
 
-AMOUNT_RANGE_EN: dict[LootAmount, str] = {
+AMOUNT_RANGE: dict[LootAmount, str] = {
     LootAmount.few: "Include 1–2 items.",
     LootAmount.some: "Include 3–4 items.",
     LootAmount.several: "Include 5–7 items.",

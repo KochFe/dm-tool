@@ -102,7 +102,7 @@ NPC_GENERATOR_PROMPT = (
 
 from app.schemas.generators import LootAmount, LootTier
 
-TIER_GUIDANCE_DE: dict[LootTier, str] = {
+TIER_GUIDANCE: dict[LootTier, str] = {
     LootTier.mundane: (
         "Der Loot ist alltäglich — ausschließlich Common-Gegenstände, geringer "
         "Geldwert, überwiegend praktische Gebrauchsgegenstände. Keine magischen Items."
@@ -122,7 +122,7 @@ TIER_GUIDANCE_DE: dict[LootTier, str] = {
     ),
 }
 
-AMOUNT_RANGE_DE: dict[LootAmount, str] = {
+AMOUNT_RANGE: dict[LootAmount, str] = {
     LootAmount.few: "Inkludiere 1–2 Gegenstände.",
     LootAmount.some: "Inkludiere 3–4 Gegenstände.",
     LootAmount.several: "Inkludiere 5–7 Gegenstände.",
