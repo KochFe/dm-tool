@@ -12,6 +12,7 @@ import {
   MapPin,
   Drama,
   Flag,
+  Sword,
   Swords,
   Settings,
   ArrowLeft,
@@ -42,6 +43,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
     { href: `${base}/locations`, label: t("locations"), icon: MapPin },
     { href: `${base}/npcs`, label: t("npcs"), icon: Drama },
     { href: `${base}/quests`, label: t("quests"), icon: Flag },
+    { href: `${base}/encounters`, label: t("encounters"), icon: Sword },
   ];
 
   const sessionNav: NavItem[] = [
