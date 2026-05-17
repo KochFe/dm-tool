@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, type ReactElement } from 'react';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
-import type { GeneratedEncounter, GeneratedNpc, GeneratedLoot } from '@/types';
+import type { GeneratedEncounter, GeneratedNpc, GeneratedLoot, LootAmount, LootTier } from '@/types';
+import LootGeneratorDialog from './LootGeneratorDialog';
 
 interface SmartPromptsProps {
   campaignId: string;
@@ -129,6 +130,9 @@ export default function SmartPrompts({
   const [error, setError] = useState<string | null>(null);
   const [npcRole, setNpcRole] = useState('');
   const [showNpcPrompt, setShowNpcPrompt] = useState(false);
+  const [showLootDialog, setShowLootDialog] = useState(false);
+  const [lootLoading, setLootLoading] = useState(false);
+  const [lootError, setLootError] = useState<string | null>(null);
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Clear any pending dismiss timer on unmount
@@ -154,18 +158,22 @@ export default function SmartPrompts({
   async function handleGenerate(type: GeneratorType) {
     if (loading !== null || currentLocationName === null) return;
 
+    if (type === 'loot') {
+      setLootError(null);
+      setShowLootDialog(true);
+      return;
+    }
+
     setLoading(type);
     setError(null);
 
     try {
-      let result: GeneratedEncounter | GeneratedNpc | GeneratedLoot;
+      let result: GeneratedEncounter | GeneratedNpc;
 
       if (type === 'encounter') {
         result = await api.generateEncounter(campaignId);
-      } else if (type === 'npc') {
-        result = await api.generateNpc(campaignId, npcRole.trim() ? { role: npcRole.trim() } : undefined);
       } else {
-        result = await api.generateLoot(campaignId);
+        result = await api.generateNpc(campaignId, npcRole.trim() ? { role: npcRole.trim() } : undefined);
       }
 
       onResult(type, result);
@@ -173,6 +181,24 @@ export default function SmartPrompts({
       showError(formatError(err, t('errFallback'), t('errUnexpected')));
     } finally {
       setLoading(null);
+    }
+  }
+
+  async function handleLootGenerate(params: { tier: LootTier; amount: LootAmount; context: string }) {
+    setLootLoading(true);
+    setLootError(null);
+    try {
+      const result = await api.generateLoot(campaignId, {
+        tier: params.tier,
+        amount: params.amount,
+        context: params.context || undefined,
+      });
+      setShowLootDialog(false);
+      onResult('loot', result);
+    } catch (err) {
+      setLootError(formatError(err, t('errFallback'), t('errUnexpected')));
+    } finally {
+      setLootLoading(false);
     }
   }
 
@@ -315,6 +341,19 @@ export default function SmartPrompts({
           </div>
         </div>
       )}
+
+      <LootGeneratorDialog
+        open={showLootDialog}
+        loading={lootLoading}
+        error={lootError}
+        onCancel={() => {
+          if (!lootLoading) {
+            setShowLootDialog(false);
+            setLootError(null);
+          }
+        }}
+        onGenerate={handleLootGenerate}
+      />
     </div>
   );
 }
