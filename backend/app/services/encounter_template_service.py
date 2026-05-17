@@ -31,7 +31,7 @@ async def create_encounter_template(
         combatants=[c.model_dump() for c in body.combatants],
     )
     db.add(template)
-    await db.flush()
+    await db.commit()
     await db.refresh(template)
     return template
 
@@ -73,7 +73,7 @@ async def update_encounter_template(
         ]
     for field, value in data.items():
         setattr(template, field, value)
-    await db.flush()
+    await db.commit()
     await db.refresh(template)
     return template
 
@@ -83,7 +83,7 @@ async def delete_encounter_template(
     template: EncounterTemplate,
 ) -> None:
     await db.delete(template)
-    await db.flush()
+    await db.commit()
 
 
 async def start_encounter(
@@ -153,5 +153,5 @@ async def start_encounter(
     return await combat_session_service.create_combat_session(
         db=db,
         campaign_id=template.campaign_id,
-        body=session_create,
+        data=session_create,
     )
