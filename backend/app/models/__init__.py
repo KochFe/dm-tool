@@ -7,6 +7,7 @@ from app.models.quest import Quest
 from app.models.user import User
 from app.models.campaign_phase import CampaignPhase
 from app.models.campaign_idea import CampaignIdea
+from app.models.encounter_template import EncounterTemplate
 
 __all__ = [
     "Campaign",
@@ -18,4 +19,5 @@ __all__ = [
     "User",
     "CampaignPhase",
     "CampaignIdea",
+    "EncounterTemplate",
 ]
