@@ -18,6 +18,7 @@ export default function LocationsPage() {
           campaignId={campaign.id}
           currentLocationId={campaign.current_location_id}
           onCurrentLocationChanged={reload}
+          onLocationsChanged={reload}
         />
       </div>
 

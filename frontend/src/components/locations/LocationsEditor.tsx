@@ -12,12 +12,14 @@ interface LocationsEditorProps {
   campaignId: string;
   currentLocationId: string | null;
   onCurrentLocationChanged?: () => void;
+  onLocationsChanged?: () => void;
 }
 
 export default function LocationsEditor({
   campaignId,
   currentLocationId,
   onCurrentLocationChanged,
+  onLocationsChanged,
 }: LocationsEditorProps) {
   const t = useTranslations("builder.locationsTab");
   const tTree = useTranslations("builder.locationTree");
@@ -50,6 +52,7 @@ export default function LocationsEditor({
       });
       setLocations((prev) => [...prev, created]);
       setSelectedId(created.id);
+      onLocationsChanged?.();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("createError"));
     }
@@ -64,6 +67,7 @@ export default function LocationsEditor({
       });
       setLocations((prev) => [...prev, created]);
       setSelectedId(created.id);
+      onLocationsChanged?.();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("createSubError"));
     }
@@ -75,6 +79,7 @@ export default function LocationsEditor({
       setLocations((prev) =>
         prev.map((loc) => (loc.id === id ? updated : loc))
       );
+      onLocationsChanged?.();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("saveError"));
       throw err;
@@ -86,6 +91,7 @@ export default function LocationsEditor({
       await api.deleteLocation(id);
       setLocations((prev) => prev.filter((loc) => loc.id !== id));
       if (selectedId === id) setSelectedId(null);
+      onLocationsChanged?.();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("deleteError"));
     }
@@ -100,6 +106,7 @@ export default function LocationsEditor({
       setLocations((prev) =>
         prev.map((loc) => (loc.id === draggedId ? updated : loc))
       );
+      onLocationsChanged?.();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("reparentError"));
     }
