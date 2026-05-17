@@ -83,7 +83,8 @@
     "openTooltip": "Open location navigator",
     "setLocationButton": "Set location",
     "emptyTree": "No locations yet. Create one from the Locations tab.",
-    "noPendingHint": "Tap a location to set it as the current one."
+    "noPendingHint": "Tap a location to set it as the current one.",
+    "committing": "Setting location…"
   },
   "builder": {
     "loading": "Loading…",

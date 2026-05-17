@@ -83,7 +83,8 @@
     "openTooltip": "Ortsnavigator öffnen",
     "setLocationButton": "Ort festlegen",
     "emptyTree": "Noch keine Orte vorhanden. Lege im Tab „Orte“ einen an.",
-    "noPendingHint": "Tippe einen Ort an, um ihn als aktuellen festzulegen."
+    "noPendingHint": "Tippe einen Ort an, um ihn als aktuellen festzulegen.",
+    "committing": "Ort wird gesetzt…"
   },
   "builder": {
     "loading": "Wird geladen…",
