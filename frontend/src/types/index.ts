@@ -78,10 +78,10 @@ export interface Combatant {
   hp_max: number;
   armor_class: number;
   type: "pc" | "monster";
-  side: "enemy" | "ally" | "pc" | null;
+  side?: "enemy" | "ally" | "pc" | null;
   player_character_id: string | null;
   conditions: string[];
-  notes: string | null;
+  notes?: string | null;
 }
 
 export interface CombatSession {
