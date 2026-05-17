@@ -2,12 +2,17 @@ import pytest
 from httpx import AsyncClient
 from unittest.mock import patch, AsyncMock
 
+from pydantic import ValidationError
+
 from app.schemas.generators import (
     GeneratedEncounter,
     GeneratedMonster,
     GeneratedNpc,
     GeneratedLoot,
     GeneratedLootItem,
+    GenerateLootRequest,
+    LootTier,
+    LootAmount,
 )
 
 pytestmark = pytest.mark.asyncio
@@ -316,8 +321,6 @@ async def test_encounter_endpoint_defaults_to_english_when_header_missing(
 
 
 def test_generate_loot_request_defaults():
-    from app.schemas.generators import GenerateLootRequest, LootTier, LootAmount
-
     req = GenerateLootRequest()
     assert req.tier == LootTier.standard
     assert req.amount == LootAmount.some
@@ -325,11 +328,5 @@ def test_generate_loot_request_defaults():
 
 
 def test_generate_loot_request_rejects_invalid_tier():
-    from pydantic import ValidationError
-    from app.schemas.generators import GenerateLootRequest
-
-    try:
+    with pytest.raises(ValidationError):
         GenerateLootRequest(tier="epic")
-    except ValidationError:
-        return
-    raise AssertionError("expected ValidationError for invalid tier")
