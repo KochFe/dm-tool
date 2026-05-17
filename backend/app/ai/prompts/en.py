@@ -105,7 +105,8 @@ AMOUNT_RANGE_EN: dict[LootAmount, str] = {
 LOOT_GENERATOR_PROMPT = (
     "Generate a D&D 5e loot collection appropriate for a party of level {party_level} characters.\n"
     "Current location: {location_name} ({biome}).\n"
-    "Loot context: {context}.\n\n"
+    "{tier_guidance}\n"
+    "Where/from whom: {context}.\n\n"
     "Respond with a JSON object matching this exact structure:\n"
     "{{\n"
     '  "items": [\n'
@@ -119,7 +120,7 @@ LOOT_GENERATOR_PROMPT = (
     '  "total_value": "<sum of all items in gp>",\n'
     '  "context": "<one sentence describing where this loot was found>"\n'
     "}}\n\n"
-    "Include 3-6 items. Scale rarity and gold value to party level {party_level}. "
+    "{count_range} Scale rarity and gold value to party level {party_level}. "
     "Favour items that fit the {biome} environment and the provided context.\n"
     "Be inventive — avoid plain gold coins or generic potions as the only rewards. "
     "Include at least one item with a flavourful name or unusual property."

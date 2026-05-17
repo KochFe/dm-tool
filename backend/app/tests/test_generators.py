@@ -1,3 +1,5 @@
+import itertools
+
 import pytest
 from httpx import AsyncClient
 from unittest.mock import patch, AsyncMock
@@ -347,3 +349,49 @@ def test_tier_guidance_dicts_complete():
         assert amount in AMOUNT_RANGE_DE, f"missing DE amount: {amount}"
         assert AMOUNT_RANGE_EN[amount].strip()
         assert AMOUNT_RANGE_DE[amount].strip()
+
+
+@pytest.mark.parametrize(
+    "tier,amount",
+    list(itertools.product(
+        ["mundane", "standard", "valuable", "legendary"],
+        ["few", "some", "several", "hoard"],
+    )),
+)
+def test_loot_prompt_renders_for_all_tier_amount_combos(tier, amount):
+    from app.ai.prompts.en import (
+        AMOUNT_RANGE_EN,
+        LOOT_GENERATOR_PROMPT as PROMPT_EN,
+        TIER_GUIDANCE_EN,
+    )
+    from app.ai.prompts.de import (
+        AMOUNT_RANGE_DE,
+        LOOT_GENERATOR_PROMPT as PROMPT_DE,
+        TIER_GUIDANCE_DE,
+    )
+
+    t = LootTier(tier)
+    a = LootAmount(amount)
+
+    rendered_en = PROMPT_EN.format(
+        party_level=5,
+        location_name="Goblin Cave",
+        biome="cavern",
+        tier_guidance=TIER_GUIDANCE_EN[t],
+        count_range=AMOUNT_RANGE_EN[a],
+        context="in the goblin chief's hut",
+    )
+    rendered_de = PROMPT_DE.format(
+        party_level=5,
+        location_name="Goblin Cave",
+        biome="cavern",
+        tier_guidance=TIER_GUIDANCE_DE[t],
+        count_range=AMOUNT_RANGE_DE[a],
+        context="in the goblin chief's hut",
+    )
+
+    assert TIER_GUIDANCE_EN[t] in rendered_en
+    assert AMOUNT_RANGE_EN[a] in rendered_en
+    assert "in the goblin chief's hut" in rendered_en
+    assert TIER_GUIDANCE_DE[t] in rendered_de
+    assert AMOUNT_RANGE_DE[a] in rendered_de

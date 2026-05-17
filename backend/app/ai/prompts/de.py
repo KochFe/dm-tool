@@ -133,7 +133,8 @@ LOOT_GENERATOR_PROMPT = (
     "Erzeuge eine D&D-5e-Loot-Sammlung passend für eine Gruppe auf Level "
     "{party_level}.\n"
     "Aktueller Ort: {location_name} ({biome}).\n"
-    "Loot-Kontext: {context}.\n\n"
+    "{tier_guidance}\n"
+    "Wo/von wem: {context}.\n\n"
     "Antworte mit einem JSON-Objekt, das exakt dieser Struktur entspricht:\n"
     "{{\n"
     '  "items": [\n'
@@ -147,7 +148,7 @@ LOOT_GENERATOR_PROMPT = (
     '  "total_value": "<Summe aller Gegenstände in gp>",\n'
     '  "context": "<ein Satz, wo dieser Loot gefunden wurde>"\n'
     "}}\n\n"
-    "Inkludiere 3–6 Items. Skaliere Rarity und Goldwert ans Party Level "
+    "{count_range} Skaliere Rarity und Goldwert ans Party Level "
     "{party_level}. Bevorzuge Gegenstände, die zur {biome}-Umgebung und zum "
     "angegebenen Kontext passen.\n"
     "Sei einfallsreich — vermeide reine Goldmünzen oder generische Tränke "
