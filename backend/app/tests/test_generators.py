@@ -437,3 +437,38 @@ async def test_generate_loot_passes_tier_and_amount_into_prompt(monkeypatch):
     assert "legendary" in captured_prompt["text"].lower()
     assert "8–12" in captured_prompt["text"]
     assert "in the chief's hut" in captured_prompt["text"]
+
+
+async def test_generate_loot_endpoint_forwards_tier_and_amount(
+    client: AsyncClient,
+    auth_headers,
+    monkeypatch,
+):
+    from app.routers import generators as generators_router
+    from app.schemas.generators import GeneratedLoot, GeneratedLootItem
+
+    captured: dict = {}
+
+    async def fake_generate_loot(campaign_context, context=None, *, tier=None, amount=None, language=None):
+        captured["tier"] = tier
+        captured["amount"] = amount
+        captured["context"] = context
+        return GeneratedLoot(
+            items=[GeneratedLootItem(name="x", description="y", rarity="common", value="1 gp")],
+            total_value="1 gp",
+            context="here",
+        )
+
+    monkeypatch.setattr(generators_router, "generate_loot", fake_generate_loot)
+
+    cid = await _create_campaign(client, auth_headers)
+
+    response = await client.post(
+        LOOT_URL.format(campaign_id=cid),
+        json={"tier": "valuable", "amount": "hoard", "context": "in the captain's pocket"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+    assert captured["tier"].value == "valuable"
+    assert captured["amount"].value == "hoard"
+    assert captured["context"] == "in the captain's pocket"
