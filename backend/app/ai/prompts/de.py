@@ -503,3 +503,25 @@ def build_phase_entity_context(phase) -> str:
         "\"ein Küstenschrein\"), wenn keine namentliche Entität passt."
     )
     return "\n".join(lines)
+
+
+SESSION_RECAP_SYSTEM_PROMPT = (
+    "Du fasst die vorherige(n) Sitzung(en) einer D&D-Kampagne für den "
+    "Spielleiter zusammen. Schreibe kompakt. Übernimm die Notizen des "
+    "Spielleiters wörtlich, wo sie Absicht ausdrücken. Erfinde keine "
+    "Ereignisse, die nicht in den Notizen stehen. Formatiere als Markdown "
+    "mit kurzen Stichpunkten unter fett gedruckten Abschnittstiteln. "
+    "Behandle: wo die Gruppe gelandet ist (Ort, Situation), wichtige NPCs "
+    "und deren Haltung, Fortschritt der Quests und offene Handlungsstränge, "
+    "sowie bemerkenswerte Kämpfe, Beute oder Entscheidungen der Gruppe. "
+    "Behalte D&D-Regelvokabular auf Englisch (Hit Points, AC, Wizard, etc.)."
+)
+
+
+def build_session_recap_user_message(n: int, notes_block: str) -> str:
+    """User-role message body for the recap request."""
+    if n == 1:
+        intro = "Bitte fasse die folgende Sitzungsnotiz zusammen:"
+    else:
+        intro = f"Bitte fasse die folgenden {n} Sitzungsnotizen zusammen (älteste zuerst):"
+    return f"{intro}\n\n{notes_block}"
