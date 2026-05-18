@@ -32,6 +32,12 @@ from app.schemas.quest import (
     QuestUpdate,
     QuestResponse,
 )
+from app.schemas.session_notes import (
+    CampaignSessionNoteUpdate,
+    CampaignSessionNoteResponse,
+    RecapRequest,
+    SessionNoteStatus,
+)
 
 __all__ = [
     "CampaignCreate", "CampaignUpdate", "CampaignResponse",
@@ -43,4 +49,6 @@ __all__ = [
     "CombatSessionCreate", "CombatSessionUpdate", "CombatSessionResponse",
     "AddCombatantRequest", "UpdateCombatantRequest",
     "QuestCreate", "QuestUpdate", "QuestResponse",
+    "CampaignSessionNoteUpdate", "CampaignSessionNoteResponse",
+    "RecapRequest", "SessionNoteStatus",
 ]

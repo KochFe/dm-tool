@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import SmartPrompts from "@/components/SmartPrompts";
 import GeneratorResultModal from "@/components/GeneratorResultModal";
 import SessionNotes from "@/components/SessionNotes";
+import SessionRecapPanel from "@/components/SessionRecapPanel";
 import type { GeneratedEncounter, GeneratedNpc, GeneratedLoot } from "@/types";
 
 const STATUS_BADGE: Record<string, string> = {
@@ -135,6 +136,9 @@ export default function ExplorationView() {
           }}
         />
       )}
+
+      {/* Recap panel above session notes — ephemeral, regenerated on demand */}
+      <SessionRecapPanel campaignId={campaign.id} />
 
       {/* Session notes — auto-saves on blur and after 2s debounce */}
       <SessionNotes />

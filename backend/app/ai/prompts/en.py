@@ -461,3 +461,23 @@ def build_phase_entity_context(phase) -> str:
         "(\"a smuggler contact\", \"a coastal shrine\") when no named entity fits."
     )
     return "\n".join(lines)
+
+
+SESSION_RECAP_SYSTEM_PROMPT = (
+    "You are summarizing the previous session(s) of a D&D campaign for the "
+    "Dungeon Master. Be concise. Use the DM's own notes verbatim where they "
+    "capture intent. Do not invent events that aren't in the notes. Format "
+    "as markdown with short bullet points grouped under bold section headers. "
+    "Cover: where the party ended up (location, situation), key NPCs and "
+    "their disposition, quest progress and unresolved threads, and notable "
+    "combat outcomes, loot, or party decisions."
+)
+
+
+def build_session_recap_user_message(n: int, notes_block: str) -> str:
+    """User-role message body for the recap request."""
+    if n == 1:
+        intro = "Please recap the following session note:"
+    else:
+        intro = f"Please recap the following {n} session notes (oldest first):"
+    return f"{intro}\n\n{notes_block}"

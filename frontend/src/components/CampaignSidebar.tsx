@@ -14,6 +14,7 @@ import {
   Flag,
   Sword,
   Swords,
+  BookOpen,
   Settings,
   ArrowLeft,
   Menu,
@@ -44,6 +45,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
     { href: `${base}/npcs`, label: t("npcs"), icon: Drama },
     { href: `${base}/quests`, label: t("quests"), icon: Flag },
     { href: `${base}/encounters`, label: t("encounters"), icon: Sword },
+    { href: `${base}/session-log`, label: t("sessionLog"), icon: BookOpen },
   ];
 
   const sessionNav: NavItem[] = [

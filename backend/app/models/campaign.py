@@ -26,7 +26,6 @@ class Campaign(Base):
     in_game_time: Mapped[str] = mapped_column(
         Text, nullable=False, server_default="Day 1, Morning"
     )
-    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(Text, nullable=False, server_default="active")
     campaign_length: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -60,6 +59,9 @@ class Campaign(Base):
         back_populates="campaign", cascade="all, delete-orphan"
     )
     encounter_templates: Mapped[list["EncounterTemplate"]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
+    session_notes: Mapped[list["CampaignSessionNote"]] = relationship(
         back_populates="campaign", cascade="all, delete-orphan"
     )
     owner: Mapped["User"] = relationship(lazy="select")

@@ -5,32 +5,72 @@ import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import { api } from "@/lib/api";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import ConfirmButton from "@/components/ConfirmButton";
 
 export default function SessionNotes() {
   const t = useTranslations("sessionNotes");
   const { campaign } = useCampaign();
-  const [notes, setNotes] = useState(campaign.notes ?? "");
+  const [entryId, setEntryId] = useState<string | null>(null);
+  const [body, setBody] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [ending, setEnding] = useState(false);
   const [open, setOpen] = useState(true);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setNotes(campaign.notes ?? "");
-  }, [campaign.notes]);
+    let alive = true;
+    (async () => {
+      try {
+        const entry = await api.getOpenSessionNote(campaign.id);
+        if (!alive) return;
+        setEntryId(entry.id);
+        setBody(entry.body ?? "");
+      } finally {
+        if (alive) setLoaded(true);
+      }
+    })();
+    return () => {
+      alive = false;
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
+    };
+  }, [campaign.id]);
 
   function handleChange(value: string) {
-    setNotes(value);
+    setBody(value);
+    if (!entryId) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    const targetId = entryId;
     debounceRef.current = setTimeout(() => {
-      api.updateCampaign(campaign.id, { notes: value || null });
+      api.updateSessionNote(targetId, { body: value });
     }, 2000);
   }
 
   function handleBlur() {
+    if (!entryId) return;
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
       debounceRef.current = null;
     }
-    api.updateCampaign(campaign.id, { notes: notes || null });
+    api.updateSessionNote(entryId, { body });
+  }
+
+  async function handleEndSession() {
+    setEnding(true);
+    try {
+      if (debounceRef.current && entryId) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+        await api.updateSessionNote(entryId, { body });
+      }
+      const fresh = await api.endSession(campaign.id);
+      setEntryId(fresh.id);
+      setBody(fresh.body ?? "");
+    } finally {
+      setEnding(false);
+    }
   }
 
   return (
@@ -41,12 +81,22 @@ export default function SessionNotes() {
       </CollapsibleTrigger>
       <CollapsibleContent>
         <textarea
-          value={notes}
+          value={body}
           onChange={(e) => handleChange(e.target.value)}
           onBlur={handleBlur}
           placeholder={t("placeholder")}
-          className="mt-2 w-full bg-muted border border-border text-foreground rounded-lg px-3 py-2 text-sm resize-none focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors min-h-[120px]"
+          disabled={!loaded || !entryId}
+          className="mt-2 w-full bg-muted border border-border text-foreground rounded-lg px-3 py-2 text-sm resize-none focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors min-h-[120px] disabled:opacity-60"
         />
+        <div className="mt-2 flex justify-end">
+          <ConfirmButton
+            onConfirm={handleEndSession}
+            label={t("endSession")}
+            confirmLabel={t("endSessionConfirm")}
+            disabled={!loaded || !entryId || ending}
+            className="text-xs px-3 py-1.5 rounded-md border border-border text-foreground/80 hover:bg-accent disabled:opacity-50 transition-colors"
+          />
+        </div>
       </CollapsibleContent>
     </Collapsible>
   );

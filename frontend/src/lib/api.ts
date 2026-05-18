@@ -552,6 +552,78 @@ export const api = {
     return parseSseStream(res, opts.signal);
   },
 
+  // Session Notes (Phase 16)
+  getOpenSessionNote: (campaignId: string) =>
+    request<import("@/types").CampaignSessionNote>(
+      `/api/v1/campaigns/${campaignId}/session-notes/open`
+    ),
+
+  listSessionNotes: (
+    campaignId: string,
+    status?: import("@/types").SessionNoteStatus,
+  ) =>
+    request<import("@/types").CampaignSessionNote[]>(
+      status
+        ? `/api/v1/campaigns/${campaignId}/session-notes?status=${status}`
+        : `/api/v1/campaigns/${campaignId}/session-notes`
+    ),
+
+  endSession: (campaignId: string) =>
+    request<import("@/types").CampaignSessionNote>(
+      `/api/v1/campaigns/${campaignId}/session-notes/end`,
+      { method: "POST" }
+    ),
+
+  getSessionNote: (entryId: string) =>
+    request<import("@/types").CampaignSessionNote>(
+      `/api/v1/campaign-session-notes/${entryId}`
+    ),
+
+  updateSessionNote: (
+    entryId: string,
+    patch: import("@/types").CampaignSessionNoteUpdate,
+  ) =>
+    request<import("@/types").CampaignSessionNote>(
+      `/api/v1/campaign-session-notes/${entryId}`,
+      { method: "PATCH", body: JSON.stringify(patch) }
+    ),
+
+  deleteSessionNote: (entryId: string) =>
+    request<null>(`/api/v1/campaign-session-notes/${entryId}`, {
+      method: "DELETE",
+    }),
+
+  async streamSessionRecap(
+    campaignId: string,
+    body: import("@/types").RecapRequest,
+    signal: AbortSignal,
+  ): Promise<AsyncIterable<import("@/types").ChatChunk>> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Accept-Language": getLocaleFromCookie(),
+    };
+    const token = getAccessToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(
+      `${API_BASE}/api/v1/campaigns/${campaignId}/session-notes/recap`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+        signal,
+      }
+    );
+
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      throw new Error(
+        json.error || json.detail || `Request failed: ${res.status}`
+      );
+    }
+    return parseSseStream(res, signal);
+  },
+
   // Generators
   generateEncounter: (campaignId: string, options?: import("@/types").GenerateEncounterRequest) =>
     request<import("@/types").GeneratedEncounter>(`/api/v1/campaigns/${campaignId}/generate/encounter`, {

@@ -8,6 +8,7 @@ from app.models.user import User
 from app.models.campaign_phase import CampaignPhase
 from app.models.campaign_idea import CampaignIdea
 from app.models.encounter_template import EncounterTemplate
+from app.models.campaign_session_note import CampaignSessionNote
 
 __all__ = [
     "Campaign",
@@ -20,4 +21,5 @@ __all__ = [
     "CampaignPhase",
     "CampaignIdea",
     "EncounterTemplate",
+    "CampaignSessionNote",
 ]
