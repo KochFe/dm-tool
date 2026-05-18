@@ -140,27 +140,27 @@ export default function LocationDrawer() {
               <h3 className="text-sm font-semibold text-foreground">
                 {selected.name}
               </h3>
-              <span className="text-[10px] bg-muted text-foreground/80 px-1.5 py-0.5 rounded uppercase tracking-wide">
+              <span className="text-[11px] font-semibold bg-muted text-foreground/90 px-2 py-0.5 rounded uppercase tracking-[0.14em]">
                 {selected.biome}
               </span>
               {isSelectedCurrent && (
-                <span className="flex items-center gap-1 text-[10px] text-primary font-medium">
-                  <MapPin className="w-3 h-3" aria-hidden="true" />
+                <span className="flex items-center gap-1 text-[11px] text-primary font-semibold">
+                  <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
                   {tDetail("currentLocationBadge")}
                 </span>
               )}
             </div>
             {selected.parent_id && locations.length > 1 && (
-              <p className="text-[11px] text-muted-foreground/70">
+              <p className="text-xs text-muted-foreground/85">
                 {breadcrumbFor(selected, locations)}
               </p>
             )}
             {selected.description ? (
-              <p className="text-xs text-foreground/90 whitespace-pre-wrap break-words">
+              <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words leading-relaxed">
                 {selected.description}
               </p>
             ) : (
-              <p className="text-xs text-muted-foreground/60 italic">
+              <p className="text-sm text-muted-foreground/70 italic">
                 {t("noDescription")}
               </p>
             )}

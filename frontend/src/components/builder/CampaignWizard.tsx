@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
 import type { Campaign, CampaignIdea } from "@/types";
 import WizardTabBar from "./WizardTabBar";
@@ -207,9 +208,9 @@ export default function CampaignWizard({
       <button
         onClick={() => setAssistantOpen(true)}
         aria-label="Open assistant"
-        className="fixed bottom-20 right-6 z-30 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-14 h-14 shadow-lg flex items-center justify-center text-xl"
+        className="fixed bottom-20 right-6 z-30 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full w-14 h-14 shadow-glow-amber hover:scale-[1.05] active:scale-[0.97] flex items-center justify-center transition-transform duration-200"
       >
-        ✨
+        <Sparkles className="w-6 h-6" strokeWidth={2.25} />
       </button>
 
       <AssistantDrawer

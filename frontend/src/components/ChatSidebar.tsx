@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import type { ChatMessage } from '@/types';
@@ -246,20 +247,32 @@ export default function ChatSidebar({ campaignId, isOpen, onClose, currentLocati
           <>
             {messages.map((msg, i) =>
               msg.role === 'user' ? (
-                <div key={i} className="flex justify-end">
-                  <div className="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-2.5 bg-primary/15 border border-ring text-foreground text-sm leading-relaxed whitespace-pre-wrap">
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex justify-end"
+                >
+                  <div className="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-2.5 bg-primary/15 border border-primary/30 text-foreground text-sm leading-relaxed whitespace-pre-wrap shadow-elev-1">
                     {msg.content}
                   </div>
-                </div>
+                </motion.div>
               ) : (
-                <div key={i} className="flex gap-2.5 items-start">
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex gap-2.5 items-start"
+                >
                   <div className="shrink-0 w-7 h-7 rounded-full bg-muted border border-border flex items-center justify-center mt-0.5">
                     <SparklesIcon className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <div className="max-w-[85%] rounded-2xl rounded-tl-sm px-4 py-2.5 bg-muted border border-border text-foreground text-sm leading-relaxed whitespace-pre-wrap">
+                  <div className="max-w-[85%] rounded-2xl rounded-tl-sm px-4 py-2.5 bg-muted/80 border border-border text-foreground text-sm leading-relaxed whitespace-pre-wrap shadow-elev-1">
                     {msg.content}
                   </div>
-                </div>
+                </motion.div>
               )
             )}
 

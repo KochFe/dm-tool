@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Cormorant_Garamond, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
@@ -16,9 +16,18 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -38,7 +47,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen`}
+        className={`${geistSans.variable} ${cormorant.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground min-h-screen`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
@@ -49,20 +58,21 @@ export default async function RootLayout({
             >
               {t("skipToContent")}
             </a>
-            <nav className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+            <nav className="border-b border-border bg-card/70 backdrop-blur-md sticky top-0 z-50">
               <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-6">
                 <Link
                   href="/"
-                  className="text-lg font-bold text-primary hover:text-primary/80 transition-colors duration-150 tracking-wide"
+                  className="font-display text-2xl text-primary hover:text-primary/85 transition-colors duration-200 tracking-tight italic"
                 >
                   {t("appName")}
                 </Link>
                 <Link
                   href="/campaigns"
                   prefetch={false}
-                  className="text-foreground/80 hover:text-primary transition-colors duration-150 text-sm font-medium"
+                  className="relative text-foreground/75 hover:text-primary transition-colors duration-200 text-sm font-medium group"
                 >
                   {t("campaigns")}
+                  <span className="absolute -bottom-1 left-0 h-px w-0 bg-primary transition-all duration-300 group-hover:w-full" />
                 </Link>
                 <div className="ml-auto flex items-center gap-4">
                   <ThemeToggle />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
@@ -27,6 +28,61 @@ interface NavItem {
   exact?: boolean;
 }
 
+function NavLink({
+  item,
+  active,
+  variant = "default",
+}: {
+  item: NavItem;
+  active: boolean;
+  variant?: "default" | "session";
+}) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      prefetch={false}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+        "group",
+        variant === "session" && !active
+          ? "text-primary/80 hover:text-primary hover:bg-primary/10"
+          : active
+          ? "text-primary"
+          : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+      )}
+    >
+      {active && (
+        <>
+          <motion.span
+            layoutId="sidebar-active-bg"
+            className="absolute inset-0 rounded-lg bg-primary/12"
+            transition={{ type: "spring", stiffness: 380, damping: 32 }}
+          />
+          <motion.span
+            layoutId="sidebar-active-rail"
+            className="absolute inset-y-1 left-0 w-[3px] rounded-full bg-primary"
+            style={{ boxShadow: "0 0 12px var(--color-primary)" }}
+            transition={{ type: "spring", stiffness: 380, damping: 32 }}
+          />
+        </>
+      )}
+      <Icon
+        className={cn(
+          "relative shrink-0 w-5 h-5 transition-transform duration-200 group-hover:scale-[1.08]",
+          variant === "session" && !active
+            ? "text-primary/80 group-hover:text-primary"
+            : active
+            ? "text-primary"
+            : "text-muted-foreground group-hover:text-foreground/85"
+        )}
+      />
+      <span className="relative hidden xl:block truncate">{item.label}</span>
+    </Link>
+  );
+}
+
 export default function CampaignSidebar({ campaignId }: { campaignId: string }) {
   const pathname = usePathname();
   const base = `/campaigns/${campaignId}`;
@@ -39,7 +95,7 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
   };
 
   const mainNav: NavItem[] = [
-    { href: base, label: t("overview"), icon: Scroll, exact: true },
+    { href: `${base}/overview`, label: t("overview"), icon: Scroll },
     { href: `${base}/characters`, label: t("characters"), icon: Users },
     { href: `${base}/locations`, label: t("locations"), icon: MapPin },
     { href: `${base}/npcs`, label: t("npcs"), icon: Drama },
@@ -56,46 +112,6 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
     { href: `${base}/settings`, label: t("settings"), icon: Settings },
   ];
 
-  const NavLink = ({
-    item,
-    variant = "default",
-  }: {
-    item: NavItem;
-    variant?: "default" | "session";
-  }) => {
-    const active = isActive(item.href, item.exact);
-    const Icon = item.icon;
-
-    return (
-      <Link
-        href={item.href}
-        prefetch={false}
-        aria-current={active ? "page" : undefined}
-        className={cn(
-          "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150",
-          "group relative",
-          variant === "session" && !active
-            ? "text-primary/70 hover:text-primary hover:bg-primary/10"
-            : active
-            ? "bg-primary/15 text-primary"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent"
-        )}
-      >
-        <Icon
-          className={cn(
-            "shrink-0 w-5 h-5",
-            variant === "session" && !active
-              ? "text-primary/70 group-hover:text-primary"
-              : active
-              ? "text-primary"
-              : "text-muted-foreground group-hover:text-foreground/80"
-          )}
-        />
-        <span className="hidden xl:block truncate">{item.label}</span>
-      </Link>
-    );
-  };
-
   return (
     <>
       {/* Desktop sidebar — hidden on mobile */}
@@ -103,27 +119,33 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
         {/* Main navigation */}
         <nav className="flex flex-col gap-1">
           {mainNav.map((item) => (
-            <NavLink key={item.href} item={item} />
+            <NavLink key={item.href} item={item} active={isActive(item.href, item.exact)} />
           ))}
         </nav>
 
-        {/* Separator */}
-        <div className="my-2 border-t border-border" />
+        <div className="mt-4 mb-1.5 px-3 hidden xl:flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/85">
+          <span>Live</span>
+          <span aria-hidden className="flex-1 h-px bg-primary/20" />
+        </div>
+        <div className="my-2 xl:hidden border-t border-border" />
 
         {/* Session — styled as a prominent action */}
         <nav className="flex flex-col gap-1">
           {sessionNav.map((item) => (
-            <NavLink key={item.href} item={item} variant="session" />
+            <NavLink key={item.href} item={item} active={isActive(item.href, item.exact)} variant="session" />
           ))}
         </nav>
 
-        {/* Separator */}
-        <div className="my-2 border-t border-border" />
+        <div className="mt-4 mb-1.5 px-3 hidden xl:flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/90">
+          <span>System</span>
+          <span aria-hidden className="flex-1 h-px bg-border" />
+        </div>
+        <div className="my-2 xl:hidden border-t border-border" />
 
         {/* Settings */}
         <nav className="flex flex-col gap-1">
           {bottomNav.map((item) => (
-            <NavLink key={item.href} item={item} />
+            <NavLink key={item.href} item={item} active={isActive(item.href, item.exact)} />
           ))}
         </nav>
 

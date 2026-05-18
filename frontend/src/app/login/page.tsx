@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/AuthProvider";
+import { FadeIn } from "@/components/motion";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -33,10 +34,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
+    <div className="relative overflow-hidden min-h-[calc(100vh-65px)]">
+      <div aria-hidden className="absolute inset-0 bg-hearth pointer-events-none" />
+      <div aria-hidden className="absolute inset-0 bg-grain pointer-events-none" />
+      <div className="relative mx-auto max-w-7xl px-4 py-6">
     <div className="flex items-center justify-center min-h-[80vh]">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-primary text-center mb-8">
+      <FadeIn y={20} duration={0.6} className="w-full max-w-sm">
+        <p className="font-display italic text-primary/80 tracking-[0.3em] text-xs uppercase text-center mb-3">
+          A Dungeon Master&apos;s Codex
+        </p>
+        <h1 className="font-display text-4xl text-foreground text-center mb-8">
           {t("loginTitle")}
         </h1>
 
@@ -96,7 +103,8 @@ export default function LoginPage() {
             {t("backToHome")}
           </Link>
         </p>
-      </div>
+      </FadeIn>
+    </div>
     </div>
     </div>
   );
