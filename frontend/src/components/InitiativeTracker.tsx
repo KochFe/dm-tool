@@ -169,32 +169,40 @@ function CombatantRow({ combatant, index, isCurrent, isSelected, onSelect, sessi
 
   return (
     <div
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors ${
+      className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-colors ${
         isCurrent
-          ? 'bg-blue-900/30 border-l-4 border-l-blue-500 border-r border-r-blue-500/30 border-t border-t-blue-500/30 border-b border-b-blue-500/30'
+          ? 'border-transparent'
           : isSelected
-            ? 'border-primary bg-primary/5'
+            ? 'border-primary/60 bg-primary/5'
             : 'border-border hover:bg-muted/40'
       }`}
     >
+      {isCurrent && (
+        <motion.span
+          layoutId="initiative-active-indicator"
+          className="absolute inset-0 rounded-xl ring-2 ring-primary bg-primary/10 pointer-events-none"
+          style={{ boxShadow: 'var(--shadow-glow-amber)' }}
+          transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+        />
+      )}
       {/* Turn arrow */}
-      <div className="w-4 shrink-0 text-blue-400 font-bold text-sm">
+      <div className="relative w-4 shrink-0 text-primary font-bold text-sm">
         {isCurrent ? '▶' : ''}
       </div>
 
       {/* Initiative */}
-      <div className="w-8 text-center shrink-0">
-        <span className="text-xs text-muted-foreground">{t('labelInit')}</span>
-        <div className="font-mono font-semibold text-sm text-foreground">{combatant.initiative}</div>
+      <div className="relative w-8 text-center shrink-0">
+        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{t('labelInit')}</span>
+        <div className="font-mono tabular-nums font-semibold text-sm text-foreground">{combatant.initiative}</div>
       </div>
 
       {/* Name + type badge + conditions */}
-      <div className="flex-1 min-w-0">
+      <div className="relative flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onSelect}
-            className={`font-medium truncate text-left hover:underline ${isCurrent ? 'text-blue-200' : 'text-foreground'}`}
+            className={`font-medium truncate text-left hover:underline ${isCurrent ? 'text-primary' : 'text-foreground'}`}
             title={t('viewDetailsTitle')}
           >
             {combatant.name}
@@ -260,7 +268,7 @@ function CombatantRow({ combatant, index, isCurrent, isSelected, onSelect, sessi
       </div>
 
       {/* HP editor */}
-      <div className="shrink-0">
+      <div className="relative shrink-0">
         <HpEditor
           combatant={combatant}
           index={index}
@@ -271,9 +279,9 @@ function CombatantRow({ combatant, index, isCurrent, isSelected, onSelect, sessi
       </div>
 
       {/* AC */}
-      <div className="w-12 text-center shrink-0">
-        <span className="text-xs text-muted-foreground">{t('labelAc')}</span>
-        <div className="font-mono text-sm text-foreground">{combatant.armor_class}</div>
+      <div className="relative w-12 text-center shrink-0">
+        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{t('labelAc')}</span>
+        <div className="font-mono tabular-nums text-sm text-foreground">{combatant.armor_class}</div>
       </div>
 
       {/* Remove */}
@@ -282,7 +290,7 @@ function CombatantRow({ combatant, index, isCurrent, isSelected, onSelect, sessi
         label="✕"
         confirmLabel={t('remove')}
         disabled={removing}
-        className="shrink-0 text-muted-foreground hover:text-red-400 disabled:opacity-40 text-sm leading-none px-1 transition-colors"
+        className="relative shrink-0 text-muted-foreground hover:text-red-400 disabled:opacity-40 text-sm leading-none px-1 transition-colors"
       />
     </div>
   );
