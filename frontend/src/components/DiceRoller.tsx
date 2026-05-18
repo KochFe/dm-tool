@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import type { DiceRollResponse } from '@/types';
@@ -67,9 +68,16 @@ export default function DiceRoller({ className }: { className?: string }) {
     }
   }
 
+  const isD20 = lastRoll?.notation.toLowerCase().includes('d20') ?? false;
+  const flash: 'crit' | 'fumble' | null = lastRoll && isD20 && lastRoll.rolls.some((r) => r === 20)
+    ? 'crit'
+    : lastRoll && isD20 && lastRoll.rolls.length > 0 && lastRoll.rolls.every((r) => r === 1)
+      ? 'fumble'
+      : null;
+
   return (
-    <div className={`bg-card border border-border rounded-xl p-5 space-y-4 ${className ?? ''}`}>
-      <h2 className="text-xl font-semibold text-foreground">{t('heading')}</h2>
+    <div className={`bg-card border border-border rounded-xl p-5 space-y-4 shadow-elev-1 ${className ?? ''}`}>
+      <h2 className="font-display text-2xl text-foreground tracking-tight">{t('heading')}</h2>
 
       {/* Quick-roll buttons */}
       <div className="flex flex-wrap gap-2">
@@ -117,9 +125,17 @@ export default function DiceRoller({ className }: { className?: string }) {
 
       {/* Last roll result */}
       {lastRoll && (
-        <div className="bg-muted/50 border border-border rounded-lg p-3 space-y-1">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('lastRoll')}</p>
-          <p className="text-sm text-foreground/80">
+        <div
+          className={`relative bg-muted/50 border border-border rounded-xl p-4 space-y-2 transition-shadow duration-500 ${
+            flash === 'crit'
+              ? 'shadow-glow-amber'
+              : flash === 'fumble'
+                ? 'shadow-[0_0_0_1px_oklch(0.6_0.22_25_/_0.5),0_8px_32px_oklch(0.6_0.22_25_/_0.25)]'
+                : ''
+          }`}
+        >
+          <p className="font-display italic text-[10px] text-muted-foreground uppercase tracking-[0.22em]">{t('lastRoll')}</p>
+          <p className="text-sm text-foreground/80 font-mono tabular-nums">
             <span className="font-medium text-foreground">{lastRoll.notation}</span>
             {' — '}
             <span className="text-muted-foreground">
@@ -131,7 +147,15 @@ export default function DiceRoller({ className }: { className?: string }) {
               )}
             </span>
           </p>
-          <p className="text-2xl font-bold text-primary">{lastRoll.total}</p>
+          <motion.p
+            key={`${lastRoll.notation}-${lastRoll.total}-${lastRoll.rolls.join(',')}`}
+            initial={{ scale: 0.4, opacity: 0, rotate: -8 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            transition={{ duration: 0.55, ease: [0.34, 1.56, 0.64, 1] }}
+            className="font-display text-6xl tabular-nums text-primary leading-none drop-shadow-[0_4px_24px_var(--color-primary)]"
+          >
+            {lastRoll.total}
+          </motion.p>
         </div>
       )}
 
