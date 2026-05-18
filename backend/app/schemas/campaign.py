@@ -17,7 +17,6 @@ class CampaignUpdate(BaseModel):
     description: str | None = None
     current_location_id: uuid.UUID | None = None
     in_game_time: str | None = None
-    notes: str | None = None
     status: str | None = None
     campaign_length: str | None = None
 
@@ -28,7 +27,6 @@ class CampaignResponse(BaseModel):
     description: str | None
     current_location_id: uuid.UUID | None
     in_game_time: str
-    notes: str | None
     status: str
     campaign_length: str | None
     created_at: datetime
