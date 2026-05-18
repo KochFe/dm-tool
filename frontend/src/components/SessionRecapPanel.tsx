@@ -162,7 +162,7 @@ export default function SessionRecapPanel({ campaignId }: Props) {
               </select>
             </label>
           )}
-          {(state.kind === "done" || state.kind === "error") && lastRequestRef.current && (
+          {(state.kind === "done" || state.kind === "error") && (
             <button
               type="button"
               onClick={handleRegenerate}

@@ -19,7 +19,6 @@ export default function SessionNotes() {
 
   useEffect(() => {
     let alive = true;
-    setLoaded(false);
     (async () => {
       try {
         const entry = await api.getOpenSessionNote(campaign.id);
