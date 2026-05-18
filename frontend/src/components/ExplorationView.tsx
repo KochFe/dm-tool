@@ -8,6 +8,7 @@ import SmartPrompts from "@/components/SmartPrompts";
 import GeneratorResultModal from "@/components/GeneratorResultModal";
 import SessionNotes from "@/components/SessionNotes";
 import SessionRecapPanel from "@/components/SessionRecapPanel";
+import NpcSessionCard from "@/components/NpcSessionCard";
 import { FadeIn } from "@/components/motion";
 import type { GeneratedEncounter, GeneratedNpc, GeneratedLoot } from "@/types";
 
@@ -76,20 +77,7 @@ export default function ExplorationView() {
           <h4 className="font-display italic text-[11px] tracking-[0.22em] uppercase text-muted-foreground mb-2">{t("npcsHere")}</h4>
           <div className="space-y-2">
             {locationNpcs.map((npc) => (
-              <div key={npc.id} className="bg-card border border-border rounded-lg p-3">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-foreground text-sm">{npc.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {npc.race}{npc.npc_class ? ` · ${npc.npc_class}` : ""}
-                  </span>
-                  {!npc.is_alive && (
-                    <Badge variant="destructive" className="text-xs">{t("dead")}</Badge>
-                  )}
-                </div>
-                {npc.description && (
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{npc.description}</p>
-                )}
-              </div>
+              <NpcSessionCard key={npc.id} npc={npc} />
             ))}
           </div>
         </FadeIn>
