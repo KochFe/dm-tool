@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
@@ -72,26 +73,41 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
         prefetch={false}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150",
-          "group relative",
+          "relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+          "group",
           variant === "session" && !active
-            ? "text-primary/70 hover:text-primary hover:bg-primary/10"
+            ? "text-primary/80 hover:text-primary hover:bg-primary/10"
             : active
-            ? "bg-primary/15 text-primary"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent"
+            ? "text-primary"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
         )}
       >
+        {active && (
+          <>
+            <motion.span
+              layoutId="sidebar-active-bg"
+              className="absolute inset-0 rounded-lg bg-primary/12"
+              transition={{ type: "spring", stiffness: 380, damping: 32 }}
+            />
+            <motion.span
+              layoutId="sidebar-active-rail"
+              className="absolute inset-y-1 left-0 w-[3px] rounded-full bg-primary"
+              style={{ boxShadow: "0 0 12px var(--color-primary)" }}
+              transition={{ type: "spring", stiffness: 380, damping: 32 }}
+            />
+          </>
+        )}
         <Icon
           className={cn(
-            "shrink-0 w-5 h-5",
+            "relative shrink-0 w-5 h-5 transition-transform duration-200 group-hover:scale-[1.08]",
             variant === "session" && !active
-              ? "text-primary/70 group-hover:text-primary"
+              ? "text-primary/80 group-hover:text-primary"
               : active
               ? "text-primary"
-              : "text-muted-foreground group-hover:text-foreground/80"
+              : "text-muted-foreground group-hover:text-foreground/85"
           )}
         />
-        <span className="hidden xl:block truncate">{item.label}</span>
+        <span className="relative hidden xl:block truncate">{item.label}</span>
       </Link>
     );
   };
@@ -107,8 +123,10 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
           ))}
         </nav>
 
-        {/* Separator */}
-        <div className="my-2 border-t border-border" />
+        <div className="mt-4 mb-1 px-3 hidden xl:block text-[10px] uppercase tracking-[0.22em] text-muted-foreground/70 font-display italic">
+          Live
+        </div>
+        <div className="my-2 xl:hidden border-t border-border" />
 
         {/* Session — styled as a prominent action */}
         <nav className="flex flex-col gap-1">
@@ -117,8 +135,10 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
           ))}
         </nav>
 
-        {/* Separator */}
-        <div className="my-2 border-t border-border" />
+        <div className="mt-4 mb-1 px-3 hidden xl:block text-[10px] uppercase tracking-[0.22em] text-muted-foreground/70 font-display italic">
+          System
+        </div>
+        <div className="my-2 xl:hidden border-t border-border" />
 
         {/* Settings */}
         <nav className="flex flex-col gap-1">

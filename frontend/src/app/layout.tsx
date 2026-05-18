@@ -58,20 +58,21 @@ export default async function RootLayout({
             >
               {t("skipToContent")}
             </a>
-            <nav className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+            <nav className="border-b border-border bg-card/70 backdrop-blur-md sticky top-0 z-50">
               <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-6">
                 <Link
                   href="/"
-                  className="text-lg font-bold text-primary hover:text-primary/80 transition-colors duration-150 tracking-wide"
+                  className="font-display text-2xl text-primary hover:text-primary/85 transition-colors duration-200 tracking-tight italic"
                 >
                   {t("appName")}
                 </Link>
                 <Link
                   href="/campaigns"
                   prefetch={false}
-                  className="text-foreground/80 hover:text-primary transition-colors duration-150 text-sm font-medium"
+                  className="relative text-foreground/75 hover:text-primary transition-colors duration-200 text-sm font-medium group"
                 >
                   {t("campaigns")}
+                  <span className="absolute -bottom-1 left-0 h-px w-0 bg-primary transition-all duration-300 group-hover:w-full" />
                 </Link>
                 <div className="ml-auto flex items-center gap-4">
                   <ThemeToggle />
