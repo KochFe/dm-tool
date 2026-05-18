@@ -52,27 +52,29 @@ export function CampaignProvider({
   const closeLocationDrawer = useCallback(() => setIsLocationDrawerOpen(false), []);
 
   const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [c, chars, locs, npcList, questList] = await Promise.all([
-        api.getCampaign(campaignId),
-        api.getCharacters(campaignId),
-        api.getLocations(campaignId),
-        api.getNpcs(campaignId),
-        api.getQuests(campaignId),
-      ]);
-      setCampaign(c);
-      setCharacters(chars);
-      setLocations(locs);
-      setNpcs(npcList);
-      setQuests(questList);
-    } finally {
-      setLoading(false);
-    }
+    const [c, chars, locs, npcList, questList] = await Promise.all([
+      api.getCampaign(campaignId),
+      api.getCharacters(campaignId),
+      api.getLocations(campaignId),
+      api.getNpcs(campaignId),
+      api.getQuests(campaignId),
+    ]);
+    setCampaign(c);
+    setCharacters(chars);
+    setLocations(locs);
+    setNpcs(npcList);
+    setQuests(questList);
   }, [campaignId]);
 
   useEffect(() => {
-    load();
+    let cancelled = false;
+    setLoading(true);
+    load().finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [load]);
 
   if (!campaign || loading) {
