@@ -4,7 +4,6 @@ export interface Campaign {
   description: string | null;
   current_location_id: string | null;
   in_game_time: string;
-  notes: string | null;
   status: "draft" | "active";
   campaign_length: "one_shot" | "short" | "medium" | "long" | null;
   created_at: string;
@@ -478,6 +477,31 @@ export interface EncounterTemplateUpdate {
   location_id?: string | null;
   notes?: string | null;
   combatants?: TemplateCombatant[];
+}
+
+// Session Notes (Phase 16)
+export type SessionNoteStatus = "open" | "closed";
+
+export interface CampaignSessionNote {
+  id: string;
+  campaign_id: string;
+  title: string | null;
+  body: string | null;
+  status: SessionNoteStatus;
+  created_at: string;
+  updated_at: string;
+  closed_at: string | null;
+}
+
+export interface CampaignSessionNoteUpdate {
+  title?: string | null;
+  body?: string | null;
+}
+
+export interface RecapRequest {
+  provider: string;
+  last_n?: number;
+  entry_ids?: string[];
 }
 
 export interface PresentPC {
