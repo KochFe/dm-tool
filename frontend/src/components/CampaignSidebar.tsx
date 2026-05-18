@@ -123,8 +123,9 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
           ))}
         </nav>
 
-        <div className="mt-4 mb-1 px-3 hidden xl:block text-[10px] uppercase tracking-[0.22em] text-muted-foreground/70 font-display italic">
-          Live
+        <div className="mt-4 mb-1.5 px-3 hidden xl:flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/85">
+          <span>Live</span>
+          <span aria-hidden className="flex-1 h-px bg-primary/20" />
         </div>
         <div className="my-2 xl:hidden border-t border-border" />
 
@@ -135,8 +136,9 @@ export default function CampaignSidebar({ campaignId }: { campaignId: string }) 
           ))}
         </nav>
 
-        <div className="mt-4 mb-1 px-3 hidden xl:block text-[10px] uppercase tracking-[0.22em] text-muted-foreground/70 font-display italic">
-          System
+        <div className="mt-4 mb-1.5 px-3 hidden xl:flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/90">
+          <span>System</span>
+          <span aria-hidden className="flex-1 h-px bg-border" />
         </div>
         <div className="my-2 xl:hidden border-t border-border" />
 
