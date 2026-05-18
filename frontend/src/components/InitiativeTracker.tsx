@@ -192,7 +192,7 @@ function CombatantRow({ combatant, index, isCurrent, isSelected, onSelect, sessi
 
       {/* Initiative */}
       <div className="relative w-8 text-center shrink-0">
-        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{t('labelInit')}</span>
+        <span className="text-[11px] font-semibold text-muted-foreground/90 uppercase tracking-[0.14em]">{t('labelInit')}</span>
         <div className="font-mono tabular-nums font-semibold text-sm text-foreground">{combatant.initiative}</div>
       </div>
 
@@ -280,7 +280,7 @@ function CombatantRow({ combatant, index, isCurrent, isSelected, onSelect, sessi
 
       {/* AC */}
       <div className="relative w-12 text-center shrink-0">
-        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{t('labelAc')}</span>
+        <span className="text-[11px] font-semibold text-muted-foreground/90 uppercase tracking-[0.14em]">{t('labelAc')}</span>
         <div className="font-mono tabular-nums text-sm text-foreground">{combatant.armor_class}</div>
       </div>
 
@@ -808,7 +808,7 @@ export default function InitiativeTracker({ campaignId, characters, refreshKey =
         {/* Encounter notes carried over from the template */}
         {activeSession.notes && (
           <div className="mt-6 bg-card border border-border rounded-xl p-4">
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/90 mb-1.5">
               {t('encounterNotesLabel')}
             </div>
             <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words">

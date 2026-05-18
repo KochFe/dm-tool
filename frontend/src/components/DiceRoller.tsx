@@ -134,7 +134,7 @@ export default function DiceRoller({ className }: { className?: string }) {
                 : ''
           }`}
         >
-          <p className="font-display italic text-[10px] text-muted-foreground uppercase tracking-[0.22em]">{t('lastRoll')}</p>
+          <p className="text-[11px] font-semibold text-muted-foreground/90 uppercase tracking-[0.14em]">{t('lastRoll')}</p>
           <p className="text-sm text-foreground/80 font-mono tabular-nums">
             <span className="font-medium text-foreground">{lastRoll.notation}</span>
             {' — '}

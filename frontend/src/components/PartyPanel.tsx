@@ -18,8 +18,9 @@ export default function PartyPanel({ characters }: { characters: PlayerCharacter
   return (
     <ScrollArea className="h-full">
       <div className="p-3 space-y-2">
-        <h3 className="font-display italic text-[11px] tracking-[0.22em] uppercase text-muted-foreground mb-3">
-          {t("heading")}
+        <h3 className="flex items-center gap-2 text-[12px] font-semibold tracking-[0.16em] uppercase text-foreground/85 mb-3">
+          <span>{t("heading")}</span>
+          <span aria-hidden className="flex-1 h-px bg-border" />
         </h3>
         {characters.map((pc) => {
           const pct = Math.min(100, Math.max(0, (pc.hp_current / pc.hp_max) * 100));
@@ -31,9 +32,9 @@ export default function PartyPanel({ characters }: { characters: PlayerCharacter
             >
               <div className="flex items-baseline justify-between gap-2">
                 <p className="text-sm font-medium text-foreground truncate">{pc.name}</p>
-                <span className="font-mono tabular-nums text-[11px] text-muted-foreground shrink-0">AC {pc.armor_class}</span>
+                <span className="font-mono tabular-nums text-xs font-semibold text-muted-foreground/90 shrink-0">AC {pc.armor_class}</span>
               </div>
-              <p className="text-[11px] text-muted-foreground italic">{pc.race} {pc.character_class}</p>
+              <p className="text-xs text-muted-foreground/90">{pc.race} {pc.character_class}</p>
               <div className="flex items-center gap-2 mt-2">
                 <span className={`text-xs font-mono tabular-nums font-semibold ${hpColor(pc.hp_current, pc.hp_max)}`}>
                   {pc.hp_current}/{pc.hp_max}
@@ -47,7 +48,7 @@ export default function PartyPanel({ characters }: { characters: PlayerCharacter
                   />
                 </div>
               </div>
-              <div className="flex gap-3 mt-1.5 text-[11px] text-muted-foreground tabular-nums">
+              <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground/90 tabular-nums">
                 <span>PP {pc.passive_perception}</span>
               </div>
             </motion.div>

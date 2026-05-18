@@ -48,22 +48,22 @@ export default function CombatantDetailPanel({ combatant, characters }: Props) {
             {combatant.name}
           </h3>
           {combatant.type === "pc" ? (
-            <span className="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded">
+            <span className="text-[11px] font-semibold bg-blue-600 text-white px-2 py-0.5 rounded">
               {t("typePc")}
             </span>
           ) : (
-            <span className="text-[10px] bg-red-700 text-white px-1.5 py-0.5 rounded">
+            <span className="text-[11px] font-semibold bg-red-700 text-white px-2 py-0.5 rounded">
               {t("typeMonster")}
             </span>
           )}
           {side && (
-            <span className="text-[10px] bg-muted text-foreground/80 px-1.5 py-0.5 rounded">
+            <span className="text-[11px] font-medium bg-muted text-foreground/90 px-2 py-0.5 rounded">
               {side}
             </span>
           )}
         </div>
         {pc && (
-          <div className="text-xs text-muted-foreground mt-0.5">
+          <div className="text-sm text-muted-foreground/90 mt-0.5">
             {t("pcSummary", {
               race: pc.race,
               cls: pc.character_class,
@@ -75,7 +75,7 @@ export default function CombatantDetailPanel({ combatant, characters }: Props) {
 
       <div className="grid grid-cols-3 gap-2 text-center">
         <div className="bg-muted/40 border border-border rounded p-2">
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/90">
             {t("hpLabel")}
           </div>
           <div className={`font-mono text-sm font-semibold ${hpColor(combatant.hp_current, combatant.hp_max)}`}>
@@ -83,7 +83,7 @@ export default function CombatantDetailPanel({ combatant, characters }: Props) {
           </div>
         </div>
         <div className="bg-muted/40 border border-border rounded p-2">
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/90">
             {t("acLabel")}
           </div>
           <div className="font-mono text-sm font-semibold text-foreground">
@@ -91,7 +91,7 @@ export default function CombatantDetailPanel({ combatant, characters }: Props) {
           </div>
         </div>
         <div className="bg-muted/40 border border-border rounded p-2">
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/90">
             {t("initLabel")}
           </div>
           <div className="font-mono text-sm font-semibold text-foreground">
@@ -103,24 +103,24 @@ export default function CombatantDetailPanel({ combatant, characters }: Props) {
       {pc && (
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="bg-muted/30 border border-border rounded p-1.5">
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/90">
               {t("ppLabel")}
             </div>
-            <div className="font-mono text-xs text-foreground">
+            <div className="font-mono tabular-nums text-sm text-foreground">
               {pc.passive_perception}
             </div>
           </div>
           <div className="bg-muted/30 border border-border rounded p-1.5">
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/90">
               {t("speedLabel")}
             </div>
-            <div className="font-mono text-xs text-foreground">{pc.speed}</div>
+            <div className="font-mono tabular-nums text-sm text-foreground">{pc.speed}</div>
           </div>
           <div className="bg-muted/30 border border-border rounded p-1.5">
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/90">
               {t("pbLabel")}
             </div>
-            <div className="font-mono text-xs text-foreground">
+            <div className="font-mono tabular-nums text-sm text-foreground">
               +{pc.proficiency_bonus}
             </div>
           </div>
@@ -129,14 +129,14 @@ export default function CombatantDetailPanel({ combatant, characters }: Props) {
 
       {combatant.conditions.length > 0 && (
         <div>
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/90 mb-1">
             {t("conditionsLabel")}
           </div>
           <div className="flex flex-wrap gap-1">
             {combatant.conditions.map((c) => (
               <span
                 key={c}
-                className="text-[10px] bg-accent text-foreground rounded px-1.5 py-0.5"
+                className="text-[11px] font-medium bg-accent text-foreground rounded px-2 py-0.5"
               >
                 {c}
               </span>
@@ -147,7 +147,7 @@ export default function CombatantDetailPanel({ combatant, characters }: Props) {
 
       {combatant.notes && (
         <div>
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/90 mb-1">
             {t("notesLabel")}
           </div>
           <p className="text-sm text-foreground whitespace-pre-wrap break-words">
