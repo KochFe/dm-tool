@@ -55,7 +55,7 @@ function LogEntry({ entry, expanded, onToggle, onPatch, onDelete }: LogEntryProp
     t("defaultTitle", { date: new Date(entry.created_at).toLocaleDateString() });
 
   return (
-    <li className="py-3">
+    <li className="py-3 border-b border-border">
       <div className="flex items-baseline gap-2">
         <button
           type="button"
@@ -159,7 +159,7 @@ export default function SessionLogTab({ campaignId }: Props) {
   return (
     <div>
       <h2 className="text-lg font-semibold text-foreground mb-2">{t("tabTitle")}</h2>
-      <ul className="divide-y divide-border">
+      <ul>
         {entries.map((entry) => (
           <LogEntry
             key={entry.id}
