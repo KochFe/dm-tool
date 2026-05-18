@@ -74,7 +74,10 @@ export default function ExplorationView() {
       {/* NPCs at this location */}
       {locationNpcs.length > 0 && (
         <FadeIn delay={0.06}>
-          <h4 className="font-display italic text-[11px] tracking-[0.22em] uppercase text-muted-foreground mb-2">{t("npcsHere")}</h4>
+          <h4 className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.16em] text-foreground/85 mb-2">
+            <span>{t("npcsHere")}</span>
+            <span aria-hidden className="flex-1 h-px bg-border" />
+          </h4>
           <div className="space-y-2">
             {locationNpcs.map((npc) => (
               <NpcSessionCard key={npc.id} npc={npc} />
@@ -86,7 +89,10 @@ export default function ExplorationView() {
       {/* Active quests at this location */}
       {locationQuests.length > 0 && (
         <FadeIn delay={0.12}>
-          <h4 className="font-display italic text-[11px] tracking-[0.22em] uppercase text-muted-foreground mb-2">{t("questsHere")}</h4>
+          <h4 className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.16em] text-foreground/85 mb-2">
+            <span>{t("questsHere")}</span>
+            <span aria-hidden className="flex-1 h-px bg-border" />
+          </h4>
           <div className="space-y-2">
             {locationQuests.map((q) => (
               <div key={q.id} className="bg-card border border-border rounded-lg p-3">

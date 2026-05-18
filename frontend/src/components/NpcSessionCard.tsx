@@ -15,9 +15,9 @@ function statModifier(score: number): string {
 function StatCell({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex flex-col items-center bg-muted/40 border border-border rounded-md py-1.5">
-      <span className="text-[9px] uppercase tracking-[0.18em] text-muted-foreground">{label}</span>
+      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/90">{label}</span>
       <span className="font-mono tabular-nums text-sm font-semibold text-foreground leading-tight">{value}</span>
-      <span className="font-mono tabular-nums text-[10px] text-muted-foreground leading-tight">{statModifier(value)}</span>
+      <span className="font-mono tabular-nums text-[11px] text-muted-foreground leading-tight">{statModifier(value)}</span>
     </div>
   );
 }
@@ -26,7 +26,7 @@ function Field({ label, value }: { label: string; value: string | null | undefin
   if (!value) return null;
   return (
     <div>
-      <div className="font-display italic text-[10px] tracking-[0.22em] uppercase text-primary/80 mb-1">{label}</div>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary/90 mb-1.5">{label}</div>
       <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words leading-relaxed">{value}</p>
     </div>
   );
@@ -55,8 +55,8 @@ export default function NpcSessionCard({ npc }: { npc: Npc }) {
       >
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium text-foreground text-sm">{npc.name}</span>
-            <span className="text-xs text-muted-foreground">
+            <span className="font-medium text-foreground text-base">{npc.name}</span>
+            <span className="text-sm text-muted-foreground">
               {npc.race}{npc.npc_class ? ` · ${npc.npc_class}` : ""}
             </span>
             {!npc.is_alive && (
@@ -64,7 +64,7 @@ export default function NpcSessionCard({ npc }: { npc: Npc }) {
             )}
           </div>
           {!open && npc.description && (
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{npc.description}</p>
+            <p className="text-sm text-muted-foreground/90 mt-1 line-clamp-2 leading-relaxed">{npc.description}</p>
           )}
         </div>
         {hasAnyDetail && (
