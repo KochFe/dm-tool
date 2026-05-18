@@ -42,10 +42,8 @@ export default function NpcSessionCard({ npc }: { npc: Npc }) {
     !!npc.description || !!npc.personality || !!npc.motivation || !!npc.secrets || !!stats;
 
   return (
-    <motion.div
-      layout
-      className="bg-card border border-border rounded-xl shadow-elev-1 overflow-hidden"
-    >
+    <div className="bg-card border border-border rounded-xl shadow-elev-1 overflow-hidden">
+
       <button
         type="button"
         onClick={() => hasAnyDetail && setOpen((v) => !v)}
@@ -87,7 +85,10 @@ export default function NpcSessionCard({ npc }: { npc: Npc }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              height: { duration: 0.22, ease: [0.22, 1, 0.36, 1] },
+              opacity: { duration: 0.18, ease: "linear", delay: open ? 0.04 : 0 },
+            }}
             className="overflow-hidden"
           >
             <div className="px-3 pb-3 pt-1 space-y-3 border-t border-border/60">
@@ -109,6 +110,6 @@ export default function NpcSessionCard({ npc }: { npc: Npc }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
