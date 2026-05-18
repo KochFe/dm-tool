@@ -13,7 +13,9 @@ from app.schemas.session_notes import (
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    # Naive UTC to match the model's generic DateTime column type
+    # (asyncpg rejects tz-aware values bound to TIMESTAMP WITHOUT TIME ZONE).
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 async def get_or_create_open_entry(
