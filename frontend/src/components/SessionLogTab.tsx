@@ -12,13 +12,14 @@ interface Props {
 
 interface LogEntryProps {
   entry: CampaignSessionNote;
+  number: number;
   expanded: boolean;
   onToggle: () => void;
   onPatch: (patch: { title?: string | null; body?: string | null }) => Promise<void>;
   onDelete: () => Promise<void>;
 }
 
-function LogEntry({ entry, expanded, onToggle, onPatch, onDelete }: LogEntryProps) {
+function LogEntry({ entry, number, expanded, onToggle, onPatch, onDelete }: LogEntryProps) {
   const t = useTranslations("sessionNotes");
   const titleRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
@@ -52,7 +53,10 @@ function LogEntry({ entry, expanded, onToggle, onPatch, onDelete }: LogEntryProp
     : new Date(entry.created_at).toLocaleString();
   const titleLabel =
     entry.title?.trim() ||
-    t("defaultTitle", { date: new Date(entry.created_at).toLocaleDateString() });
+    t("defaultTitle", {
+      n: number,
+      date: new Date(entry.created_at).toLocaleDateString(),
+    });
 
   return (
     <li className="py-3 border-b border-border">
@@ -160,10 +164,11 @@ export default function SessionLogTab({ campaignId }: Props) {
     <div>
       <h2 className="text-lg font-semibold text-foreground mb-2">{t("tabTitle")}</h2>
       <ul>
-        {entries.map((entry) => (
+        {entries.map((entry, i) => (
           <LogEntry
             key={entry.id}
             entry={entry}
+            number={entries.length - i}
             expanded={expanded === entry.id}
             onToggle={() =>
               setExpanded((cur) => (cur === entry.id ? null : entry.id))

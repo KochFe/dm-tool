@@ -415,7 +415,7 @@
     "providerLabel": "Provider",
     "loading": "Loading session log…",
     "emptyLog": "No completed sessions yet.",
-    "defaultTitle": "Session of {date}",
+    "defaultTitle": "Session {n} - {date}",
     "titlePlaceholder": "Session title (optional)",
     "bodyPlaceholder": "Session notes…",
     "deleteEntry": "Delete",

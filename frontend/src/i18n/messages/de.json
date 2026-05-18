@@ -415,7 +415,7 @@
     "providerLabel": "Anbieter",
     "loading": "Sitzungslog wird geladen…",
     "emptyLog": "Noch keine abgeschlossenen Sitzungen.",
-    "defaultTitle": "Sitzung vom {date}",
+    "defaultTitle": "Sitzung {n} - {date}",
     "titlePlaceholder": "Sitzungstitel (optional)",
     "bodyPlaceholder": "Sitzungsnotizen…",
     "deleteEntry": "Löschen",
