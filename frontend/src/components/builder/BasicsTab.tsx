@@ -8,6 +8,7 @@ import type { TextResult } from "@/lib/api";
 import type { Campaign, CampaignIdea, IdeaTag } from "@/types";
 import IdeaRow from "./IdeaRow";
 import { AIAssistModal } from "@/components/ai/AIAssistModal";
+import { Textarea } from "@/components/ui/textarea";
 
 const TAG_OPTIONS: IdeaTag[] = ["story", "location", "character"];
 
@@ -184,13 +185,14 @@ export default function BasicsTab({
             {t("aiButton")}
           </button>
         </div>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={4}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           onBlur={saveDescription}
-          rows={4}
           placeholder={t("descriptionPlaceholder")}
-          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
+          className="text-sm"
         />
       </section>
 

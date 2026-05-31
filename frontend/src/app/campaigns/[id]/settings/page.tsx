@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
@@ -54,12 +55,13 @@ export default function SettingsPage() {
 
         <div>
           <label className="block text-sm text-muted-foreground mb-1">{t("descriptionLabel")}</label>
-          <textarea
+          <Textarea
+            variant="muted"
+            minRows={4}
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className={`${inputCls} resize-none`}
-            rows={4}
             placeholder={t("descriptionPlaceholder")}
+            className="text-sm"
           />
         </div>
 

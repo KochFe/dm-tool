@@ -13,6 +13,7 @@ import type {
   PlayerCharacter,
   Location,
 } from "@/types";
+import { Textarea } from "@/components/ui/textarea";
 import CharacterList from "./CharacterList";
 import IdeasHelper from "./IdeasHelper";
 import { AIAssistModal } from "@/components/ai/AIAssistModal";
@@ -208,13 +209,14 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
       {/* Description */}
       <div className="flex flex-col gap-1">
         <label className="text-xs text-muted-foreground">{t("description")}</label>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           onBlur={() => handleBlur("description", description)}
-          rows={3}
-          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
           placeholder={t("descriptionPlaceholder")}
+          className="text-sm"
         />
       </div>
 
@@ -234,26 +236,28 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
             {t("aiPersonalityButton")}
           </button>
         </div>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={3}
           value={personality}
           onChange={(e) => setPersonality(e.target.value)}
           onBlur={() => handleBlur("personality", personality)}
-          rows={3}
-          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
           placeholder={t("personalityPlaceholder")}
+          className="text-sm"
         />
       </div>
 
       {/* Motivation */}
       <div className="flex flex-col gap-1">
         <label className="text-xs text-muted-foreground">{t("motivation")}</label>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={2}
           value={motivation}
           onChange={(e) => setMotivation(e.target.value)}
           onBlur={() => handleBlur("motivation", motivation)}
-          rows={2}
-          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
           placeholder={t("motivationPlaceholder")}
+          className="text-sm"
         />
       </div>
 
@@ -265,13 +269,14 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
             {t("dmOnly")}
           </span>
         </div>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={2}
           value={secrets}
           onChange={(e) => setSecrets(e.target.value)}
           onBlur={() => handleBlur("secrets", secrets)}
-          rows={2}
-          className="bg-card bg-card border border-border/60 rounded-lg px-3 py-2 text-foreground/80 text-sm focus:outline-none focus:border-ring transition-colors resize-none placeholder:text-muted-foreground/40"
           placeholder={t("secretsPlaceholder")}
+          className="bg-card border-border/60 text-foreground/80 text-sm placeholder:text-muted-foreground/40"
         />
       </div>
 

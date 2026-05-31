@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import type { Campaign, CampaignIdea, CampaignPhase, Quest, Location } from "@/types";
 import PhaseCard from "./PhaseCard";
 import IdeasHelper from "./IdeasHelper";
+import { Textarea } from "@/components/ui/textarea";
 
 interface StoryTabProps {
   campaign: Campaign;
@@ -162,13 +163,14 @@ export default function StoryTab({
               {t("campaignDescriptionHint")}
             </p>
           </div>
-          <textarea
+          <Textarea
+            variant="muted"
+            minRows={5}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onBlur={saveDescription}
-            rows={5}
-            className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
             placeholder={t("descriptionPlaceholder")}
+            className="text-sm"
           />
         </section>
 
