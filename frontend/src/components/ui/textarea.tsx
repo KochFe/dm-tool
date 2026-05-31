@@ -27,18 +27,47 @@ const VARIANT_CLS: Record<TextareaVariant, string> = {
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   function Textarea(
-    { className, variant = "default", minRows, ...props },
-    ref
+    { className, variant = "default", minRows, onInput, value, ...props },
+    forwardedRef
   ) {
+    const innerRef = React.useRef<HTMLTextAreaElement | null>(null)
+
+    const setRef = React.useCallback(
+      (node: HTMLTextAreaElement | null) => {
+        innerRef.current = node
+        if (typeof forwardedRef === "function") forwardedRef(node)
+        else if (forwardedRef) forwardedRef.current = node
+      },
+      [forwardedRef]
+    )
+
+    const resize = React.useCallback(() => {
+      const el = innerRef.current
+      if (!el) return
+      el.style.height = "auto"
+      el.style.height = `${el.scrollHeight}px`
+    }, [])
+
+    React.useLayoutEffect(() => {
+      resize()
+    }, [value, resize])
+
+    const handleInput: React.ComponentProps<"textarea">["onInput"] = (e) => {
+      resize()
+      onInput?.(e)
+    }
+
     const minRowsCls =
       minRows && MIN_ROW_HEIGHT[minRows] ? MIN_ROW_HEIGHT[minRows] : "min-h-16"
 
     return (
       <textarea
-        ref={ref}
+        ref={setRef}
         data-slot="textarea"
+        value={value}
+        onInput={handleInput}
         className={cn(
-          "flex field-sizing-content w-full rounded-lg border border-input px-2.5 py-2 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+          "flex field-sizing-content w-full rounded-lg border border-input px-2.5 py-2 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 overflow-hidden",
           VARIANT_CLS[variant],
           minRowsCls,
           className
