@@ -9,6 +9,7 @@ import type { Quest, QuestCreate, QuestStatus, Location } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
 import { CardListSkeleton } from "@/components/skeletons/CardSkeleton";
 import LocationHoverCard from "@/components/LocationHoverCard";
+import { Textarea } from "@/components/ui/textarea";
 
 const STATUS_BADGE: Record<QuestStatus, string> = {
   not_started: "bg-accent text-foreground/80",
@@ -166,12 +167,13 @@ export default function QuestSection({
             className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors"
             required
           />
-          <textarea
+          <Textarea
+            variant="muted"
+            minRows={3}
             placeholder={t("descriptionPlaceholder")}
             value={form.description ?? ""}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            rows={3}
-            className="bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors resize-none"
+            className="text-sm"
           />
           <div className="grid grid-cols-2 gap-2">
             <div>

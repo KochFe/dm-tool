@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { MapPin } from "lucide-react";
 import type { Location } from "@/types";
+import { Textarea } from "@/components/ui/textarea";
 
 // Biome values are stored canonically in English on the backend; only the
 // display label is localized via the `biomeXxx` keys below.
@@ -152,12 +153,13 @@ export default function LocationDetail({
         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           {t("description")}
         </label>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={5}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          rows={5}
-          className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors resize-none"
           placeholder={t("descriptionPlaceholder")}
+          className="text-sm"
         />
       </section>
 

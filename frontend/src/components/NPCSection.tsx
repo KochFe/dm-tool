@@ -10,6 +10,7 @@ import ConfirmButton from "@/components/ConfirmButton";
 import { CardListSkeleton } from "@/components/skeletons/CardSkeleton";
 import LocationHoverCard from "@/components/LocationHoverCard";
 import { AIAssistModal } from "@/components/ai/AIAssistModal";
+import { Textarea } from "@/components/ui/textarea";
 
 const EMPTY_FORM = {
   name: "",
@@ -57,8 +58,6 @@ function npcToForm(npc: Npc): FormState {
 const INPUT_CLS =
   "bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors";
 
-const TEXTAREA_CLS =
-  "bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors resize-none";
 
 export default function NPCSection({
   campaignId,
@@ -246,12 +245,13 @@ export default function NPCSection({
           </div>
 
           {/* Description */}
-          <textarea
+          <Textarea
+            variant="muted"
+            minRows={2}
             placeholder={t("descriptionPlaceholder")}
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className={TEXTAREA_CLS}
-            rows={2}
+            className="text-sm"
           />
 
           {/* Personality */}
@@ -272,31 +272,34 @@ export default function NPCSection({
                 </button>
               )}
             </div>
-            <textarea
+            <Textarea
+              variant="muted"
+              minRows={2}
               placeholder={t("personalityPlaceholder")}
               value={form.personality}
               onChange={(e) => setForm({ ...form, personality: e.target.value })}
-              className={TEXTAREA_CLS}
-              rows={2}
+              className="text-sm"
             />
           </div>
 
           {/* Motivation */}
-          <textarea
+          <Textarea
+            variant="muted"
+            minRows={2}
             placeholder={t("motivationPlaceholder")}
             value={form.motivation}
             onChange={(e) => setForm({ ...form, motivation: e.target.value })}
-            className={TEXTAREA_CLS}
-            rows={2}
+            className="text-sm"
           />
 
           {/* Secrets */}
-          <textarea
+          <Textarea
+            variant="muted"
+            minRows={2}
             placeholder={t("secretsPlaceholder")}
             value={form.secrets}
             onChange={(e) => setForm({ ...form, secrets: e.target.value })}
-            className={TEXTAREA_CLS}
-            rows={2}
+            className="text-sm"
           />
 
           {/* Combat stats */}
