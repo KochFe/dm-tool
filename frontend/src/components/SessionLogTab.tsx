@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { api } from "@/lib/api";
 import type { CampaignSessionNote } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
   campaignId: string;
@@ -100,12 +101,14 @@ function LogEntry({ entry, number, expanded, onToggle, onPatch, onDelete }: LogE
             onBlur={(e) => persistIfChanged("title", e.currentTarget.value || null)}
             className="w-full bg-muted border border-border text-foreground rounded-lg px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors"
           />
-          <textarea
+          <Textarea
             ref={bodyRef}
+            variant="muted"
+            minRows={6}
             defaultValue={entry.body ?? ""}
             placeholder={t("bodyPlaceholder")}
             onBlur={(e) => persistIfChanged("body", e.currentTarget.value)}
-            className="w-full bg-muted border border-border text-foreground rounded-lg px-3 py-2 text-sm resize-none focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors min-h-[160px]"
+            className="text-sm"
           />
         </div>
       )}

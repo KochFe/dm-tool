@@ -13,6 +13,7 @@ import type {
   TemplateCombatant,
 } from "@/types";
 import CombatantsTable from "./CombatantsTable";
+import { Textarea } from "@/components/ui/textarea";
 import StartEncounterModal from "./StartEncounterModal";
 
 type Props = {
@@ -125,11 +126,13 @@ export default function EncounterDetail({
         <label className="text-xs text-muted-foreground block mb-1">
           {t("notesLabel")}
         </label>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={3}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder={t("notesPlaceholder")}
-          className="w-full bg-muted rounded px-3 py-2 min-h-[80px]"
+          className="text-sm"
         />
       </div>
 

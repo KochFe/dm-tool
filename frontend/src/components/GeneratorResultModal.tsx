@@ -11,6 +11,7 @@ import type {
   NpcStats,
   PlayerCharacter,
 } from '@/types';
+import { Textarea } from '@/components/ui/textarea';
 
 interface GeneratorResultModalProps {
   type: 'encounter' | 'npc' | 'loot';
@@ -320,7 +321,6 @@ function EncounterCombatView({ encounter, characters, combatants, onChange }: En
 
 const INPUT_CLASS =
   'bg-muted border border-border text-foreground rounded-lg px-3 py-2 w-full focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 placeholder:text-muted-foreground transition-colors';
-const TEXTAREA_CLASS = `${INPUT_CLASS} resize-none`;
 const LABEL_CLASS = 'block text-primary text-xs font-semibold uppercase tracking-wide mb-1';
 
 interface NpcEditViewProps {
@@ -389,45 +389,49 @@ function NpcEditView({ npc, onChange }: NpcEditViewProps) {
 
       <div>
         <label className={LABEL_CLASS}>{t('npcLabelDescription')}</label>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={3}
           value={npc.description}
           onChange={(e) => set('description', e.target.value)}
-          className={TEXTAREA_CLASS}
-          rows={3}
           placeholder={t('npcPlaceholderDesc')}
+          className="text-sm"
         />
       </div>
 
       <div>
         <label className={LABEL_CLASS}>{t('npcLabelPersonality')}</label>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={2}
           value={npc.personality}
           onChange={(e) => set('personality', e.target.value)}
-          className={TEXTAREA_CLASS}
-          rows={2}
           placeholder={t('npcPlaceholderPersonality')}
+          className="text-sm"
         />
       </div>
 
       <div>
         <label className={LABEL_CLASS}>{t('npcLabelMotivation')}</label>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={2}
           value={npc.motivation}
           onChange={(e) => set('motivation', e.target.value)}
-          className={TEXTAREA_CLASS}
-          rows={2}
           placeholder={t('npcPlaceholderMotivation')}
+          className="text-sm"
         />
       </div>
 
       <div>
         <label className={LABEL_CLASS}>{t('npcLabelSecrets')}</label>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={2}
           value={npc.secrets}
           onChange={(e) => set('secrets', e.target.value)}
-          className={TEXTAREA_CLASS}
-          rows={2}
           placeholder={t('npcPlaceholderSecrets')}
+          className="text-sm"
         />
       </div>
 

@@ -6,6 +6,7 @@ import { useCampaign } from "@/contexts/CampaignContext";
 import { api } from "@/lib/api";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import ConfirmButton from "@/components/ConfirmButton";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function SessionNotes() {
   const t = useTranslations("sessionNotes");
@@ -80,13 +81,15 @@ export default function SessionNotes() {
         {t("heading")}
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <textarea
+        <Textarea
+          variant="muted"
+          minRows={6}
           value={body}
           onChange={(e) => handleChange(e.target.value)}
           onBlur={handleBlur}
           placeholder={t("placeholder")}
           disabled={!loaded || !entryId}
-          className="mt-2 w-full bg-muted border border-border text-foreground rounded-lg px-3 py-2 text-sm resize-none focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors min-h-[120px] disabled:opacity-60"
+          className="mt-2 text-sm disabled:opacity-60"
         />
         <div className="mt-2 flex justify-end">
           <ConfirmButton
