@@ -9,13 +9,6 @@ import type { Campaign, CampaignIdea, IdeaTag } from "@/types";
 import IdeaRow from "./IdeaRow";
 import { AIAssistModal } from "@/components/ai/AIAssistModal";
 
-const CAMPAIGN_LENGTHS: { labelKey: string; value: NonNullable<Campaign["campaign_length"]> }[] = [
-  { labelKey: "lengthOneShot", value: "one_shot" },
-  { labelKey: "lengthShort", value: "short" },
-  { labelKey: "lengthMedium", value: "medium" },
-  { labelKey: "lengthLong", value: "long" },
-];
-
 const TAG_OPTIONS: IdeaTag[] = ["story", "location", "character"];
 
 const TAG_PILL_STYLES: Record<IdeaTag, string> = {
@@ -75,15 +68,6 @@ export default function BasicsTab({
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("saveNameError"));
       setName(campaign.name);
-    }
-  }
-
-  async function saveCampaignLength(value: Campaign["campaign_length"]) {
-    try {
-      const updated = await api.updateCampaign(campaign.id, { campaign_length: value });
-      onCampaignUpdate(updated);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("saveCampaignLengthError"));
     }
   }
 
@@ -180,28 +164,6 @@ export default function BasicsTab({
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
           placeholder={t("campaignNamePlaceholder")}
         />
-      </section>
-
-      {/* Campaign Length */}
-      <section className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-          {t("campaignLength")}
-        </label>
-        <div className="flex gap-2 flex-wrap">
-          {CAMPAIGN_LENGTHS.map(({ labelKey, value }) => (
-            <button
-              key={value}
-              onClick={() => saveCampaignLength(value)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                campaign.campaign_length === value
-                  ? "bg-primary border-primary text-primary-foreground"
-                  : "bg-muted border-border text-foreground/80 hover:border-border"
-              }`}
-            >
-              {t(labelKey)}
-            </button>
-          ))}
-        </div>
       </section>
 
       {/* Campaign Description */}

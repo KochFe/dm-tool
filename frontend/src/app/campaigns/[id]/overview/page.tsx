@@ -10,18 +10,6 @@ import { api } from "@/lib/api";
 import IdeaRow from "@/components/builder/IdeaRow";
 import type { CampaignPhase, CampaignIdea, IdeaTag } from "@/types";
 
-// ── helpers ──────────────────────────────────────────────────────────────────
-
-function formatCampaignLength(value: string): string {
-  const map: Record<string, string> = {
-    one_shot: "One-Shot",
-    short: "Short",
-    medium: "Medium",
-    long: "Long",
-  };
-  return map[value] ?? value;
-}
-
 // ── sub-components ────────────────────────────────────────────────────────────
 
 interface PhaseCardProps {
@@ -305,15 +293,10 @@ export default function OverviewPage() {
 
   return (
     <div className="max-w-4xl space-y-6">
-      {/* 1. Title + campaign length badge */}
+      {/* 1. Title */}
       <div>
         <div className="flex items-center gap-3 mb-2">
           <h2 className="text-xl font-semibold text-foreground">{t("overview")}</h2>
-          {campaign.campaign_length && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/20">
-              {formatCampaignLength(campaign.campaign_length)}
-            </span>
-          )}
         </div>
 
         {/* 2. Description */}

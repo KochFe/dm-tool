@@ -27,7 +27,6 @@ class Campaign(Base):
         Text, nullable=False, server_default="Day 1, Morning"
     )
     status: Mapped[str] = mapped_column(Text, nullable=False, server_default="active")
-    campaign_length: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         nullable=False, server_default=func.now()
     )
@@ -68,8 +67,4 @@ class Campaign(Base):
 
     __table_args__ = (
         CheckConstraint("status IN ('draft', 'active')", name="ck_campaign_status"),
-        CheckConstraint(
-            "campaign_length IS NULL OR campaign_length IN ('one_shot', 'short', 'medium', 'long')",
-            name="ck_campaign_length",
-        ),
     )

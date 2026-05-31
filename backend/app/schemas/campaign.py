@@ -9,7 +9,6 @@ class CampaignCreate(BaseModel):
     description: str | None = None
     in_game_time: str = "Day 1, Morning"
     status: str = "active"
-    campaign_length: str | None = None
 
 
 class CampaignUpdate(BaseModel):
@@ -18,7 +17,6 @@ class CampaignUpdate(BaseModel):
     current_location_id: uuid.UUID | None = None
     in_game_time: str | None = None
     status: str | None = None
-    campaign_length: str | None = None
 
 
 class CampaignResponse(BaseModel):
@@ -28,7 +26,6 @@ class CampaignResponse(BaseModel):
     current_location_id: uuid.UUID | None
     in_game_time: str
     status: str
-    campaign_length: str | None
     created_at: datetime
     updated_at: datetime
 

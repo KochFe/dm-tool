@@ -5,7 +5,6 @@ export interface Campaign {
   current_location_id: string | null;
   in_game_time: string;
   status: "draft" | "active";
-  campaign_length: "one_shot" | "short" | "medium" | "long" | null;
   created_at: string;
   updated_at: string;
 }
