@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
 import IdeaRow from "@/components/builder/IdeaRow";
 import type { CampaignPhase, CampaignIdea, IdeaTag } from "@/types";
+import { Textarea } from "@/components/ui/textarea";
 
 // ── sub-components ────────────────────────────────────────────────────────────
 
@@ -111,13 +112,14 @@ function PhaseCard({ phase, onSave, onDelete }: PhaseCardProps) {
 
       {expanded && (
         <div className="px-4 pb-4 border-t border-border/50 pt-3">
-          <textarea
+          <Textarea
+            variant="muted"
+            minRows={3}
             value={editDesc}
             onChange={(e) => setEditDesc(e.target.value)}
             onBlur={handleDescBlur}
             placeholder={t("phaseDescPlaceholder")}
-            rows={3}
-            className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-ring resize-none transition-colors"
+            className="text-sm"
           />
         </div>
       )}
@@ -300,13 +302,14 @@ export default function OverviewPage() {
         </div>
 
         {/* 2. Description */}
-        <textarea
+        <Textarea
+          variant="default"
+          minRows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           onBlur={saveDescription}
           placeholder={t("descriptionPlaceholder")}
-          rows={3}
-          className="w-full bg-transparent text-sm text-muted-foreground leading-relaxed placeholder:text-muted-foreground/60 outline-none resize-none"
+          className="text-sm text-muted-foreground leading-relaxed placeholder:text-muted-foreground/60 border-0 px-0 resize-none"
         />
       </div>
 
