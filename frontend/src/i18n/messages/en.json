@@ -131,6 +131,7 @@
       "addIdeaError": "Failed to add idea",
       "updateTagError": "Failed to update tag",
       "deleteIdeaError": "Failed to delete idea",
+      "reorderError": "Failed to reorder ideas",
       "tagStory": "story",
       "tagLocation": "location",
       "tagCharacter": "character"

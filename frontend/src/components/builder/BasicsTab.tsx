@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import type { TextResult } from "@/lib/api";
-import type { Campaign, CampaignIdea, IdeaTag } from "@/types";
-import IdeaRow from "./IdeaRow";
+import type { Campaign, CampaignIdea, IdeaTag, IdeaReorderItem } from "@/types";
+import IdeaBoard from "./IdeaBoard";
 import { AIAssistModal } from "@/components/ai/AIAssistModal";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -130,6 +130,16 @@ export default function BasicsTab({
     }
   }
 
+  async function handleReorder(items: IdeaReorderItem[]) {
+    try {
+      await api.reorderIdeas(campaign.id, items);
+      await reloadIdeas();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("reorderError"));
+      throw err;
+    }
+  }
+
   function cycleTag() {
     setNewIdeaTag((current) => {
       const idx = TAG_OPTIONS.indexOf(current);
@@ -230,19 +240,15 @@ export default function BasicsTab({
           </button>
         </div>
 
-        {/* Ideas list */}
+        {/* Ideas grouped by type */}
         {ideas.length > 0 && (
-          <div className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card px-3">
-            {ideas.map((idea) => (
-              <IdeaRow
-                key={idea.id}
-                idea={idea}
-                onToggleDone={handleToggleDone}
-                onChangeTag={handleChangeTag}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
+          <IdeaBoard
+            ideas={ideas}
+            onReorder={handleReorder}
+            onToggleDone={handleToggleDone}
+            onChangeTag={handleChangeTag}
+            onDelete={handleDelete}
+          />
         )}
       </section>
       <AIAssistModal<TextResult>

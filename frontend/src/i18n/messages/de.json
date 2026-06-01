@@ -131,6 +131,7 @@
       "addIdeaError": "Idee konnte nicht hinzugefügt werden",
       "updateTagError": "Tag konnte nicht aktualisiert werden",
       "deleteIdeaError": "Idee konnte nicht gelöscht werden",
+      "reorderError": "Ideen konnten nicht neu sortiert werden",
       "tagStory": "Geschichte",
       "tagLocation": "Ort",
       "tagCharacter": "Charakter"
