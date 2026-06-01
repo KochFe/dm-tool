@@ -329,6 +329,7 @@
     "ideaRow": {
       "clickToChangeTag": "Click to change tag",
       "deleteIdea": "Delete idea",
+      "dragHandleLabel": "Drag to reorder",
       "tagStory": "story",
       "tagLocation": "location",
       "tagCharacter": "character"
