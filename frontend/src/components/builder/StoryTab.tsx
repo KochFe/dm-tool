@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import type { Campaign, CampaignIdea, CampaignPhase, Quest, Location } from "@/types";
+import type { Campaign, CampaignIdea, CampaignPhase, Quest, Location, IdeaReorderItem } from "@/types";
 import PhaseCard from "./PhaseCard";
 import IdeasHelper from "./IdeasHelper";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,8 @@ interface StoryTabProps {
   ideas: CampaignIdea[];
   onToggleIdea: (id: string, isDone: boolean) => void;
   reloadIdeas: () => Promise<void>;
+  onReorderIdeas: (items: IdeaReorderItem[]) => Promise<void>;
+  onDeleteIdea: (id: string) => void;
 }
 
 export default function StoryTab({
@@ -23,6 +25,8 @@ export default function StoryTab({
   ideas,
   onToggleIdea,
   reloadIdeas,
+  onReorderIdeas,
+  onDeleteIdea,
 }: StoryTabProps) {
   const t = useTranslations("builder.story");
   const [description, setDescription] = useState(
@@ -263,6 +267,8 @@ export default function StoryTab({
             ideas={ideas}
             onToggleDone={onToggleIdea}
             onIdeaCreated={reloadIdeas}
+            onReorder={onReorderIdeas}
+            onDelete={onDeleteIdea}
           />
         </div>
       </div>

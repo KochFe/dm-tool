@@ -101,6 +101,8 @@
     "activateError": "Failed to activate campaign: {message}",
     "loadIdeasError": "Failed to load ideas",
     "updateIdeaError": "Failed to update idea",
+    "deleteIdeaError": "Failed to delete idea",
+    "reorderError": "Failed to reorder ideas",
     "next": "Next: {tab} →",
     "back": "← Back: {tab}",
     "tabs": {

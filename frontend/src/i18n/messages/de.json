@@ -101,6 +101,8 @@
     "activateError": "Aktivieren der Kampagne fehlgeschlagen: {message}",
     "loadIdeasError": "Ideen konnten nicht geladen werden",
     "updateIdeaError": "Idee konnte nicht aktualisiert werden",
+    "deleteIdeaError": "Idee konnte nicht gelöscht werden",
+    "reorderError": "Ideen konnten nicht neu sortiert werden",
     "next": "Weiter: {tab} →",
     "back": "← Zurück: {tab}",
     "tabs": {

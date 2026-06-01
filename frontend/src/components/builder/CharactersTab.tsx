@@ -7,6 +7,7 @@ import { api, type PersonalityResult } from "@/lib/api";
 import type {
   Campaign,
   CampaignIdea,
+  IdeaReorderItem,
   Npc,
   NpcStats,
   NpcUpdate,
@@ -766,6 +767,8 @@ interface CharactersTabProps {
   ideas: CampaignIdea[];
   onToggleIdea: (id: string, isDone: boolean) => void;
   reloadIdeas: () => Promise<void>;
+  onReorderIdeas: (items: IdeaReorderItem[]) => Promise<void>;
+  onDeleteIdea: (id: string) => void;
 }
 
 export default function CharactersTab({
@@ -773,6 +776,8 @@ export default function CharactersTab({
   ideas,
   onToggleIdea,
   reloadIdeas,
+  onReorderIdeas,
+  onDeleteIdea,
 }: CharactersTabProps) {
   const t = useTranslations("builder.characters");
   const [npcs, setNpcs] = useState<Npc[]>([]);
@@ -1020,6 +1025,8 @@ export default function CharactersTab({
             ideas={ideas}
             onToggleDone={onToggleIdea}
             onIdeaCreated={reloadIdeas}
+            onReorder={onReorderIdeas}
+            onDelete={onDeleteIdea}
           />
         </div>
       </div>
