@@ -7,8 +7,8 @@ import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
-import IdeaRow from "@/components/builder/IdeaRow";
-import type { CampaignPhase, CampaignIdea, IdeaTag } from "@/types";
+import IdeaBoard from "@/components/builder/IdeaBoard";
+import type { CampaignPhase, CampaignIdea, IdeaTag, IdeaReorderItem } from "@/types";
 import { Textarea } from "@/components/ui/textarea";
 
 // ── sub-components ────────────────────────────────────────────────────────────
@@ -272,6 +272,16 @@ export default function OverviewPage() {
     }
   }, [loadIdeas, t]);
 
+  const handleReorderIdeas = useCallback(async (items: IdeaReorderItem[]) => {
+    try {
+      await api.reorderIdeas(campaign.id, items);
+      await loadIdeas();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("reorderError"));
+      throw err;
+    }
+  }, [campaign.id, loadIdeas, t]);
+
   const handleAddIdea = useCallback(async () => {
     const text = newIdeaText.trim();
     if (!text) return;
@@ -452,15 +462,13 @@ export default function OverviewPage() {
                 {t("ideasEmpty")}
               </p>
             ) : (
-              ideas.map((idea) => (
-                <IdeaRow
-                  key={idea.id}
-                  idea={idea}
-                  onToggleDone={handleToggleIdeaDone}
-                  onChangeTag={handleChangeIdeaTag}
-                  onDelete={handleDeleteIdea}
-                />
-              ))
+              <IdeaBoard
+                ideas={ideas}
+                onReorder={handleReorderIdeas}
+                onToggleDone={handleToggleIdeaDone}
+                onChangeTag={handleChangeIdeaTag}
+                onDelete={handleDeleteIdea}
+              />
             )}
 
             {/* Add Idea */}

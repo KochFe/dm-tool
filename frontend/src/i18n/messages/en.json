@@ -51,7 +51,8 @@
     "updateIdeaError": "Failed to update idea",
     "updateIdeaTagError": "Failed to update idea tag",
     "deleteIdeaError": "Failed to delete idea",
-    "addIdeaError": "Failed to add idea"
+    "addIdeaError": "Failed to add idea",
+    "reorderError": "Failed to reorder ideas"
   },
   "session": {
     "tabExploration": "Exploration",

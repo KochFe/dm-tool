@@ -51,7 +51,8 @@
     "updateIdeaError": "Idee konnte nicht aktualisiert werden",
     "updateIdeaTagError": "Ideenmarkierung konnte nicht aktualisiert werden",
     "deleteIdeaError": "Idee konnte nicht gelöscht werden",
-    "addIdeaError": "Idee konnte nicht hinzugefügt werden"
+    "addIdeaError": "Idee konnte nicht hinzugefügt werden",
+    "reorderError": "Ideen konnten nicht neu sortiert werden"
   },
   "session": {
     "tabExploration": "Erkundung",
