@@ -5,7 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_current_user, get_db
 from app.models.user import User
-from app.schemas.campaign_idea import IdeaCreate, IdeaResponse, IdeaUpdate
+from app.schemas.campaign_idea import (
+    IdeaCreate,
+    IdeaReorderRequest,
+    IdeaResponse,
+    IdeaUpdate,
+)
 from app.schemas.common import APIResponse
 from app.services import campaign_service, idea_service
 
@@ -45,6 +50,28 @@ async def list_ideas(
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
     ideas = await idea_service.get_ideas(db, campaign_id)
+    return APIResponse(data=[IdeaResponse.model_validate(i) for i in ideas])
+
+
+@router.patch(
+    "/campaigns/{campaign_id}/ideas/reorder",
+    response_model=APIResponse[list[IdeaResponse]],
+)
+async def reorder_campaign_ideas(
+    campaign_id: uuid.UUID,
+    data: IdeaReorderRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Atomically rewrite sort_order + tag for a campaign's ideas."""
+    campaign = await campaign_service.get_campaign(db, campaign_id, current_user.id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    ideas = await idea_service.reorder_ideas(db, campaign_id, data.items)
+    if ideas is None:
+        raise HTTPException(
+            status_code=404, detail="One or more ideas not found in this campaign"
+        )
     return APIResponse(data=[IdeaResponse.model_validate(i) for i in ideas])
 
 

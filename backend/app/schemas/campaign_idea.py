@@ -19,6 +19,16 @@ class IdeaUpdate(BaseModel):
     sort_order: int | None = Field(default=None, ge=0)
 
 
+class IdeaReorderItem(BaseModel):
+    id: uuid.UUID
+    sort_order: int = Field(..., ge=0)
+    tag: Literal["story", "location", "character"]
+
+
+class IdeaReorderRequest(BaseModel):
+    items: list[IdeaReorderItem]
+
+
 class IdeaResponse(BaseModel):
     id: uuid.UUID
     campaign_id: uuid.UUID
