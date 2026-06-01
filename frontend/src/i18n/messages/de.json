@@ -333,6 +333,12 @@
       "tagStory": "Geschichte",
       "tagLocation": "Ort",
       "tagCharacter": "Charakter"
+    },
+    "ideaBoard": {
+      "ideaGroupStory": "Story",
+      "ideaGroupCharacter": "Charaktere",
+      "ideaGroupLocation": "Orte",
+      "emptyGroup": "Ideen hierher ziehen"
     }
   },
   "landing": {
