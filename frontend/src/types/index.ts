@@ -337,6 +337,12 @@ export interface IdeaUpdate {
   sort_order?: number;
 }
 
+export interface IdeaReorderItem {
+  id: string;
+  sort_order: number;
+  tag: IdeaTag;
+}
+
 // Auth
 export interface LoginRequest {
   email: string;

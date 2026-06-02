@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { GripVertical } from "lucide-react";
 import type { CampaignIdea, IdeaTag } from "@/types";
 
 const TAG_ORDER: IdeaTag[] = ["story", "location", "character"];
@@ -28,6 +29,8 @@ interface IdeaRowProps {
   onChangeTag?: (id: string, tag: IdeaTag) => void;
   onDelete?: (id: string) => void;
   compact?: boolean;
+  /** dnd-kit attributes + listeners; when provided a grip handle is shown. */
+  dragHandleProps?: Record<string, unknown>;
 }
 
 export default function IdeaRow({
@@ -36,12 +39,24 @@ export default function IdeaRow({
   onChangeTag,
   onDelete,
   compact = false,
+  dragHandleProps,
 }: IdeaRowProps) {
   const t = useTranslations("builder.ideaRow");
   return (
     <div
       className={`flex items-center gap-2 py-1.5 ${idea.is_done ? "opacity-50" : ""}`}
     >
+      {dragHandleProps ? (
+        <button
+          type="button"
+          {...dragHandleProps}
+          aria-label={t("dragHandleLabel")}
+          title={t("dragHandleLabel")}
+          className="flex-shrink-0 text-muted-foreground/50 hover:text-muted-foreground cursor-grab active:cursor-grabbing touch-none"
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
+      ) : null}
       <input
         type="checkbox"
         checked={idea.is_done}
@@ -53,26 +68,24 @@ export default function IdeaRow({
       >
         {idea.text}
       </span>
-      {!compact && (
-        <>
-          <button
-            onClick={() => onChangeTag?.(idea.id, nextTag(idea.tag))}
-            className={`px-2 py-0.5 rounded text-xs font-medium transition-opacity ${TAG_STYLES[idea.tag]} hover:opacity-80`}
-            title={t("clickToChangeTag")}
-          >
-            {t(TAG_KEYS[idea.tag])}
-          </button>
-          {onDelete && (
-            <button
-              onClick={() => onDelete(idea.id)}
-              className="text-muted-foreground/60 hover:text-red-400 transition-colors text-sm leading-none px-1"
-              title={t("deleteIdea")}
-              aria-label={t("deleteIdea")}
-            >
-              &times;
-            </button>
-          )}
-        </>
+      {!compact && onChangeTag && (
+        <button
+          onClick={() => onChangeTag(idea.id, nextTag(idea.tag))}
+          className={`px-2 py-0.5 rounded text-xs font-medium transition-opacity ${TAG_STYLES[idea.tag]} hover:opacity-80`}
+          title={t("clickToChangeTag")}
+        >
+          {t(TAG_KEYS[idea.tag])}
+        </button>
+      )}
+      {onDelete && (
+        <button
+          onClick={() => onDelete(idea.id)}
+          className="text-muted-foreground/60 hover:text-red-400 transition-colors text-sm leading-none px-1 flex-shrink-0"
+          title={t("deleteIdea")}
+          aria-label={t("deleteIdea")}
+        >
+          &times;
+        </button>
       )}
     </div>
   );

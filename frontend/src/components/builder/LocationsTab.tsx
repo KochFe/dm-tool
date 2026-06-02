@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { Campaign, CampaignIdea } from "@/types";
+import type { Campaign, CampaignIdea, IdeaReorderItem } from "@/types";
 import LocationsEditor from "@/components/locations/LocationsEditor";
 import IdeasHelper from "./IdeasHelper";
 
@@ -10,6 +10,8 @@ interface LocationsTabProps {
   ideas: CampaignIdea[];
   onToggleIdea: (id: string, isDone: boolean) => void;
   reloadIdeas: () => Promise<void>;
+  onReorderIdeas: (items: IdeaReorderItem[]) => Promise<void>;
+  onDeleteIdea: (id: string) => void;
 }
 
 export default function LocationsTab({
@@ -17,6 +19,8 @@ export default function LocationsTab({
   ideas,
   onToggleIdea,
   reloadIdeas,
+  onReorderIdeas,
+  onDeleteIdea,
 }: LocationsTabProps) {
   const t = useTranslations("builder.locationsTab");
 
@@ -40,6 +44,8 @@ export default function LocationsTab({
             ideas={ideas}
             onToggleDone={onToggleIdea}
             onIdeaCreated={reloadIdeas}
+            onReorder={onReorderIdeas}
+            onDelete={onDeleteIdea}
           />
         </div>
       </div>

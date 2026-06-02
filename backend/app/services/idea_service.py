@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.campaign import Campaign
 from app.models.campaign_idea import CampaignIdea
-from app.schemas.campaign_idea import IdeaCreate, IdeaUpdate
+from app.schemas.campaign_idea import IdeaCreate, IdeaReorderItem, IdeaUpdate
 
 
 async def create_idea(
@@ -54,6 +54,32 @@ async def update_idea(
     await db.commit()
     await db.refresh(idea)
     return idea
+
+
+async def reorder_ideas(
+    db: AsyncSession, campaign_id: uuid.UUID, items: list[IdeaReorderItem]
+) -> list[CampaignIdea] | None:
+    """Atomically rewrite sort_order + tag for the given ideas.
+
+    Returns the refreshed ordered list, or None if any id does not belong
+    to the campaign (caller maps None -> 404).
+    """
+    ids = [item.id for item in items]
+    result = await db.execute(
+        select(CampaignIdea).where(
+            CampaignIdea.campaign_id == campaign_id,
+            CampaignIdea.id.in_(ids),
+        )
+    )
+    found = {idea.id: idea for idea in result.scalars().all()}
+    if len(found) != len(set(ids)):
+        return None
+    for item in items:
+        idea = found[item.id]
+        idea.sort_order = item.sort_order
+        idea.tag = item.tag
+    await db.commit()
+    return await get_ideas(db, campaign_id)
 
 
 async def delete_idea(db: AsyncSession, idea: CampaignIdea) -> None:

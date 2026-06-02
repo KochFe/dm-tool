@@ -51,7 +51,8 @@
     "updateIdeaError": "Idee konnte nicht aktualisiert werden",
     "updateIdeaTagError": "Ideenmarkierung konnte nicht aktualisiert werden",
     "deleteIdeaError": "Idee konnte nicht gelöscht werden",
-    "addIdeaError": "Idee konnte nicht hinzugefügt werden"
+    "addIdeaError": "Idee konnte nicht hinzugefügt werden",
+    "reorderError": "Ideen konnten nicht neu sortiert werden"
   },
   "session": {
     "tabExploration": "Erkundung",
@@ -100,6 +101,8 @@
     "activateError": "Aktivieren der Kampagne fehlgeschlagen: {message}",
     "loadIdeasError": "Ideen konnten nicht geladen werden",
     "updateIdeaError": "Idee konnte nicht aktualisiert werden",
+    "deleteIdeaError": "Idee konnte nicht gelöscht werden",
+    "reorderError": "Ideen konnten nicht neu sortiert werden",
     "next": "Weiter: {tab} →",
     "back": "← Zurück: {tab}",
     "tabs": {
@@ -131,6 +134,7 @@
       "addIdeaError": "Idee konnte nicht hinzugefügt werden",
       "updateTagError": "Tag konnte nicht aktualisiert werden",
       "deleteIdeaError": "Idee konnte nicht gelöscht werden",
+      "reorderError": "Ideen konnten nicht neu sortiert werden",
       "tagStory": "Geschichte",
       "tagLocation": "Ort",
       "tagCharacter": "Charakter"
@@ -329,9 +333,16 @@
     "ideaRow": {
       "clickToChangeTag": "Klicken, um Tag zu ändern",
       "deleteIdea": "Idee löschen",
+      "dragHandleLabel": "Zum Sortieren ziehen",
       "tagStory": "Geschichte",
       "tagLocation": "Ort",
       "tagCharacter": "Charakter"
+    },
+    "ideaBoard": {
+      "ideaGroupStory": "Story",
+      "ideaGroupCharacter": "Charaktere",
+      "ideaGroupLocation": "Orte",
+      "emptyGroup": "Ideen hierher ziehen"
     }
   },
   "landing": {

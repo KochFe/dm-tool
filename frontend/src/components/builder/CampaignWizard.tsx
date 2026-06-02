@@ -61,6 +61,31 @@ export default function CampaignWizard({
     [reloadIdeas, t]
   );
 
+  const handleReorderIdeas = useCallback(
+    async (items: import("@/types").IdeaReorderItem[]) => {
+      try {
+        await api.reorderIdeas(campaign.id, items);
+        await reloadIdeas();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : t("reorderError"));
+        throw err;
+      }
+    },
+    [campaign.id, reloadIdeas, t]
+  );
+
+  const handleDeleteIdea = useCallback(
+    async (id: string) => {
+      try {
+        await api.deleteIdea(id);
+        await reloadIdeas();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : t("deleteIdeaError"));
+      }
+    },
+    [reloadIdeas, t]
+  );
+
   useEffect(() => {
     reloadIdeas();
   }, [reloadIdeas]);
@@ -114,6 +139,8 @@ export default function CampaignWizard({
             ideas={ideas}
             onToggleIdea={handleToggleIdea}
             reloadIdeas={reloadIdeas}
+            onReorderIdeas={handleReorderIdeas}
+            onDeleteIdea={handleDeleteIdea}
           />
         );
       case 2:
@@ -123,6 +150,8 @@ export default function CampaignWizard({
             ideas={ideas}
             onToggleIdea={handleToggleIdea}
             reloadIdeas={reloadIdeas}
+            onReorderIdeas={handleReorderIdeas}
+            onDeleteIdea={handleDeleteIdea}
           />
         );
       case 3:
@@ -132,6 +161,8 @@ export default function CampaignWizard({
             ideas={ideas}
             onToggleIdea={handleToggleIdea}
             reloadIdeas={reloadIdeas}
+            onReorderIdeas={handleReorderIdeas}
+            onDeleteIdea={handleDeleteIdea}
           />
         );
       default:

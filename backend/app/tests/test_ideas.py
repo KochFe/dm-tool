@@ -222,3 +222,68 @@ async def test_idea_cascade_delete(client: AsyncClient, auth_headers):
         f"/api/v1/ideas/{idea_id}", json={"is_done": True}, headers=auth_headers
     )
     assert patch_resp.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# Reorder
+# ---------------------------------------------------------------------------
+
+
+async def test_reorder_ideas_rewrites_order(client: AsyncClient, auth_headers):
+    """PATCH .../ideas/reorder rewrites sort_order and is reflected by GET."""
+    cid = await _create_campaign(client, auth_headers)
+    a = await _create_idea(client, cid, {"text": "A", "tag": "story", "sort_order": 0}, auth_headers)
+    b = await _create_idea(client, cid, {"text": "B", "tag": "story", "sort_order": 1}, auth_headers)
+
+    resp = await client.patch(
+        f"/api/v1/campaigns/{cid}/ideas/reorder",
+        json={"items": [
+            {"id": b["id"], "sort_order": 0, "tag": "story"},
+            {"id": a["id"], "sort_order": 1, "tag": "story"},
+        ]},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 200
+    ordered = resp.json()["data"]
+    assert [i["text"] for i in ordered] == ["B", "A"]
+
+    get_resp = await client.get(f"/api/v1/campaigns/{cid}/ideas", headers=auth_headers)
+    assert [i["text"] for i in get_resp.json()["data"]] == ["B", "A"]
+
+
+async def test_reorder_changes_tag(client: AsyncClient, auth_headers):
+    """Reordering can move an idea to a new tag (cross-group drag)."""
+    cid = await _create_campaign(client, auth_headers)
+    idea = await _create_idea(client, cid, {"text": "Move me", "tag": "story"}, auth_headers)
+
+    resp = await client.patch(
+        f"/api/v1/campaigns/{cid}/ideas/reorder",
+        json={"items": [{"id": idea["id"], "sort_order": 0, "tag": "character"}]},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 200
+    assert resp.json()["data"][0]["tag"] == "character"
+
+
+async def test_reorder_rejects_foreign_idea(client: AsyncClient, auth_headers):
+    """An idea id from another campaign is rejected with 404."""
+    cid_a = await _create_campaign(client, auth_headers)
+    cid_b = await _create_campaign(client, auth_headers)
+    foreign = await _create_idea(client, cid_b, {"text": "Other", "tag": "story"}, auth_headers)
+
+    resp = await client.patch(
+        f"/api/v1/campaigns/{cid_a}/ideas/reorder",
+        json={"items": [{"id": foreign["id"], "sort_order": 0, "tag": "story"}]},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 404
+
+
+async def test_reorder_unknown_campaign_404(client: AsyncClient, auth_headers):
+    """Reordering under a non-existent campaign returns 404."""
+    resp = await client.patch(
+        f"/api/v1/campaigns/{NULL_UUID}/ideas/reorder",
+        json={"items": []},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 404

@@ -485,6 +485,11 @@ export const api = {
     }),
   deleteIdea: (ideaId: string) =>
     request<void>(`/api/v1/ideas/${ideaId}`, { method: "DELETE" }),
+  reorderIdeas: (campaignId: string, items: import("@/types").IdeaReorderItem[]) =>
+    request<import("@/types").CampaignIdea[]>(
+      `/api/v1/campaigns/${campaignId}/ideas/reorder`,
+      { method: "PATCH", body: JSON.stringify({ items }) },
+    ),
 
   // Campaign Activate
   activateCampaign: (campaignId: string) =>
