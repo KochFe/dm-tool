@@ -703,6 +703,11 @@
     "spellSlots": "Spell Slots",
     "savingThrowProficiencies": "Saving Throw Proficiencies",
     "skillProficiencies": "Skill Proficiencies",
+    "notes": "Notes",
+    "notesPlaceholder": "DM notes about this character…",
+    "displaySavingThrows": "Saving Throws",
+    "displaySkills": "Skills",
+    "displaySpellSlots": "Spell Slots",
     "removeSpellSlotRow": "Remove spell slot row",
     "cardAc": "AC",
     "cardHp": "HP",
@@ -755,7 +760,9 @@
   "combatView": {},
   "partyPanel": {
     "heading": "Party",
-    "empty": "No characters in this campaign."
+    "empty": "No characters in this campaign.",
+    "expand": "Show details",
+    "collapse": "Hide details"
   },
   "admin": {
     "nav_link": "Admin",
