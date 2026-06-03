@@ -9,26 +9,12 @@ import { hpColor, hpBarColor } from "@/lib/utils";
 import type { PlayerCharacter } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
 import DDBImportModal from "@/components/DDBImportModal";
+import CharacterStatDisplay, {
+  ABILITY_KEYS,
+  ABILITY_LABELS,
+} from "@/components/character/CharacterStatDisplay";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-
-const ABILITY_KEYS = [
-  "strength",
-  "dexterity",
-  "constitution",
-  "intelligence",
-  "wisdom",
-  "charisma",
-] as const;
-
-const ABILITY_LABELS: Record<(typeof ABILITY_KEYS)[number], string> = {
-  strength: "STR",
-  dexterity: "DEX",
-  constitution: "CON",
-  intelligence: "INT",
-  wisdom: "WIS",
-  charisma: "CHA",
-};
 
 const SAVING_THROWS = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] as const;
 
@@ -52,13 +38,6 @@ const SKILLS = [
   "Stealth",
   "Survival",
 ] as const;
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function abilityModifier(score: number): string {
-  const mod = Math.floor((score - 10) / 2);
-  return mod >= 0 ? `+${mod}` : `${mod}`;
-}
 
 // ─── Form shape ──────────────────────────────────────────────────────────────
 
@@ -173,34 +152,6 @@ const INPUT_CLS =
 
 const SMALL_INPUT_CLS =
   "bg-muted border border-border text-foreground rounded-lg px-2 py-1.5 w-full mt-1 focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50 transition-colors";
-
-function Tag({ label }: { label: string }) {
-  return (
-    <span className="inline-block bg-accent text-foreground/80 text-xs px-2 py-0.5 rounded">
-      {label}
-    </span>
-  );
-}
-
-// Ability scores grid for the card display
-function AbilityScoreGrid({ pc }: { pc: PlayerCharacter }) {
-  return (
-    <div className="grid grid-cols-6 gap-1.5 mt-2">
-      {ABILITY_KEYS.map((key) => (
-        <div
-          key={key}
-          className="bg-card/60 border border-border rounded-lg py-1.5 text-center"
-        >
-          <p className="text-xs text-muted-foreground uppercase tracking-wide">
-            {ABILITY_LABELS[key]}
-          </p>
-          <p className="text-sm font-semibold text-foreground">{pc[key]}</p>
-          <p className="text-xs text-primary">{abilityModifier(pc[key])}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 // Ability scores in the form
 function AbilityScoreInputs({
@@ -660,8 +611,6 @@ export default function CharacterSection({
           <AnimatePresence>
           {characters.map((pc) => {
             const isExpanded = expandedCardId === pc.id;
-            const hasSpellSlots =
-              pc.spell_slots && Object.keys(pc.spell_slots).length > 0;
 
             return (
               <motion.div
@@ -741,53 +690,8 @@ export default function CharacterSection({
 
                 {/* Collapsible stats panel */}
                 {isExpanded && (
-                  <div className="mt-3 pt-3 border-t border-border/50 space-y-3">
-                    {/* Ability scores */}
-                    <AbilityScoreGrid pc={pc} />
-
-                    {/* Saving throw proficiencies */}
-                    {pc.saving_throw_proficiencies &&
-                      pc.saving_throw_proficiencies.length > 0 && (
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">
-                            Saving Throws
-                          </p>
-                          <div className="flex flex-wrap gap-1">
-                            {pc.saving_throw_proficiencies.map((s) => (
-                              <Tag key={s} label={s} />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                    {/* Skill proficiencies */}
-                    {pc.skill_proficiencies &&
-                      pc.skill_proficiencies.length > 0 && (
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Skills</p>
-                          <div className="flex flex-wrap gap-1">
-                            {pc.skill_proficiencies.map((s) => (
-                              <Tag key={s} label={s} />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                    {/* Spell slots */}
-                    {hasSpellSlots && (
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">
-                          Spell Slots
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {Object.entries(pc.spell_slots).map(
-                            ([level, slots]) => (
-                              <Tag key={level} label={`Lv${level}: ${slots}`} />
-                            )
-                          )}
-                        </div>
-                      </div>
-                    )}
+                  <div className="mt-3 pt-3 border-t border-border/50">
+                    <CharacterStatDisplay pc={pc} />
                   </div>
                 )}
               </motion.div>
