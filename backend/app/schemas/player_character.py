@@ -35,6 +35,7 @@ class PlayerCharacterCreate(BaseModel):
         default_factory=dict,
         description="Spell slot counts keyed by spell level (e.g. {'1': 4, '2': 3})",
     )
+    notes: str = Field(default="", description="DM's private notes about this character")
     ddb_id: int | None = None
 
 
@@ -68,6 +69,7 @@ class PlayerCharacterUpdate(BaseModel):
         default=None,
         description="Spell slot counts keyed by spell level (e.g. {'1': 4, '2': 3})",
     )
+    notes: str | None = Field(default=None, description="DM's private notes about this character")
     ddb_id: int | None = None
 
 
@@ -94,6 +96,7 @@ class PlayerCharacterResponse(BaseModel):
     saving_throw_proficiencies: list
     skill_proficiencies: list
     spell_slots: dict
+    notes: str
     ddb_id: int | None
     created_at: datetime
     updated_at: datetime

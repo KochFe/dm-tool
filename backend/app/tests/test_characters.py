@@ -184,6 +184,35 @@ async def test_update_character_proficiencies(client: AsyncClient, auth_headers)
     assert data["spell_slots"] == {}
 
 
+async def test_create_character_with_notes(client: AsyncClient, auth_headers):
+    """notes round-trips on create."""
+    cid = await _create_campaign(client, auth_headers)
+    payload = {**CHARACTER_DATA, "notes": "Owes a debt to the thieves' guild."}
+    resp = await client.post(f"/api/v1/campaigns/{cid}/characters", json=payload, headers=auth_headers)
+    assert resp.status_code == 201
+    assert resp.json()["data"]["notes"] == "Owes a debt to the thieves' guild."
+
+
+async def test_character_notes_defaults_empty(client: AsyncClient, auth_headers):
+    """A character created without notes returns an empty string, not null."""
+    cid = await _create_campaign(client, auth_headers)
+    resp = await client.post(f"/api/v1/campaigns/{cid}/characters", json=CHARACTER_DATA, headers=auth_headers)
+    assert resp.status_code == 201
+    assert resp.json()["data"]["notes"] == ""
+
+
+async def test_update_character_notes(client: AsyncClient, auth_headers):
+    """PATCH notes updates only notes; other fields untouched."""
+    cid = await _create_campaign(client, auth_headers)
+    create = await client.post(f"/api/v1/campaigns/{cid}/characters", json=CHARACTER_DATA, headers=auth_headers)
+    pid = create.json()["data"]["id"]
+    resp = await client.patch(f"/api/v1/characters/{pid}", json={"notes": "Secretly a doppelganger."}, headers=auth_headers)
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data["notes"] == "Secretly a doppelganger."
+    assert data["hp_max"] == 50  # unchanged
+
+
 async def test_create_character_with_speed_and_proficiency_bonus(client: AsyncClient, auth_headers):
     """speed and proficiency_bonus are stored and returned correctly."""
     cid = await _create_campaign(client, auth_headers)

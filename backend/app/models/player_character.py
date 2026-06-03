@@ -44,6 +44,7 @@ class PlayerCharacter(Base):
     saving_throw_proficiencies: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     skill_proficiencies: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     spell_slots: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    notes: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
     ddb_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
