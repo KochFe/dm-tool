@@ -9,6 +9,7 @@ import { hpColor, hpBarColor } from "@/lib/utils";
 import type { PlayerCharacter } from "@/types";
 import ConfirmButton from "@/components/ConfirmButton";
 import DDBImportModal from "@/components/DDBImportModal";
+import { Textarea } from "@/components/ui/textarea";
 import CharacterStatDisplay, {
   ABILITY_KEYS,
   ABILITY_LABELS,
@@ -62,6 +63,7 @@ interface CharacterFormState {
   skill_proficiencies: string[];
   // Spell slots are edited as a list of {level, slots} pairs in the form
   spellSlotPairs: Array<{ level: string; slots: string }>;
+  notes: string;
 }
 
 const EMPTY_CHAR: CharacterFormState = {
@@ -84,6 +86,7 @@ const EMPTY_CHAR: CharacterFormState = {
   saving_throw_proficiencies: [],
   skill_proficiencies: [],
   spellSlotPairs: [],
+  notes: "",
 };
 
 function pcToForm(pc: PlayerCharacter): CharacterFormState {
@@ -110,6 +113,7 @@ function pcToForm(pc: PlayerCharacter): CharacterFormState {
     saving_throw_proficiencies: pc.saving_throw_proficiencies ?? [],
     skill_proficiencies: pc.skill_proficiencies ?? [],
     spellSlotPairs,
+    notes: pc.notes ?? "",
   };
 }
 
@@ -142,6 +146,7 @@ function formToPayload(form: CharacterFormState): Record<string, unknown> {
     saving_throw_proficiencies: form.saving_throw_proficiencies,
     skill_proficiencies: form.skill_proficiencies,
     spell_slots,
+    notes: form.notes,
   };
 }
 
@@ -592,6 +597,19 @@ export default function CharacterSection({
                 />
               </div>
             )}
+          </div>
+
+          {/* Notes — DM's private notes */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">{t("notes")}</p>
+            <Textarea
+              variant="muted"
+              minRows={2}
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              placeholder={t("notesPlaceholder")}
+              className="text-sm"
+            />
           </div>
 
           <button
