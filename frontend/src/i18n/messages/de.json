@@ -354,7 +354,10 @@
   "common": {
     "confirm": "Bestätigen",
     "cancel": "Abbrechen",
-    "areYouSure": "Bist du sicher?"
+    "areYouSure": "Bist du sicher?",
+    "add": "Hinzufügen",
+    "create": "Erstellen",
+    "update": "Aktualisieren"
   },
   "themeToggle": {
     "toggleTheme": "Design umschalten"
@@ -703,6 +706,11 @@
     "spellSlots": "Spell Slots",
     "savingThrowProficiencies": "Saving Throw Proficiencies",
     "skillProficiencies": "Skill Proficiencies",
+    "notes": "Notizen",
+    "notesPlaceholder": "DM-Notizen zu diesem Charakter…",
+    "displaySavingThrows": "Saving Throws",
+    "displaySkills": "Skills",
+    "displaySpellSlots": "Spell Slots",
     "removeSpellSlotRow": "Spell-Slot-Zeile entfernen",
     "cardAc": "AC",
     "cardHp": "HP",
@@ -755,7 +763,9 @@
   "combatView": {},
   "partyPanel": {
     "heading": "Party",
-    "empty": "Keine Charaktere in dieser Kampagne."
+    "empty": "Keine Charaktere in dieser Kampagne.",
+    "expand": "Details anzeigen",
+    "collapse": "Details ausblenden"
   },
   "admin": {
     "nav_link": "Verwaltung",

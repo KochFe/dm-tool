@@ -2,25 +2,20 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import type { Npc, PlayerCharacter, Location } from "@/types";
+import type { Npc, Location } from "@/types";
 
 interface CharacterListProps {
   npcs: Npc[];
-  pcs: PlayerCharacter[];
   locations: Location[];
-  selectedType: "npc" | "pc" | null;
   selectedId: string | null;
   onSelectNpc: (npc: Npc) => void;
-  onSelectPc: (pc: PlayerCharacter) => void;
   onAddNpc: () => void;
-  onAddPc: () => void;
 }
 
 interface LocationGroupProps {
   label: string;
   npcs: Npc[];
   selectedId: string | null;
-  selectedType: "npc" | "pc" | null;
   onSelectNpc: (npc: Npc) => void;
   defaultExpanded?: boolean;
 }
@@ -29,7 +24,6 @@ function LocationGroup({
   label,
   npcs,
   selectedId,
-  selectedType,
   onSelectNpc,
   defaultExpanded = true,
 }: LocationGroupProps) {
@@ -62,7 +56,7 @@ function LocationGroup({
       {expanded && (
         <div className="ml-4 flex flex-col gap-0.5 mt-0.5">
           {npcs.map((npc) => {
-            const isSelected = selectedType === "npc" && selectedId === npc.id;
+            const isSelected = selectedId === npc.id;
             return (
               <button
                 key={npc.id}
@@ -88,14 +82,10 @@ function LocationGroup({
 
 export default function CharacterList({
   npcs,
-  pcs,
   locations,
-  selectedType,
   selectedId,
   onSelectNpc,
-  onSelectPc,
   onAddNpc,
-  onAddPc,
 }: CharacterListProps) {
   const t = useTranslations("builder.characterList");
 
@@ -143,7 +133,6 @@ export default function CharacterList({
               label={group.name}
               npcs={group.npcs}
               selectedId={selectedId}
-              selectedType={selectedType}
               onSelectNpc={onSelectNpc}
             />
           ))}
@@ -152,55 +141,11 @@ export default function CharacterList({
               label={t("noLocation")}
               npcs={unassigned}
               selectedId={selectedId}
-              selectedType={selectedType}
               onSelectNpc={onSelectNpc}
               defaultExpanded={true}
             />
           )}
         </>
-      )}
-
-      {/* Divider */}
-      <div className="my-3 border-t border-border" />
-
-      {/* PC section header */}
-      <div className="flex items-center justify-between px-1 mb-2">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          {t("playerCharacters")}
-        </span>
-        <button
-          onClick={onAddPc}
-          className="text-xs text-primary hover:text-primary transition-colors"
-        >
-          {t("addPc")}
-        </button>
-      </div>
-
-      {/* PC list */}
-      {pcs.length === 0 ? (
-        <p className="text-xs text-muted-foreground/60 text-center py-3">{t("noPcs")}</p>
-      ) : (
-        <div className="flex flex-col gap-0.5">
-          {pcs.map((pc) => {
-            const isSelected = selectedType === "pc" && selectedId === pc.id;
-            return (
-              <button
-                key={pc.id}
-                onClick={() => onSelectPc(pc)}
-                className={`w-full text-left px-2 py-1 rounded text-sm truncate transition-colors ${
-                  isSelected
-                    ? "bg-primary/20 border border-primary/40 text-primary font-medium"
-                    : "text-foreground/80 hover:bg-muted border border-transparent"
-                }`}
-              >
-                {pc.name}
-                <span className="ml-1 text-xs text-muted-foreground/60">
-                  {t("levelClass", { level: pc.level, class: pc.character_class })}
-                </span>
-              </button>
-            );
-          })}
-        </div>
       )}
     </div>
   );
