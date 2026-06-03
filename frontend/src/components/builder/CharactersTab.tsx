@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import CharacterList from "./CharacterList";
 import IdeasHelper from "./IdeasHelper";
 import { AIAssistModal } from "@/components/ai/AIAssistModal";
+import CharacterSection from "@/components/CharacterSection";
 
 // ---------------------------------------------------------------------------
 // NPC detail form
@@ -409,356 +410,6 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
 }
 
 // ---------------------------------------------------------------------------
-// PC detail form
-// ---------------------------------------------------------------------------
-
-interface PcDetailProps {
-  pc: PlayerCharacter;
-  onSave: (id: string, data: Record<string, unknown>) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
-}
-
-function PcDetail({ pc, onSave, onDelete }: PcDetailProps) {
-  const t = useTranslations("builder.characters");
-  const [name, setName] = useState(pc.name);
-  const [race, setRace] = useState(pc.race);
-  const [characterClass, setCharacterClass] = useState(pc.character_class);
-  const [level, setLevel] = useState(String(pc.level));
-  const [hpCurrent, setHpCurrent] = useState(String(pc.hp_current));
-  const [hpMax, setHpMax] = useState(String(pc.hp_max));
-  const [armorClass, setArmorClass] = useState(String(pc.armor_class));
-  const [passivePerception, setPassivePerception] = useState(
-    String(pc.passive_perception)
-  );
-  const [strength, setStrength] = useState(String(pc.strength));
-  const [dexterity, setDexterity] = useState(String(pc.dexterity));
-  const [constitution, setConstitution] = useState(String(pc.constitution));
-  const [intelligence, setIntelligence] = useState(String(pc.intelligence));
-  const [wisdom, setWisdom] = useState(String(pc.wisdom));
-  const [charisma, setCharisma] = useState(String(pc.charisma));
-  const [proficiencyBonus, setProficiencyBonus] = useState(
-    String(pc.proficiency_bonus)
-  );
-  const [speed, setSpeed] = useState(String(pc.speed));
-  const [confirmDelete, setConfirmDelete] = useState(false);
-
-  useEffect(() => {
-    setName(pc.name);
-    setRace(pc.race);
-    setCharacterClass(pc.character_class);
-    setLevel(String(pc.level));
-    setHpCurrent(String(pc.hp_current));
-    setHpMax(String(pc.hp_max));
-    setArmorClass(String(pc.armor_class));
-    setPassivePerception(String(pc.passive_perception));
-    setStrength(String(pc.strength));
-    setDexterity(String(pc.dexterity));
-    setConstitution(String(pc.constitution));
-    setIntelligence(String(pc.intelligence));
-    setWisdom(String(pc.wisdom));
-    setCharisma(String(pc.charisma));
-    setProficiencyBonus(String(pc.proficiency_bonus));
-    setSpeed(String(pc.speed));
-    setConfirmDelete(false);
-  }, [pc.id]);
-
-  function numericBlur(
-    field: string,
-    rawValue: string,
-    originalValue: number
-  ) {
-    const parsed = parseInt(rawValue, 10);
-    const value = isNaN(parsed) ? originalValue : parsed;
-    if (value === originalValue) return;
-    onSave(pc.id, { [field]: value });
-  }
-
-  function stringBlur(field: string, value: string, original: string) {
-    if (value.trim() === original) return;
-    onSave(pc.id, { [field]: value.trim() });
-  }
-
-  return (
-    <div className="flex flex-col gap-5">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-        {t("playerCharacter")}
-      </p>
-
-      {/* Identity row */}
-      <div className="flex gap-3">
-        <div className="flex flex-col gap-1 flex-1">
-          <label className="text-xs text-muted-foreground">{t("pcName")}</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onBlur={() => stringBlur("name", name, pc.name)}
-            className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-            placeholder={t("pcNamePlaceholder")}
-          />
-        </div>
-        <div className="flex flex-col gap-1 w-16">
-          <label className="text-xs text-muted-foreground">{t("level")}</label>
-          <input
-            type="number"
-            min={1}
-            max={20}
-            value={level}
-            onChange={(e) => setLevel(e.target.value)}
-            onBlur={() => numericBlur("level", level, pc.level)}
-            className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-          />
-        </div>
-      </div>
-
-      <div className="flex gap-3">
-        <div className="flex flex-col gap-1 flex-1">
-          <label className="text-xs text-muted-foreground">{t("race")}</label>
-          <input
-            type="text"
-            value={race}
-            onChange={(e) => setRace(e.target.value)}
-            onBlur={() => stringBlur("race", race, pc.race)}
-            className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-            placeholder={t("racePlaceholder")}
-          />
-        </div>
-        <div className="flex flex-col gap-1 flex-1">
-          <label className="text-xs text-muted-foreground">{t("class")}</label>
-          <input
-            type="text"
-            value={characterClass}
-            onChange={(e) => setCharacterClass(e.target.value)}
-            onBlur={() =>
-              stringBlur("character_class", characterClass, pc.character_class)
-            }
-            className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
-            placeholder={t("classPlaceholder")}
-          />
-        </div>
-      </div>
-
-      {/* Combat stats row */}
-      <div className="flex gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">{t("hp")}</label>
-          <div className="flex items-center gap-1">
-            <input
-              type="number"
-              value={hpCurrent}
-              onChange={(e) => setHpCurrent(e.target.value)}
-              onBlur={() => numericBlur("hp_current", hpCurrent, pc.hp_current)}
-              className="bg-muted border border-border rounded-lg px-2 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors w-16 text-center"
-            />
-            <span className="text-muted-foreground/60 text-sm">/</span>
-            <input
-              type="number"
-              value={hpMax}
-              onChange={(e) => setHpMax(e.target.value)}
-              onBlur={() => numericBlur("hp_max", hpMax, pc.hp_max)}
-              className="bg-muted border border-border rounded-lg px-2 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors w-16 text-center"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">{t("ac")}</label>
-          <input
-            type="number"
-            value={armorClass}
-            onChange={(e) => setArmorClass(e.target.value)}
-            onBlur={() => numericBlur("armor_class", armorClass, pc.armor_class)}
-            className="bg-muted border border-border rounded-lg px-2 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors w-16 text-center"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">{t("passivePerc")}</label>
-          <input
-            type="number"
-            value={passivePerception}
-            onChange={(e) => setPassivePerception(e.target.value)}
-            onBlur={() =>
-              numericBlur(
-                "passive_perception",
-                passivePerception,
-                pc.passive_perception
-              )
-            }
-            className="bg-muted border border-border rounded-lg px-2 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors w-16 text-center"
-          />
-        </div>
-      </div>
-
-      {/* Collapsible stats section */}
-      <details className="group">
-        <summary className="cursor-pointer text-xs font-medium text-muted-foreground uppercase tracking-wide select-none list-none flex items-center gap-1.5 hover:text-foreground/80 transition-colors">
-          <svg
-            className="w-3 h-3 transition-transform group-open:rotate-90"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clipRule="evenodd"
-            />
-          </svg>
-          {t("statsCombat")}
-        </summary>
-
-        <div className="mt-4 flex flex-col gap-4">
-          {/* Ability scores */}
-          <div className="grid grid-cols-6 gap-2">
-            {(
-              [
-                ["str", strength, setStrength, "strength", pc.strength],
-                ["dex", dexterity, setDexterity, "dexterity", pc.dexterity],
-                ["con", constitution, setConstitution, "constitution", pc.constitution],
-                ["int", intelligence, setIntelligence, "intelligence", pc.intelligence],
-                ["wis", wisdom, setWisdom, "wisdom", pc.wisdom],
-                ["cha", charisma, setCharisma, "charisma", pc.charisma],
-              ] as ["str" | "dex" | "con" | "int" | "wis" | "cha", string, (v: string) => void, string, number][]
-            ).map(([labelKey, val, setter, field, original]) => (
-              <div key={field} className="flex flex-col items-center gap-1">
-                <label className="text-xs text-muted-foreground">{t(labelKey)}</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={30}
-                  value={val}
-                  onChange={(e) => setter(e.target.value)}
-                  onBlur={() => numericBlur(field, val, original)}
-                  className="bg-muted border border-border rounded-lg px-1 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors w-full text-center"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Proficiency bonus + Speed */}
-          <div className="flex gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">{t("profBonus")}</label>
-              <input
-                type="number"
-                value={proficiencyBonus}
-                onChange={(e) => setProficiencyBonus(e.target.value)}
-                onBlur={() =>
-                  numericBlur(
-                    "proficiency_bonus",
-                    proficiencyBonus,
-                    pc.proficiency_bonus
-                  )
-                }
-                className="bg-muted border border-border rounded-lg px-2 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors w-20 text-center"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">{t("speed")}</label>
-              <input
-                type="number"
-                value={speed}
-                onChange={(e) => setSpeed(e.target.value)}
-                onBlur={() => numericBlur("speed", speed, pc.speed)}
-                className="bg-muted border border-border rounded-lg px-2 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors w-20 text-center"
-              />
-            </div>
-          </div>
-        </div>
-      </details>
-
-      {/* Delete */}
-      <div className="pt-2 border-t border-border">
-        {confirmDelete ? (
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">{t("deletePcConfirm")}</span>
-            <button
-              onClick={() => onDelete(pc.id)}
-              className="text-sm text-red-400 hover:text-red-300 font-medium transition-colors"
-            >
-              {t("confirm")}
-            </button>
-            <button
-              onClick={() => setConfirmDelete(false)}
-              className="text-sm text-muted-foreground hover:text-foreground/80 transition-colors"
-            >
-              {t("cancel")}
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setConfirmDelete(true)}
-            className="text-sm text-red-500/70 hover:text-red-400 transition-colors"
-          >
-            {t("deletePc")}
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// DDB Import widget
-// ---------------------------------------------------------------------------
-
-interface DDBImportProps {
-  campaignId: string;
-  onImported: (pc: PlayerCharacter) => void;
-}
-
-function DDBImport({ campaignId, onImported }: DDBImportProps) {
-  const t = useTranslations("builder.characters");
-  const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function handleImport() {
-    const trimmed = url.trim();
-    if (!trimmed) return;
-    setLoading(true);
-    try {
-      const preview = await api.importFromDDB(campaignId, trimmed);
-      const created = await api.createCharacter(
-        campaignId,
-        preview.preview as Record<string, unknown>
-      );
-      onImported(created);
-      setUrl("");
-      toast.success(t("ddbImportSuccess", { name: created.name }));
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t("ddbImportError")
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="flex flex-col gap-2 p-3 bg-muted/50 border border-border rounded-lg">
-      <p className="text-xs font-medium text-muted-foreground">{t("ddbImport")}</p>
-      <div className="flex gap-2">
-        <input
-          type="url"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleImport();
-          }}
-          placeholder={t("ddbImportPlaceholder")}
-          className="flex-1 bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors placeholder:text-muted-foreground/60"
-        />
-        <button
-          onClick={handleImport}
-          disabled={loading || !url.trim()}
-          className="px-3 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground text-sm font-medium rounded-lg transition-colors flex-shrink-0"
-        >
-          {loading ? t("ddbImporting") : t("ddbImportButton")}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // CharactersTab orchestrator
 // ---------------------------------------------------------------------------
 
@@ -784,8 +435,7 @@ export default function CharactersTab({
   const [pcs, setPcs] = useState<PlayerCharacter[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<"npc" | "pc" | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedNpcId, setSelectedNpcId] = useState<string | null>(null);
 
   const loadAll = useCallback(async () => {
     try {
@@ -819,8 +469,7 @@ export default function CharactersTab({
         race: "Human",
       });
       setNpcs((prev) => [...prev, created]);
-      setSelectedType("npc");
-      setSelectedId(created.id);
+      setSelectedNpcId(created.id);
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : t("createNpcError")
@@ -843,9 +492,8 @@ export default function CharactersTab({
     try {
       await api.deleteNpc(id);
       setNpcs((prev) => prev.filter((n) => n.id !== id));
-      if (selectedId === id) {
-        setSelectedType(null);
-        setSelectedId(null);
+      if (selectedNpcId === id) {
+        setSelectedNpcId(null);
       }
     } catch (err) {
       toast.error(
@@ -854,163 +502,72 @@ export default function CharactersTab({
     }
   }
 
-  // -- PC handlers --
-
-  async function handleAddPc() {
-    try {
-      const created = await api.createCharacter(campaign.id, {
-        name: t("newCharacter"),
-        race: "Human",
-        character_class: "Fighter",
-        level: 1,
-        hp_current: 10,
-        hp_max: 10,
-        armor_class: 10,
-        passive_perception: 10,
-        strength: 10,
-        dexterity: 10,
-        constitution: 10,
-        intelligence: 10,
-        wisdom: 10,
-        charisma: 10,
-        proficiency_bonus: 2,
-        speed: 30,
-        saving_throw_proficiencies: [],
-        skill_proficiencies: [],
-        spell_slots: {},
-        inventory: [],
-      });
-      setPcs((prev) => [...prev, created]);
-      setSelectedType("pc");
-      setSelectedId(created.id);
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t("createPcError")
-      );
-    }
-  }
-
-  async function handleSavePc(id: string, data: Record<string, unknown>) {
-    try {
-      const updated = await api.updateCharacter(id, data);
-      setPcs((prev) => prev.map((p) => (p.id === id ? updated : p)));
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t("savePcError")
-      );
-    }
-  }
-
-  async function handleDeletePc(id: string) {
-    try {
-      await api.deleteCharacter(id);
-      setPcs((prev) => prev.filter((p) => p.id !== id));
-      if (selectedId === id) {
-        setSelectedType(null);
-        setSelectedId(null);
-      }
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t("deletePcError")
-      );
-    }
-  }
-
-  function handleImportedPc(pc: PlayerCharacter) {
-    setPcs((prev) => [...prev, pc]);
-    setSelectedType("pc");
-    setSelectedId(pc.id);
-  }
-
-  // Derive selected objects
-  const selectedNpc =
-    selectedType === "npc" ? (npcs.find((n) => n.id === selectedId) ?? null) : null;
-  const selectedPc =
-    selectedType === "pc" ? (pcs.find((p) => p.id === selectedId) ?? null) : null;
+  // Derive selected NPC
+  const selectedNpc = npcs.find((n) => n.id === selectedNpcId) ?? null;
 
   return (
     <div className="flex gap-4 h-full">
-      {/* Left panel: character list */}
-      <div className="w-[270px] flex-shrink-0 bg-card/60 border border-border rounded-xl p-3 flex flex-col">
-        {loading ? (
-          <p className="text-xs text-muted-foreground/60 text-center py-4">{t("loading")}</p>
-        ) : (
-          <CharacterList
-            npcs={npcs}
-            pcs={pcs}
-            locations={locations}
-            selectedType={selectedType}
-            selectedId={selectedId}
-            onSelectNpc={(npc) => {
-              setSelectedType("npc");
-              setSelectedId(npc.id);
-            }}
-            onSelectPc={(pc) => {
-              setSelectedType("pc");
-              setSelectedId(pc.id);
-            }}
-            onAddNpc={handleAddNpc}
-            onAddPc={handleAddPc}
-          />
-        )}
-      </div>
-
-      {/* Center panel: detail editor */}
-      <div className="flex-1 min-w-0 bg-card/60 border border-border rounded-xl p-5 overflow-y-auto">
-        {selectedNpc ? (
-          <NpcDetail
-            npc={selectedNpc}
-            locations={locations}
-            onSave={handleSaveNpc}
-            onDelete={handleDeleteNpc}
-          />
-        ) : selectedPc ? (
-          <>
-            <PcDetail
-              pc={selectedPc}
-              onSave={handleSavePc}
-              onDelete={handleDeletePc}
-            />
-            <div className="mt-6">
-              <DDBImport
-                campaignId={campaign.id}
-                onImported={handleImportedPc}
-              />
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-            <svg
-              className="w-10 h-10 text-muted-foreground/40"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            <div>
-              <p className="text-sm text-muted-foreground/60">
-                {t("selectToEdit")}
+      {/* Main column: NPC master-detail (top) + PC section (bottom) */}
+      <div className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto">
+        {/* NPC master-detail */}
+        <div className="flex gap-4 min-h-[320px]">
+          {/* NPC list */}
+          <div className="w-[270px] flex-shrink-0 bg-card/60 border border-border rounded-xl p-3 flex flex-col">
+            {loading ? (
+              <p className="text-xs text-muted-foreground/60 text-center py-4">
+                {t("loading")}
               </p>
-              {!loading && npcs.length === 0 && pcs.length === 0 && (
-                <p className="text-xs text-muted-foreground/40 mt-1">
-                  {t("addToStart")}
-                </p>
-              )}
-            </div>
-            <div className="mt-2">
-              <DDBImport
-                campaignId={campaign.id}
-                onImported={handleImportedPc}
+            ) : (
+              <CharacterList
+                npcs={npcs}
+                locations={locations}
+                selectedId={selectedNpcId}
+                onSelectNpc={(npc) => setSelectedNpcId(npc.id)}
+                onAddNpc={handleAddNpc}
               />
-            </div>
+            )}
           </div>
-        )}
+
+          {/* NPC detail */}
+          <div className="flex-1 min-w-0 bg-card/60 border border-border rounded-xl p-5 overflow-y-auto">
+            {selectedNpc ? (
+              <NpcDetail
+                npc={selectedNpc}
+                locations={locations}
+                onSave={handleSaveNpc}
+                onDelete={handleDeleteNpc}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
+                <svg
+                  className="w-10 h-10 text-muted-foreground/40"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <p className="text-sm text-muted-foreground/60">
+                  {t("selectToEdit")}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Player characters — same editor as the campaign view */}
+        <div className="bg-card/60 border border-border rounded-xl p-5">
+          <CharacterSection
+            campaignId={campaign.id}
+            characters={pcs}
+            onUpdate={loadAll}
+          />
+        </div>
       </div>
 
       {/* Right panel: ideas */}
