@@ -354,7 +354,10 @@
   "common": {
     "confirm": "Bestätigen",
     "cancel": "Abbrechen",
-    "areYouSure": "Bist du sicher?"
+    "areYouSure": "Bist du sicher?",
+    "add": "Hinzufügen",
+    "create": "Erstellen",
+    "update": "Aktualisieren"
   },
   "themeToggle": {
     "toggleTheme": "Design umschalten"
