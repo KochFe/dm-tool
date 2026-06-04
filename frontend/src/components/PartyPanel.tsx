@@ -1,28 +1,21 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { hpColor, hpBarColor } from "@/lib/utils";
 import type { PlayerCharacter } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import CharacterStatDisplay from "@/components/character/CharacterStatDisplay";
 
-export default function PartyPanel({ characters }: { characters: PlayerCharacter[] }) {
+export default function PartyPanel({
+  characters,
+  selectedId,
+  onSelect,
+}: {
+  characters: PlayerCharacter[];
+  selectedId: string | null;
+  onSelect: (pc: PlayerCharacter) => void;
+}) {
   const t = useTranslations("partyPanel");
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
-
-  function toggle(id: string) {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }
 
   if (characters.length === 0) {
     return (
@@ -39,55 +32,41 @@ export default function PartyPanel({ characters }: { characters: PlayerCharacter
         </h3>
         {characters.map((pc) => {
           const pct = Math.min(100, Math.max(0, (pc.hp_current / pc.hp_max) * 100));
-          const isOpen = expanded.has(pc.id);
+          const isSelected = selectedId === pc.id;
           return (
-            <motion.div
+            <button
               key={pc.id}
-              layout
-              className="bg-card/70 border border-border rounded-xl p-3 shadow-elev-1 hover:shadow-elev-2 hover:border-primary/30 transition-all duration-300"
+              type="button"
+              onClick={() => onSelect(pc)}
+              aria-pressed={isSelected}
+              className={`w-full text-left bg-card/70 border rounded-xl p-3 shadow-elev-1 hover:shadow-elev-2 transition-all duration-300 ${
+                isSelected
+                  ? "border-primary/60 ring-1 ring-primary/40"
+                  : "border-border hover:border-primary/30"
+              }`}
             >
-              <button
-                type="button"
-                onClick={() => toggle(pc.id)}
-                aria-expanded={isOpen}
-                aria-label={isOpen ? t("collapse") : t("expand")}
-                className="w-full text-left"
-              >
-                <div className="flex items-baseline justify-between gap-2">
-                  <p className="text-sm font-medium text-foreground truncate">{pc.name}</p>
-                  <span className="font-mono tabular-nums text-xs font-semibold text-muted-foreground/90 shrink-0">
-                    AC {pc.armor_class}
-                  </span>
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-sm font-medium text-foreground truncate">{pc.name}</p>
+                <span className="font-mono tabular-nums text-xs font-semibold text-muted-foreground/90 shrink-0">AC {pc.armor_class}</span>
+              </div>
+              <p className="text-xs text-muted-foreground/90">{pc.race} {pc.character_class}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className={`text-xs font-mono tabular-nums font-semibold ${hpColor(pc.hp_current, pc.hp_max)}`}>
+                  {pc.hp_current}/{pc.hp_max}
+                </span>
+                <div className="flex-1 h-1.5 bg-accent/60 rounded-full overflow-hidden">
+                  <motion.div
+                    className={`h-full rounded-full ${hpBarColor(pc.hp_current, pc.hp_max)}`}
+                    initial={false}
+                    animate={{ width: `${pct}%` }}
+                    transition={{ type: "spring", stiffness: 200, damping: 24 }}
+                  />
                 </div>
-                <p className="text-xs text-muted-foreground/90">
-                  {pc.race} {pc.character_class}
-                </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span
-                    className={`text-xs font-mono tabular-nums font-semibold ${hpColor(pc.hp_current, pc.hp_max)}`}
-                  >
-                    {pc.hp_current}/{pc.hp_max}
-                  </span>
-                  <div className="flex-1 h-1.5 bg-accent/60 rounded-full overflow-hidden">
-                    <motion.div
-                      className={`h-full rounded-full ${hpBarColor(pc.hp_current, pc.hp_max)}`}
-                      initial={false}
-                      animate={{ width: `${pct}%` }}
-                      transition={{ type: "spring", stiffness: 200, damping: 24 }}
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground/90 tabular-nums">
-                  <span>PP {pc.passive_perception}</span>
-                </div>
-              </button>
-
-              {isOpen && (
-                <div className="mt-3 pt-3 border-t border-border/60">
-                  <CharacterStatDisplay pc={pc} />
-                </div>
-              )}
-            </motion.div>
+              </div>
+              <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground/90 tabular-nums">
+                <span>PP {pc.passive_perception}</span>
+              </div>
+            </button>
           );
         })}
       </div>

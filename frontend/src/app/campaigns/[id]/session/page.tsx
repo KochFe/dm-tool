@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCampaign } from "@/contexts/CampaignContext";
 import PartyPanel from "@/components/PartyPanel";
+import PartyMemberDetail from "@/components/PartyMemberDetail";
 import ExplorationView from "@/components/ExplorationView";
 import CombatView from "@/components/CombatView";
 import CombatantDetailPanel from "@/components/combat/CombatantDetailPanel";
@@ -24,7 +25,11 @@ export default function SessionPage() {
   const [mode, setMode] = useState<SessionMode>(initialMode);
   const [isChatOpen, setIsChatOpen] = useState(true);
   const [selectedCombatant, setSelectedCombatant] = useState<Combatant | null>(null);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const switchToExploration = useCallback(() => setMode("exploration"), []);
+
+  const selectedMember =
+    characters.find((c) => c.id === selectedMemberId) ?? null;
 
   const currentLocationName = currentLocation?.name ?? null;
 
@@ -61,8 +66,21 @@ export default function SessionPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Party Panel — hidden below lg */}
         <div className="hidden lg:block w-52 shrink-0 border-r border-border bg-card/30">
-          <PartyPanel characters={characters} />
+          <PartyPanel
+            characters={characters}
+            selectedId={selectedMemberId}
+            onSelect={(pc) =>
+              setSelectedMemberId((id) => (id === pc.id ? null : pc.id))
+            }
+          />
         </div>
+
+        {/* Party member detail — Exploration mode, opens to the right (hidden below xl) */}
+        {mode === "exploration" && selectedMember && (
+          <div className="hidden xl:block w-80 shrink-0 border-r border-border bg-card/20">
+            <PartyMemberDetail pc={selectedMember} />
+          </div>
+        )}
 
         {/* Combatant detail panel — only in Combat mode */}
         {mode === "combat" && (
