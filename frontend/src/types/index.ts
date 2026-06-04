@@ -171,11 +171,11 @@ export interface NpcCreate {
 export interface NpcUpdate {
   name?: string;
   race?: string;
-  npc_class?: string;
-  description?: string;
-  personality?: string;
-  secrets?: string;
-  motivation?: string;
+  npc_class?: string | null;
+  description?: string | null;
+  personality?: string | null;
+  secrets?: string | null;
+  motivation?: string | null;
   stats?: NpcStats | null;
   location_id?: string | null;
   is_alive?: boolean;

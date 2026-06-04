@@ -18,7 +18,8 @@ import { Textarea } from "@/components/ui/textarea";
 import CharacterList from "./CharacterList";
 import IdeasHelper from "./IdeasHelper";
 import { AIAssistModal } from "@/components/ai/AIAssistModal";
-import CharacterSection from "@/components/CharacterSection";
+import CharacterEditorForm from "@/components/character/CharacterEditorForm";
+import DDBImportModal from "@/components/DDBImportModal";
 
 // ---------------------------------------------------------------------------
 // NPC detail form
@@ -33,6 +34,7 @@ interface NpcDetailProps {
 
 function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
   const t = useTranslations("builder.characters");
+  const tc = useTranslations("common");
   const [name, setName] = useState(npc.name);
   const [race, setRace] = useState(npc.race);
   const [npcClass, setNpcClass] = useState(npc.npc_class ?? "");
@@ -74,24 +76,6 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
     setConfirmDelete(false);
   }, [npc.id]);
 
-  async function handleBlur(field: keyof NpcUpdate, value: string | null) {
-    const original = npc[field as keyof Npc];
-    const normalized = value === "" ? null : value;
-    if (normalized === (original === undefined ? null : original)) return;
-    await onSave(npc.id, { [field]: normalized });
-  }
-
-  async function handleLocationChange(value: string) {
-    setLocationId(value);
-    await onSave(npc.id, { location_id: value === "" ? null : value });
-  }
-
-  async function handleAliveChange(checked: boolean) {
-    setIsAlive(checked);
-    if (checked === npc.is_alive) return;
-    await onSave(npc.id, { is_alive: checked });
-  }
-
   function parseStat(raw: string): number | null {
     const trimmed = raw.trim();
     const n = Number.parseInt(trimmed, 10);
@@ -101,49 +85,50 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
     return n;
   }
 
-  async function handleStatsBlur() {
-    if (!statsEnabled) return;
-    const parsed = {
-      str: parseStat(statsStr),
-      dex: parseStat(statsDex),
-      con: parseStat(statsCon),
-      int: parseStat(statsInt),
-      wis: parseStat(statsWis),
-      cha: parseStat(statsCha),
-    };
-    if (Object.values(parsed).some((v) => v === null)) {
-      toast.error(t("statsOutOfRange"));
-      return;
-    }
-    const stats = parsed as NpcStats;
-    const same =
-      npc.stats != null &&
-      stats.str === npc.stats.str &&
-      stats.dex === npc.stats.dex &&
-      stats.con === npc.stats.con &&
-      stats.int === npc.stats.int &&
-      stats.wis === npc.stats.wis &&
-      stats.cha === npc.stats.cha;
-    if (same) return;
-    await onSave(npc.id, { stats });
-  }
-
-  async function handleStatsToggle(enable: boolean) {
+  function handleStatsToggle(enable: boolean) {
     setStatsEnabled(enable);
     if (enable) {
-      const stats: NpcStats = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
       setStatsStr("10");
       setStatsDex("10");
       setStatsCon("10");
       setStatsInt("10");
       setStatsWis("10");
       setStatsCha("10");
-      if (npc.stats == null) {
-        await onSave(npc.id, { stats });
-      }
-    } else if (npc.stats != null) {
-      await onSave(npc.id, { stats: null });
     }
+  }
+
+  const norm = (v: string) => (v.trim() === "" ? null : v);
+
+  async function handleSave() {
+    let stats: NpcStats | null = null;
+    if (statsEnabled) {
+      const parsed = {
+        str: parseStat(statsStr),
+        dex: parseStat(statsDex),
+        con: parseStat(statsCon),
+        int: parseStat(statsInt),
+        wis: parseStat(statsWis),
+        cha: parseStat(statsCha),
+      };
+      if (Object.values(parsed).some((v) => v === null)) {
+        toast.error(t("statsOutOfRange"));
+        return;
+      }
+      stats = parsed as NpcStats;
+    }
+    await onSave(npc.id, {
+      name,
+      race,
+      npc_class: norm(npcClass),
+      description: norm(description),
+      personality: norm(personality),
+      motivation: norm(motivation),
+      secrets: norm(secrets),
+      location_id: locationId === "" ? null : locationId,
+      is_alive: isAlive,
+      stats,
+    });
+    toast.success(t("npcSaved"));
   }
 
   return (
@@ -159,7 +144,6 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onBlur={() => handleBlur("name", name)}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
           placeholder={t("namePlaceholder")}
         />
@@ -173,7 +157,6 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
             type="text"
             value={race}
             onChange={(e) => setRace(e.target.value)}
-            onBlur={() => handleBlur("race", race)}
             className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
             placeholder={t("racePlaceholder")}
           />
@@ -184,7 +167,6 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
             type="text"
             value={npcClass}
             onChange={(e) => setNpcClass(e.target.value)}
-            onBlur={() => handleBlur("npc_class", npcClass)}
             className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
             placeholder={t("classRolePlaceholder")}
           />
@@ -196,7 +178,7 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
         <label className="text-xs text-muted-foreground">{t("locationLabel")}</label>
         <select
           value={locationId}
-          onChange={(e) => handleLocationChange(e.target.value)}
+          onChange={(e) => setLocationId(e.target.value)}
           className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-ring transition-colors"
         >
           <option value="">{t("noLocation")}</option>
@@ -216,7 +198,6 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
           minRows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          onBlur={() => handleBlur("description", description)}
           placeholder={t("descriptionPlaceholder")}
           className="text-sm"
         />
@@ -243,7 +224,6 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
           minRows={3}
           value={personality}
           onChange={(e) => setPersonality(e.target.value)}
-          onBlur={() => handleBlur("personality", personality)}
           placeholder={t("personalityPlaceholder")}
           className="text-sm"
         />
@@ -257,7 +237,6 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
           minRows={2}
           value={motivation}
           onChange={(e) => setMotivation(e.target.value)}
-          onBlur={() => handleBlur("motivation", motivation)}
           placeholder={t("motivationPlaceholder")}
           className="text-sm"
         />
@@ -276,7 +255,6 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
           minRows={2}
           value={secrets}
           onChange={(e) => setSecrets(e.target.value)}
-          onBlur={() => handleBlur("secrets", secrets)}
           placeholder={t("secretsPlaceholder")}
           className="bg-card border-border/60 text-foreground/80 text-sm placeholder:text-muted-foreground/40"
         />
@@ -287,7 +265,7 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
         <input
           type="checkbox"
           checked={isAlive}
-          onChange={(e) => handleAliveChange(e.target.checked)}
+          onChange={(e) => setIsAlive(e.target.checked)}
           className="w-4 h-4 rounded accent-primary"
         />
         {t("isAliveLabel")}
@@ -336,7 +314,6 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
                   step={1}
                   value={value}
                   onChange={(e) => setter(e.target.value)}
-                  onBlur={handleStatsBlur}
                   className="bg-muted border border-border rounded-lg px-2 py-1 text-foreground text-sm w-16 text-center focus:outline-none focus:border-ring transition-colors"
                 />
               </label>
@@ -344,6 +321,15 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
           </div>
         )}
       </div>
+
+      {/* Save */}
+      <button
+        type="button"
+        onClick={handleSave}
+        className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 py-2 rounded-lg transition-colors self-start"
+      >
+        {tc("update")}
+      </button>
 
       {/* Delete */}
       <div className="pt-2 border-t border-border">
@@ -388,14 +374,10 @@ function NpcDetail({ npc, locations, onSave, onDelete }: NpcDetailProps) {
         }
         placeholder={t("aiPersonalityModalPlaceholder")}
         onGenerate={(req) => api.ai.generateNpcPersonality(npc.id, req)}
-        onAccept={async (result) => {
+        onAccept={(result) => {
           setPersonality(result.personality);
           setMotivation(result.motivation);
           setAiOpen(false);
-          await onSave(npc.id, {
-            personality: result.personality,
-            motivation: result.motivation,
-          });
         }}
         renderResult={(r) => (
           <div className="space-y-2 text-sm">
@@ -435,7 +417,9 @@ export default function CharactersTab({
   const [pcs, setPcs] = useState<PlayerCharacter[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedNpcId, setSelectedNpcId] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<"npc" | "pc" | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showImport, setShowImport] = useState(false);
 
   const loadAll = useCallback(async () => {
     try {
@@ -469,7 +453,8 @@ export default function CharactersTab({
         race: "Human",
       });
       setNpcs((prev) => [...prev, created]);
-      setSelectedNpcId(created.id);
+      setSelectedType("npc");
+      setSelectedId(created.id);
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : t("createNpcError")
@@ -492,8 +477,9 @@ export default function CharactersTab({
     try {
       await api.deleteNpc(id);
       setNpcs((prev) => prev.filter((n) => n.id !== id));
-      if (selectedNpcId === id) {
-        setSelectedNpcId(null);
+      if (selectedType === "npc" && selectedId === id) {
+        setSelectedType(null);
+        setSelectedId(null);
       }
     } catch (err) {
       toast.error(
@@ -502,72 +488,143 @@ export default function CharactersTab({
     }
   }
 
-  // Derive selected NPC
-  const selectedNpc = npcs.find((n) => n.id === selectedNpcId) ?? null;
+  // -- PC handlers --
+
+  async function handleAddPc() {
+    try {
+      const created = await api.createCharacter(campaign.id, {
+        name: t("newCharacter"),
+        race: "Human",
+        character_class: "Fighter",
+        level: 1,
+        hp_current: 10,
+        hp_max: 10,
+        armor_class: 10,
+        passive_perception: 10,
+        strength: 10,
+        dexterity: 10,
+        constitution: 10,
+        intelligence: 10,
+        wisdom: 10,
+        charisma: 10,
+        proficiency_bonus: 2,
+        speed: 30,
+        saving_throw_proficiencies: [],
+        skill_proficiencies: [],
+        spell_slots: {},
+        inventory: [],
+      });
+      setPcs((prev) => [...prev, created]);
+      setSelectedType("pc");
+      setSelectedId(created.id);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : t("createPcError")
+      );
+    }
+  }
+
+  async function handleDeletePc(id: string) {
+    try {
+      await api.deleteCharacter(id);
+      setPcs((prev) => prev.filter((p) => p.id !== id));
+      if (selectedType === "pc" && selectedId === id) {
+        setSelectedType(null);
+        setSelectedId(null);
+      }
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : t("deletePcError")
+      );
+    }
+  }
+
+  // Derive selected entities
+  const selectedNpc =
+    selectedType === "npc" ? (npcs.find((n) => n.id === selectedId) ?? null) : null;
+  const selectedPc =
+    selectedType === "pc" ? (pcs.find((p) => p.id === selectedId) ?? null) : null;
 
   return (
     <div className="flex gap-4 h-full">
-      {/* Main column: NPC master-detail (top) + PC section (bottom) */}
-      <div className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto">
-        {/* NPC master-detail */}
-        <div className="flex gap-4 min-h-[320px]">
-          {/* NPC list */}
-          <div className="w-[270px] flex-shrink-0 bg-card/60 border border-border rounded-xl p-3 flex flex-col">
-            {loading ? (
-              <p className="text-xs text-muted-foreground/60 text-center py-4">
-                {t("loading")}
-              </p>
-            ) : (
+      {/* Left panel: unified NPC + PC list */}
+      <div className="w-[270px] flex-shrink-0 bg-card/60 border border-border rounded-xl p-3 flex flex-col">
+        {loading ? (
+          <p className="text-xs text-muted-foreground/60 text-center py-4">{t("loading")}</p>
+        ) : (
+          <>
+            <div className="flex-1 min-h-0">
               <CharacterList
                 npcs={npcs}
+                pcs={pcs}
                 locations={locations}
-                selectedId={selectedNpcId}
-                onSelectNpc={(npc) => setSelectedNpcId(npc.id)}
+                selectedType={selectedType}
+                selectedId={selectedId}
+                onSelectNpc={(npc) => {
+                  setSelectedType("npc");
+                  setSelectedId(npc.id);
+                }}
+                onSelectPc={(pc) => {
+                  setSelectedType("pc");
+                  setSelectedId(pc.id);
+                }}
                 onAddNpc={handleAddNpc}
+                onAddPc={handleAddPc}
               />
-            )}
-          </div>
+            </div>
+            <button
+              onClick={() => setShowImport(true)}
+              className="mt-2 w-full text-xs text-indigo-200 bg-indigo-700/40 hover:bg-indigo-700/60 px-2 py-1.5 rounded-lg transition-colors"
+            >
+              {t("ddbImport")}
+            </button>
+          </>
+        )}
+      </div>
 
-          {/* NPC detail */}
-          <div className="flex-1 min-w-0 bg-card/60 border border-border rounded-xl p-5 overflow-y-auto">
-            {selectedNpc ? (
-              <NpcDetail
-                npc={selectedNpc}
-                locations={locations}
-                onSave={handleSaveNpc}
-                onDelete={handleDeleteNpc}
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
-                <svg
-                  className="w-10 h-10 text-muted-foreground/40"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                <p className="text-sm text-muted-foreground/60">
-                  {t("selectToEdit")}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Player characters — same editor as the campaign view */}
-        <div className="bg-card/60 border border-border rounded-xl p-5">
-          <CharacterSection
-            campaignId={campaign.id}
-            characters={pcs}
-            onUpdate={loadAll}
+      {/* Center panel: detail editor */}
+      <div className="flex-1 min-w-0 bg-card/60 border border-border rounded-xl p-5 overflow-y-auto">
+        {selectedNpc ? (
+          <NpcDetail
+            npc={selectedNpc}
+            locations={locations}
+            onSave={handleSaveNpc}
+            onDelete={handleDeleteNpc}
           />
-        </div>
+        ) : selectedPc ? (
+          <CharacterEditorForm
+            pc={selectedPc}
+            campaignId={campaign.id}
+            onSaved={loadAll}
+            onDelete={(pc) => handleDeletePc(pc.id)}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
+            <svg
+              className="w-10 h-10 text-muted-foreground/40"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            <div>
+              <p className="text-sm text-muted-foreground/60">
+                {t("selectToEdit")}
+              </p>
+              {!loading && npcs.length === 0 && pcs.length === 0 && (
+                <p className="text-xs text-muted-foreground/40 mt-1">
+                  {t("addToStart")}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Right panel: ideas */}
@@ -587,6 +644,14 @@ export default function CharactersTab({
           />
         </div>
       </div>
+
+      {showImport && (
+        <DDBImportModal
+          campaignId={campaign.id}
+          onImported={loadAll}
+          onClose={() => setShowImport(false)}
+        />
+      )}
     </div>
   );
 }
