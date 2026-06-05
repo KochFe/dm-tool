@@ -230,6 +230,16 @@ PERSONALITY_SCHEMA_HINT = (
 # Phase Expander prompts (Track 2 — multi-agent graph)
 # ---------------------------------------------------------------------------
 
+# Forces the generated *content* (names, titles, descriptions, notes) into the
+# target language. Without it, structured output drifts toward English because
+# the JSON schema field names/descriptions injected by with_structured_output
+# are English. Mirrored in de.py.
+_OUTPUT_LANGUAGE_INSTRUCTION = (
+    "Write ALL generated content — names, titles, descriptions, personality, "
+    "motivation, and consistency notes — in English. Only the JSON field keys "
+    "stay in English."
+)
+
 # Shared policy injected into every node. The "zero output is valid" clause is
 # critical to the additive, steer-driven design (see spec §2).
 _EXPANDER_POLICY = (
@@ -240,7 +250,8 @@ _EXPANDER_POLICY = (
     "- Returning an empty list is valid and expected when the steer does not "
     "request your entity type.\n"
     "- If an existing entity satisfies the steer, reuse it (set reuse_id) "
-    "instead of inventing a new one.\n"
+    "instead of inventing a new one.\n\n"
+    + _OUTPUT_LANGUAGE_INSTRUCTION
 )
 
 
@@ -352,6 +363,8 @@ CHECK_CONSISTENCY_PROMPT = (
     "to consistency_notes for each fix or warning.\n"
     "If everything is empty or already consistent, return the bundle "
     "unchanged with consistency_notes = [].\n\n"
+    + _OUTPUT_LANGUAGE_INSTRUCTION
+    + "\n\n"
     "## Current bundle\n"
     "{bundle_json}\n\n"
     'Return JSON matching the DraftPhaseBundle shape.'

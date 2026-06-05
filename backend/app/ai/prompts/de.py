@@ -14,6 +14,17 @@ _GERMAN_DND_TERM_INSTRUCTION = (
     "Monster-, Klassen- und Zaubernamen). Übersetze Regelterminologie nicht."
 )
 
+# Erzwingt die Sprache der *Inhalte* (Namen, Titel, Beschreibungen, Notizen).
+# Ohne diese Anweisung driftet Structured Output ins Englische, weil die von
+# with_structured_output injizierten JSON-Schema-Feldnamen englisch sind.
+# Spiegelt en.py._OUTPUT_LANGUAGE_INSTRUCTION.
+_OUTPUT_LANGUAGE_INSTRUCTION = (
+    "Schreibe ALLE generierten Inhalte — Namen, Titel, Beschreibungen, "
+    "Persönlichkeit, Motivation und Konsistenz-Notizen — auf Deutsch "
+    "(D&D-Regelbegriffe bleiben gemäß obiger Vorgabe Englisch). Nur die "
+    "JSON-Feldnamen bleiben Englisch."
+)
+
 
 LORE_ORACLE_SYSTEM_PROMPT = (
     "Du bist das Lore Oracle, ein uralter und gelehrter Weiser der Forgotten "
@@ -263,7 +274,8 @@ _EXPANDER_POLICY = (
     "- Eine leere Liste zurückzugeben ist gültig und erwartet, wenn der "
     "Steer deinen Entitätstyp nicht anfordert.\n"
     "- Wenn eine bestehende Entität den Steer erfüllt, verwende sie wieder "
-    "(setze reuse_id), statt eine neue zu erfinden.\n"
+    "(setze reuse_id), statt eine neue zu erfinden.\n\n"
+    + _OUTPUT_LANGUAGE_INSTRUCTION
 )
 
 
@@ -391,6 +403,8 @@ CHECK_CONSISTENCY_PROMPT = (
     "Wenn alles leer oder bereits konsistent ist, gib das Bundle "
     "unverändert zurück mit consistency_notes = [].\n\n"
     + _GERMAN_DND_TERM_INSTRUCTION
+    + "\n\n"
+    + _OUTPUT_LANGUAGE_INSTRUCTION
     + "\n\n"
     "## Aktuelles Bundle\n"
     "{bundle_json}\n\n"

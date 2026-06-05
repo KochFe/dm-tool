@@ -29,3 +29,22 @@ def test_german_prompts_instruct_english_dnd_terms():
         "German prompts must keep D&D rules vocabulary in English. "
         "See instruction text in de.py."
     )
+
+
+def test_expander_policy_forces_output_language():
+    """The expander policy (injected into 4 of 5 nodes) must explicitly pin the
+    output language, or structured output drifts to English regardless of the
+    German prose. EN says 'in English', DE says 'auf Deutsch'."""
+    from app.ai.prompts import build_expander_policy
+
+    assert "in English" in build_expander_policy(Language.EN)
+    assert "auf Deutsch" in build_expander_policy(Language.DE)
+
+
+def test_consistency_node_forces_output_language():
+    """The consistency node does NOT include the shared policy, so it needs the
+    output-language directive injected directly."""
+    de_consistency = get_prompt("CHECK_CONSISTENCY_PROMPT", Language.DE)
+    en_consistency = get_prompt("CHECK_CONSISTENCY_PROMPT", Language.EN)
+    assert "auf Deutsch" in de_consistency
+    assert "in English" in en_consistency
