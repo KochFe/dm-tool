@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { api, type ApplyPhaseBundleRequest, type DraftPhaseBundle } from "@/lib/api";
 
@@ -18,23 +19,24 @@ type Props = {
 // ── Generating progress ──────────────────────────────────────────────────────
 // The pipeline is multi-step. We simulate sequential progress labels to give
 // the user a sense of forward movement during the 6-15s wait.
-const GENERATION_STEPS = [
-  "Analyzing phase context…",
-  "Drafting phase description…",
-  "Proposing locations…",
-  "Creating NPCs…",
-  "Composing quests…",
-  "Checking consistency…",
-];
-
 function GeneratingView() {
+  const t = useTranslations("phaseExpander");
+  const steps = [
+    t("stepAnalyzing"),
+    t("stepDescription"),
+    t("stepLocations"),
+    t("stepNpcs"),
+    t("stepQuests"),
+    t("stepConsistency"),
+  ];
   const [stepIndex, setStepIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setStepIndex((i) => Math.min(i + 1, GENERATION_STEPS.length - 1));
+      setStepIndex((i) => Math.min(i + 1, steps.length - 1));
     }, 2200);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -44,7 +46,7 @@ function GeneratingView() {
         <div
           className="h-full rounded-full bg-purple-500/80"
           style={{
-            width: `${((stepIndex + 1) / GENERATION_STEPS.length) * 100}%`,
+            width: `${((stepIndex + 1) / steps.length) * 100}%`,
             transition: "width 0.6s ease",
           }}
         />
@@ -71,13 +73,13 @@ function GeneratingView() {
 
       {/* Cycling step label */}
       <div className="text-center" aria-live="polite" aria-atomic="true">
-        <p className="text-sm font-medium text-foreground">{GENERATION_STEPS[stepIndex]}</p>
-        <p className="text-xs text-muted-foreground mt-1">This may take 10–15 seconds</p>
+        <p className="text-sm font-medium text-foreground">{steps[stepIndex]}</p>
+        <p className="text-xs text-muted-foreground mt-1">{t("generatingHint")}</p>
       </div>
 
       {/* Step dots */}
       <div className="flex items-center gap-1.5">
-        {GENERATION_STEPS.map((_, i) => (
+        {steps.map((_, i) => (
           <span
             key={i}
             className={`w-1.5 h-1.5 rounded-full transition-colors duration-500 ${
@@ -140,6 +142,7 @@ function SectionHeader({
   onSelectAll: () => void;
   onDeselectAll: () => void;
 }) {
+  const t = useTranslations("phaseExpander");
   const allSelected = accepted === total;
   return (
     <div className="flex items-center justify-between mb-2">
@@ -149,7 +152,7 @@ function SectionHeader({
         </span>
         <span className="text-sm font-semibold text-foreground">{label}</span>
         <span className="text-xs text-muted-foreground tabular-nums">
-          {accepted}/{total} selected
+          {t("selected", { accepted, total })}
         </span>
       </div>
       <button
@@ -157,17 +160,17 @@ function SectionHeader({
         onClick={allSelected ? onDeselectAll : onSelectAll}
         className="text-xs text-muted-foreground hover:text-foreground transition-colors"
       >
-        {allSelected ? "Deselect all" : "Select all"}
+        {allSelected ? t("deselectAll") : t("selectAll")}
       </button>
     </div>
   );
 }
 
 // ── Empty state for a section ────────────────────────────────────────────────
-function EmptySectionNote({ label }: { label: string }) {
+function EmptySectionNote({ message }: { message: string }) {
   return (
     <p className="text-xs text-muted-foreground italic px-1 py-2">
-      No {label} were proposed for this phase.
+      {message}
     </p>
   );
 }
@@ -187,12 +190,13 @@ function CrossRefChip({ children }: { children: React.ReactNode }) {
 
 // ── Reuse badge ──────────────────────────────────────────────────────────────
 function ReuseBadge() {
+  const t = useTranslations("phaseExpander");
   return (
     <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
       <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
         <path d="M12 5v14M5 12l7-7 7 7" />
       </svg>
-      Existing
+      {t("existingBadge")}
     </span>
   );
 }
@@ -252,6 +256,7 @@ export function PhaseExpanderDrawer({
   phaseId,
   onApplied,
 }: Props) {
+  const t = useTranslations("phaseExpander");
   const [phase, setPhase] = useState<Phase>("steer");
   const [steer, setSteer] = useState("");
   const [bundle, setBundle] = useState<DraftPhaseBundle | null>(null);
@@ -311,7 +316,7 @@ export function PhaseExpanderDrawer({
       setAcceptQuests(res.draft_quests.map(() => true));
       setPhase("review");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Expansion failed");
+      setError(e instanceof Error ? e.message : t("expansionFailed"));
       setPhase("steer");
     }
   }
@@ -327,12 +332,12 @@ export function PhaseExpanderDrawer({
     };
     try {
       await api.ai.applyPhaseBundle(campaignId, phaseId, payload);
-      toast.success(`Applied ${acceptedCount} item${acceptedCount !== 1 ? "s" : ""} to phase`);
+      toast.success(t("appliedToast", { count: acceptedCount }));
       onApplied();
       reset();
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Apply failed");
+      setError(e instanceof Error ? e.message : t("applyFailed"));
       setPhase("review");
     }
   }
@@ -396,19 +401,19 @@ export function PhaseExpanderDrawer({
             </span>
             <div>
               <h2 id="expander-drawer-title" className="text-base font-semibold text-foreground">
-                AI Expand Phase
+                {t("title")}
               </h2>
               <p className="text-xs text-muted-foreground" aria-live="polite">
-                {phase === "steer" && "Describe what to add"}
-                {phase === "generating" && "Building your phase…"}
-                {phase === "review" && "Review and select items to apply"}
-                {phase === "applying" && "Applying your selections…"}
+                {phase === "steer" && t("subtitleSteer")}
+                {phase === "generating" && t("subtitleGenerating")}
+                {phase === "review" && t("subtitleReview")}
+                {phase === "applying" && t("subtitleApplying")}
               </p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            aria-label="Close drawer"
+            aria-label={t("closeAria")}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -423,13 +428,13 @@ export function PhaseExpanderDrawer({
           {phase === "steer" && (
             <div className="px-5 py-5 space-y-4">
               <p className="text-sm text-muted-foreground">
-                Tell the AI what to add to this phase — locations, NPCs, quests, or a new description. Be specific for better results.
+                {t("steerIntro")}
               </p>
               <textarea
                 ref={firstFocusRef}
                 autoFocus
                 className="w-full rounded-lg border border-border bg-muted text-foreground placeholder:text-muted-foreground px-3 py-2.5 text-sm min-h-[140px] resize-none focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring/40 transition-colors"
-                placeholder="e.g. 'Add a brewery district with 2 rival innkeepers and a quest about a missing shipment.'"
+                placeholder={t("steerPlaceholder")}
                 value={steer}
                 onChange={(e) => setSteer(e.target.value)}
                 onKeyDown={(e) => {
@@ -465,7 +470,7 @@ export function PhaseExpanderDrawer({
                         <polyline points="10 9 9 9 8 9" />
                       </svg>
                     }
-                    label="Description"
+                    label={t("sectionDescription")}
                     total={1}
                     accepted={acceptDesc ? 1 : 0}
                     accentClass="text-muted-foreground"
@@ -475,7 +480,7 @@ export function PhaseExpanderDrawer({
                   <ReviewItemCard
                     checked={acceptDesc}
                     onToggle={setAcceptDesc}
-                    title="Phase description"
+                    title={t("phaseDescriptionTitle")}
                     body={<span className="whitespace-pre-wrap">{bundle.phase_description}</span>}
                     checkboxId="desc-toggle"
                   />
@@ -491,7 +496,7 @@ export function PhaseExpanderDrawer({
                       <circle cx="12" cy="10" r="3" />
                     </svg>
                   }
-                  label="Locations"
+                  label={t("sectionLocations")}
                   total={bundle.draft_locations.length}
                   accepted={acceptLocs.filter(Boolean).length}
                   accentClass="text-emerald-400"
@@ -499,7 +504,7 @@ export function PhaseExpanderDrawer({
                   onDeselectAll={() => setAcceptLocs(bundle.draft_locations.map(() => false))}
                 />
                 {bundle.draft_locations.length === 0 ? (
-                  <EmptySectionNote label="locations" />
+                  <EmptySectionNote message={t("emptyLocations")} />
                 ) : (
                   <div className="space-y-2">
                     {bundle.draft_locations.map((loc, i) => (
@@ -530,7 +535,7 @@ export function PhaseExpanderDrawer({
                       <circle cx="12" cy="7" r="4" />
                     </svg>
                   }
-                  label="NPCs"
+                  label={t("sectionNpcs")}
                   total={bundle.draft_npcs.length}
                   accepted={acceptNpcs.filter(Boolean).length}
                   accentClass="text-blue-400"
@@ -538,7 +543,7 @@ export function PhaseExpanderDrawer({
                   onDeselectAll={() => setAcceptNpcs(bundle.draft_npcs.map(() => false))}
                 />
                 {bundle.draft_npcs.length === 0 ? (
-                  <EmptySectionNote label="NPCs" />
+                  <EmptySectionNote message={t("emptyNpcs")} />
                 ) : (
                   <div className="space-y-2">
                     {bundle.draft_npcs.map((npc, i) => (
@@ -555,15 +560,15 @@ export function PhaseExpanderDrawer({
                         subtitle={`— ${npc.role}`}
                         badges={
                           npc.location_index != null ? (
-                            <CrossRefChip>at location #{npc.location_index + 1}</CrossRefChip>
+                            <CrossRefChip>{t("atLocation", { index: npc.location_index + 1 })}</CrossRefChip>
                           ) : undefined
                         }
                         body={
                           <span>
-                            <span className="font-medium text-foreground/70">Personality:</span>{" "}
+                            <span className="font-medium text-foreground/70">{t("personalityLabel")}</span>{" "}
                             {npc.personality}
                             <br />
-                            <span className="font-medium text-foreground/70">Motivation:</span>{" "}
+                            <span className="font-medium text-foreground/70">{t("motivationLabel")}</span>{" "}
                             {npc.motivation}
                           </span>
                         }
@@ -582,7 +587,7 @@ export function PhaseExpanderDrawer({
                       <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                     </svg>
                   }
-                  label="Quests"
+                  label={t("sectionQuests")}
                   total={bundle.draft_quests.length}
                   accepted={acceptQuests.filter(Boolean).length}
                   accentClass="text-amber-400"
@@ -590,7 +595,7 @@ export function PhaseExpanderDrawer({
                   onDeselectAll={() => setAcceptQuests(bundle.draft_quests.map(() => false))}
                 />
                 {bundle.draft_quests.length === 0 ? (
-                  <EmptySectionNote label="quests" />
+                  <EmptySectionNote message={t("emptyQuests")} />
                 ) : (
                   <div className="space-y-2">
                     {bundle.draft_quests.map((q, i) => (
@@ -623,7 +628,7 @@ export function PhaseExpanderDrawer({
                       <line x1="12" y1="9" x2="12" y2="13" />
                       <line x1="12" y1="17" x2="12.01" y2="17" />
                     </svg>
-                    <span className="text-sm font-semibold text-amber-400">Consistency notes</span>
+                    <span className="text-sm font-semibold text-amber-400">{t("consistencyNotes")}</span>
                   </div>
                   <ul className="space-y-1">
                     {bundle.consistency_notes.map((n, i) => (
@@ -648,7 +653,7 @@ export function PhaseExpanderDrawer({
           {phase === "applying" && (
             <div className="flex-1 flex flex-col items-center justify-center gap-4 py-16">
               <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-              <p className="text-sm text-muted-foreground">Saving to campaign…</p>
+              <p className="text-sm text-muted-foreground">{t("savingToCampaign")}</p>
             </div>
           )}
         </div>
@@ -659,14 +664,15 @@ export function PhaseExpanderDrawer({
             <div className="flex items-center justify-between">
               <p className="text-xs text-muted-foreground">
                 <kbd className="px-1 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">Esc</kbd>
-                {" to cancel"}
+                {" "}
+                {t("escHint")}
               </p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleClose}
                   className="text-sm text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   disabled={steer.trim().length === 0}
@@ -676,7 +682,7 @@ export function PhaseExpanderDrawer({
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
                   </svg>
-                  Expand Phase
+                  {t("expand")}
                 </button>
               </div>
             </div>
@@ -685,15 +691,14 @@ export function PhaseExpanderDrawer({
           {phase === "review" && (
             <div className="flex items-center justify-between">
               <div className="text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">{acceptedCount}</span>
-                {" "}item{acceptedCount !== 1 ? "s" : ""} selected
+                {t("itemsSelected", { count: acceptedCount })}
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleClose}
                   className="text-sm text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-muted transition-colors"
                 >
-                  Discard
+                  {t("discard")}
                 </button>
                 <button
                   disabled={acceptedCount === 0}
@@ -703,7 +708,8 @@ export function PhaseExpanderDrawer({
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M20 6L9 17l-5-5" />
                   </svg>
-                  Apply {acceptedCount > 0 ? `${acceptedCount} item${acceptedCount !== 1 ? "s" : ""}` : ""}
+                  {t("apply")}
+                  {acceptedCount > 0 ? ` ${t("itemCount", { count: acceptedCount })}` : ""}
                 </button>
               </div>
             </div>
